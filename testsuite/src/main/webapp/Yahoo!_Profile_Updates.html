@@ -1,0 +1,1308 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html dir="ltr" lang="de-DE"><head>
+
+
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Updates</title>
+<link rel="stylesheet" type="text/css" href="Yahoo!_Profile_Updates_files/profilestatic.css">
+
+<style>
+
+</style>
+<script> 
+function logJSErrors(eo) {
+	var i;
+	for(i in eo) { eo[i] = encodeURIComponent(eo[i]); }
+	(new Image()).src = "/logjserrors.php?m="+eo.m+"&ln="+eo.l+"&url="+eo.u+"&browser="+eo.b;
+}
+window.onerror = function (msg, url, line) {
+    logJSErrors({ m:msg, l:line, u:url, b:window.navigator.userAgent});
+	return true;
+}
+</script>
+<link href="Yahoo!_Profile_Updates_files/invite_to_connect.css" rel="stylesheet" charset="utf-8" type="text/css" id="yui__dyn_0"><style type="text/css">
+        /* --- General Resets--- */
+
+.yui-overlay {
+    position: absolute;
+}
+
+#ycw-container * {
+    margin: 0;
+    padding: 0;
+    line-height: 1;
+}
+
+#ycw-container img {
+    border:none;
+}
+
+#ycw-container ul {
+    list-style: none;
+    overflow:hidden;
+}
+
+#ycw-container .ycw-implied,
+#ycw-container .rating {
+    position:absolute;
+    left:-9999px;
+    width:1px;
+    height:1px;
+    overflow:hidden;
+}
+
+#ycw-container .ycw-do-more  {
+    padding-left: 1em; 
+}
+
+/* --- Module Specific Styles --- */
+#ycw-container {
+    font: 12px/1 arial; /* default font size, line height and font style */
+    /* width: 300px;  width of the module */
+    background-color: #c6c6c6; /* chrome color */
+    padding: 0; /* chrome thickness */
+    text-align: left;
+    line-height: 1;
+}
+
+/* Formatting the heading of the module, e.g. Y! Updates */
+#ycw-container h3 {
+    font-weight: bold;
+    color: #ffffff;
+    text-transform: uppercase;
+    font-size: 16px;
+    line-height: 1;
+}
+
+/* Putting in the Y! bang in the heading */
+#ycw-container .hd {
+    position: relative;
+    background: url(http://l.yimg.com/a/i/us/soc/updts/sprite_yupdates_5.png) no-repeat center left;
+    background-position: 0 -53px;
+    padding: 1px 0 1px 32px;
+    margin-bottom: 6px;
+}
+
+/* "Manage My Updates" Link */
+#ycw-container .hd a {
+    position: absolute;
+    right: 0;
+    top: 0;
+    font-size: 11px;
+    color: #ffffff;
+    font-weight:normal;
+}
+
+/* tabs */
+#ycw-container #ycw-tabs {
+    border-bottom: 1px solid #c5c6c6;
+    /* margin-bottom: 9px; */
+    padding-top: 9px;
+    background: #fff;
+    *zoom: 1;
+}
+
+#ycw-container #ycw-tabs ul {
+    float:right;
+    font-family:Arial,sans-serif;
+    font-size:12px;
+    font-weight:bold;
+    margin:0 9px -1px 0;
+    _display: inline;
+}
+
+#ycw-container #ycw-tabs ul li {
+    border-color: #c5c6c6;
+    border-style:solid;
+    border-width:1px 1px 0;
+    float:left;
+    margin-left:3px;
+    _position: relative;
+}
+
+#ycw-container #ycw-tabs ul li a {
+    background-image: url(http://l.yimg.com/a/i/us/soc/updts/updates_genmod_sprite.png);
+    background-repeat: repeat-x;
+    background-position: 0 -49px;
+    border-bottom: 1px solid #c5c6c6;
+    line-height: 1;
+    display: block;
+    font-size: 100%;
+    font-weight: bold;
+    padding:7px 10px 8px;
+    text-align:center;
+    width:100px;
+    text-transform: none;
+    color: #16387c;
+}
+
+.js #ycw-event-list #ycw-tabs ul li a {
+    width: 108px;
+}
+
+#ycw-container #ycw-tabs ul li.active a {
+       background:#ffffff;
+    border-color:#fff;
+    color: #3e454f;
+}
+
+#ycw-container #ycw-tabs:after {
+    content:".";
+    display:block;
+    height:0;
+    clear:both;
+    visibility:hidden;
+}
+
+#ycw-container a {
+    outline: none;
+    position: static;
+    font-weight: normal;
+    text-decoration: none;
+    color: #333674; /* default link color */
+}
+
+#ycw-container a:hover {
+    text-decoration: underline; /* underline the links on hover */
+}
+
+#ycw-container .bd {
+    background: #ffffff;
+    clear: none;
+    margin: 0;
+}
+
+#ycw-container #ycw-event-list {
+    _zoom: 1;
+}
+
+/* Day separator */
+#ycw-container h4 {
+    font-size: 10px;
+    color: #7f7f7f;
+    font-weight: normal;
+    text-transform: lowercase;
+    margin: 0 0 7px 9px;
+}
+
+/* Promo Banners */
+#ycw-container .ycw-banner a {
+    font-weight: bold;
+}
+
+#ycw-container .ycw-banner p {
+    line-height: 17px;
+}
+
+/* Error */
+#ycw-container #ycw-error {
+    background: #fff url(http://l.yimg.com/a/i/us/soc/updts/updates_genmod_sprite.png) repeat-x 0 -110px;
+    font-size: 12px;
+    line-height: 16px;
+    color: #16387c;
+    padding: 50px 30px;
+}
+
+#ycw-container #ycw-error p {
+    text-align: center;
+    font-size: 15px;
+    color: #414141;
+    line-height: 18px;
+    background: url(http://l.yimg.com/a/i/us/soc/updts/sprite_yupdates_5.png) no-repeat center -1055px;
+    padding: 80px 0;
+    text-align: center;
+}
+
+
+/* Sign In */
+#ycw-container #ycw-sign-in-banner-large {
+    background: #fff url(http://l.yimg.com/a/i/us/soc/updts/updates_genmod_sprite.png) repeat-x 0 -110px;
+    _background-position: 0 -112px;
+     font-size: 12px;
+    line-height: 16px;
+    color: #16387c;
+    padding: 50px 30px;
+}
+
+#ycw-container #ycw-sign-in-banner-large div {
+    background: url(http://l.yimg.com/a/i/us/soc/updts/sprite_yupdates_5.png) no-repeat center -375px;
+    padding: 80px 0;
+    text-align: center;
+}
+
+#ycw-container #ycw-sign-in {
+    font-size: 14px;
+    display: block;
+    margin-bottom: 2px;
+}
+
+#ycw-container #ycw-sign-in-banner-small {
+    background: #fff url(http://l.yimg.com/a/i/us/soc/updts/updates_genmod_sprite.png) repeat-x 0 -31px;
+    _background-position: 0 -36px;
+    font-size: 12px;
+    line-height: 14px;
+    border-bottom: 1px solid #dedede;
+    margin-bottom: 9px;
+    /* padding-bottom: 5px; */
+    padding-left: 10px;
+    height: 62px;
+}
+
+#ycw-container #ycw-sign-in-banner-small #ycw-sign-in {
+    font-size: 12px;
+    display: inline;
+}
+
+#ycw-container #ycw-sign-in-banner-small div {
+    background: url(http://l.yimg.com/a/i/us/soc/updts/sprite_yupdates_5.png) no-repeat 0 -396px;
+    padding: 0 15px 0 60px;
+    color: #16387c;
+    line-height: 16px;
+    margin-top:8px;
+    height: 52px;
+} 
+
+/* Invite */
+#ycw-container #ycw-invite-banner-large {
+        background: #fff url(http://l.yimg.com/a/i/us/soc/updts/updates_genmod_sprite.png) repeat-x 0 -115px;
+        font-size: 12px;
+    line-height: 14px;
+    padding: 50px 30px;
+}
+
+#ycw-container #ycw-invite-banner-large p {
+    background: url(http://l.yimg.com/a/i/us/soc/updts/sprite_yupdates_5.png) no-repeat center -730px;
+    padding: 80px 0;
+    text-align: center;
+}
+
+#ycw-container #ycw-invite-banner-small {
+        background: #fff url(http://l.yimg.com/a/i/us/soc/updts/updates_genmod_sprite.png) repeat-x 0 -43px;
+        font-size: 12px;
+    line-height: 14px;
+    border-bottom: 1px solid #dedede;
+    margin-bottom: 9px;
+    padding-bottom: 5px;
+    padding-left: 10px;
+}
+
+#ycw-container #ycw-invite-to-connect {
+    display: block;
+}
+
+#ycw-container #ycw-invite-banner-small p {
+    background: url(http://l.yimg.com/a/i/us/soc/updts/sprite_yupdates_5.png) no-repeat 0 -750px;
+    height: 45px;
+    padding: 5px 15px 0 60px;
+    color: #16387c;
+    line-height: 16px;
+    margin-bottom: 0;
+    margin-top: 8px;
+}
+
+/* Vitality Event Styling */
+
+/* Event Headline Activity Text*/
+#ycw-container h5 {
+    color: #333;
+    font-weight: normal;
+    margin-right: 30px; /* to make space for action item menu icon in right upper corner */
+    /* making sure IE6 does not expand due to an
+    unbreakable string (content with no spaces) */
+    _word-wrap: break-word;
+}
+
+/* Event Headline Anchors */
+#ycw-container h5 a {
+    font-weight: bold;
+}
+
+#ycw-container .hentry {
+    color: #363636;
+    border-bottom: 1px solid #e8e8e8;
+    margin-left: 9px;
+    margin-right: 9px;
+    margin-bottom: 8px;
+    padding-left: 45px;
+    position: relative;
+    _zoom: 1;
+}
+
+/* Event Producer photo */
+#ycw-container h5 .author .photo {
+    position: absolute;
+    left: 0;
+    top: 2px;
+}
+
+/* Event Timestamp */
+#ycw-container .ycw-updated {
+    float: right;
+    font-size: 11px;
+    color: #7f7f7f;
+    margin-bottom: 7px;
+}
+
+#ycw-container .ycw-updated abbr {
+    border: none;
+}
+
+/* "View more &raquo;" Link */ 
+#ycw-container a.ft {
+    font-weight: normal;
+    font-size: 11px;
+    padding: 0 9px 10px 0;
+    background: #fff;
+    display: block;
+    text-align: right;
+    margin: 0;
+}
+
+/* ------------------------ */
+
+#ycw-container .ycw-content-wrapper {
+    overflow: hidden;
+    clear:none;
+    margin-bottom: 10px;
+    _zoom: 1;
+}
+
+#ycw-container .ycw-no-user-photo {
+    padding-left: 0;
+}
+
+#ycw-container .ycw-actions li,
+#ycw-container .ycw-prop-actions li {
+    display: inline;
+
+}
+
+#ycw-container .ycw-prop-actions li a {
+    font-size: 12px;
+    font-weight: normal;
+
+}
+
+#ycw-container .ycw-item-tn {
+    float: left;
+    margin-right: 10px;
+}
+
+#ycw-container .ycw-actions,
+#ycw-container .ycw-prop-info {
+    float: left;
+    margin: 0;
+}
+
+#ycw-container .ycw-item-footer {
+    position: relative;
+    overflow: hidden;
+    clear: both;
+    _zoom: 1;
+    /* padding-top: 12px; */
+}
+
+
+li.ycw-content-item {
+    float: left;
+}
+
+#ycw-container img.ycw-content-item {
+    width: 240px;
+}
+
+#ycw-container .entry-summary {
+    overflow: hidden;
+    margin-bottom: 0;
+    font-size: 12px;
+    line-height: 15px;
+    color:#363636;
+    padding: 0;
+    /* making sure that content without spaces
+    does not cause expansion issues in IE6 */
+    _word-wrap: break-word; 
+}
+
+#ycw-container h5 .ycw-user2 .photo {
+    top: 45px;
+}
+
+#ycw-container h5 .ycw-user3 .photo {
+    top: 85px;
+}
+
+#ycw-container .ycwPhoto .ycw-caption {
+    display: block;
+}
+
+#ycw-container .ycwPhoto .entry-summary li {
+    float: left;
+}
+
+#ycw-container .ycw-video-wrapper {
+    float: left;
+    position: relative;
+    overflow:hidden;
+    margin-right: 10px;
+}
+
+#ycw-container .ycw-video-wrapper a:hover{
+    text-decoration: none;
+}
+
+#ycw-container .ycw-video-wrapper .ycw-item-tn {
+    margin-right: 0;
+}
+
+#ycw-container .ycw-prop-info img {
+    float: left;
+    margin-right: 5px;
+}
+
+#ycw-container .ycw-prop-info a {
+    color: #16387c}
+
+#ycw-container .ycw-info-1 {
+    margin-bottom: 2px;
+    padding: 0;
+}
+
+#ycw-container .ycw-info-2 {
+    color: #7a7a7a;
+    padding: 0;
+}
+
+#ycw-container .ycw-rating-label {
+    font-size: 11px;
+    color: #7a7a7a;
+}
+
+#ycw-container .ycw-prop-actions li,
+#ycw-container .ycw-actions li {
+    background: url(img/dot-separator.gif) no-repeat left center;
+    padding: 0 10px;
+}
+
+#ycw-container .ycw-prop-actions li.first,
+#ycw-container .ycw-actions li.first {
+    padding: 0 3px 0 0;
+    background: none;
+}
+
+#ycw-container .ycw-rating {
+    margin-bottom:5px;
+    clear: none;
+}
+
+/* -- Report Abuse/Action Items -- */
+
+.js #ycw-event-list .hentry .ycw-report-abuse {
+    display:none;
+}
+
+#ycw-container #ycw-item-actions {
+    background: transparent;
+    border: none;
+}
+
+#ycw-container .ycw-no-display {
+    display: none; /* interferes with exact positioning of drop down menu*/
+}
+
+#ycw-container #ycw-button-icn {
+    background:#f8f8f8;
+    border-color:#efefef;
+    border-style:solid;
+    border-width:1px 1px 0;
+    float:right;
+    padding:3px;
+    position:relative;
+    top:1px;
+}
+
+#ycw-container #ycw-report-abuse-cta {
+    background:transparent url(http://l.yimg.com/us.yimg.com/i/nt/ic/ut/bsc/flag12_1.gif) no-repeat left center;
+    color:#000;
+    display:block;
+    font-weight:normal;
+    padding-left:20px;
+}
+
+#ycw-container #ycw-action-item-bar {
+    background:#f8f8f8 none repeat scroll 0;
+    border:1px solid #efefef;
+    clear:both;
+    padding:5px;
+    _zoom: 1;
+}
+
+#ycw-container #ycw-item-actions_c {
+    left:-9999px;
+    top:-9999px;
+}
+
+#ycw-container .ycw-report-abuse {
+    position:absolute;
+    right:0;
+    top:0;
+}
+
+#ycw-container .hentry button {
+    background:transparent;
+    border: none;
+    padding:0;
+    position:absolute;
+    right:0;
+    top:0;
+    visibility:hidden;
+}
+
+#ycw-container .hover button {
+    visibility:visible;
+}
+
+#ycw-container h5 a.entry-title,
+#ycw-container h5 .entry-title a,
+#ycw-container .ycw-quote {
+    font-weight: normal;
+}
+
+/* --- Long Form Specifics --- */
+
+.ycw-wide  #ycw-event-list h5 {
+    font-size: 14px;
+    margin-bottom: 7px;
+    line-height: 17px;
+}
+
+.ycw-wide h5 a {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.ycw-wide .ycw-info-1 {
+    font-size: 12px;
+}
+
+.ycw-wide .ycw-info-2 {
+    font-size: 12px;
+}
+
+.ycw-wide .hentry {
+    font-size: 13px;
+    line-height: 16px;
+    margin-bottom:8px;
+}
+
+.ycw-wide .ycwContentEval li.ycw-content-item
+, .ycw-wide .ycwGeneric li.ycw-content-item {
+    margin-right: 0;
+    padding-right: 15px;
+    /* width: 200px; */
+    width: 30%;
+}
+
+.ycw-wide .ycwContentEval .ycw-content-wrapper .ycw-info-2 {
+    font-size: 11px;
+    margin-bottom: 5px;
+}
+
+.ycw-wide .ycwContentEval li.ycw-content-item .ycw-prop-actions li {
+    display: block;
+}
+
+.ycw-wide .ycw-prop-info {
+    margin-right: 20px;
+}
+
+.ycw-wide .ycw-img-landscape {
+    width: 240px;
+}
+
+.ycw-wide .ycw-img-portrait {
+    width: 200px;
+}
+
+.ycw-wide .ycwPhoto .entry-summary li {
+    margin-right: 10px;
+}
+
+.ycw-wide .ycwPhoto .entry-summary li.last {
+    margin-right: 0;
+}
+
+.ycw-wide .ycwPhoto .entry-summary .ycw-img-landscape {
+    width: 150px;
+}
+
+.ycw-wide .ycwPhoto .entry-summary .ycw-img-portrait {
+    width: 130px;
+}
+
+.ycw-wide .ycwVideo .ycw-video-cue {
+    background: url(http://l.yimg.com/a/i/us/soc/updts/btn_play_w_txt_24.png) no-repeat;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 25px;
+    width:300px;
+    color: #fff;
+    font-weight: bold;
+    padding-left: 33px;
+    line-height:23px;
+    font-family: verdana, sans-serif;
+    font-size: 12px;
+    _background:none;
+    _filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='http://l.yimg.com/a/i/us/soc/updts/btn_play_w_txt_24.png', sizingMethod='crop');
+}
+
+.ycw-wide .ycwContentEval li.ycw-content-item .ycw-prop-actions li {
+    background: none;
+    padding: 0;
+}
+
+.ycw-wide h5 a.entry-title,
+.ycw-wide h5 .entry-title a,
+.ycw-wide .ycw-quote {
+    font-size: 16px;
+}
+
+.ycw-wide .ycw-item-footer a {
+    font-size: 12px;
+}
+
+
+/* --- Short Form Specifics --- */
+
+.ycw-narrow .hentry {
+    font-size: 12px;
+    margin-bottom: 8px;
+    line-height: 14px;
+}
+
+.ycw-narrow  h5 {
+    font-size: 13px;
+    margin-bottom: 7px;
+    line-height: 15px;
+}
+
+.ycw-narrow h5 a {
+    font-size: 13px;;
+    font-weight: bold;
+}
+
+.ycw-narrow .ycw-prop-info {
+    margin-right: 10px;
+}
+
+.ycw-narrow .ycwContentEval li.ycw-content-item {
+    display: block;
+    *zoom: 1;
+    overflow: hidden;
+    margin-bottom: 10px;
+    float: none;
+}
+
+.ycw-narrow .ycw-img-landscape {
+    width: 200px;
+}
+
+.ycw-narrow .ycw-img-portrait {
+    width: 140px;
+}
+
+.ycw-narrow .ycwPhoto .entry-summary .ycw-img-landscape {
+    width: 70px;
+}
+
+.ycw-narrow .ycwPhoto .entry-summary .ycw-img-portrait {
+    width: 60px;
+}
+
+.ycw-narrow .ycwPhoto .entry-summary li {
+    margin-right: 5px;
+}
+
+.ycw-narrow .ycwPhoto .entry-summary li.last {
+    margin-right: 0;
+}
+
+.ycw-narrow .ycw-info-2 {
+    font-size: 12px;
+}
+
+.ycw-narrow .ycw-caption {
+    font-size: 11px;
+}
+
+.ycw-narrow .ycw-item-footer {
+    font-size: 11px;
+}
+
+.ycw-narrow a.entry-title,
+.ycw-narrow .entry-title a,
+.ycw-narrow .ycw-quote {
+    font-size: 14px;
+    font-weight: normal;
+}
+
+.ycw-video-wrapper .ycw-video-play-icn {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+.ycw-narrow .ycw-video-wrapper .ycw-item-tn {
+    margin-right: 0;
+}
+
+.ycw-narrow h5 a.entry-title,
+.ycw-narrow h5 .entry-title a,
+.ycw-narrow .ycw-quote {
+    font-size: 14px;
+}
+
+.ycw-narrow .ycw-item-footer a {
+    font-size: 11px;
+}
+
+    </style></head><body class="js"><iframe style="border-width: 0pt; position: absolute; visibility: visible; width: 2em; height: 2em; top: -27px; left: 0pt;" title="Text Resize Monitor" id="_yuiResizeMonitor"></iframe>
+<script type="text/javascript">(document.body.className!=="") ? document.body.className += " js" : document.body.className ="js"</script>
+<div id="doc" class="v2updates">
+<div id="hd" class="lyt-head">
+	
+<!-- navComponent //-->
+<div id="y-masthead">
+    	 <!-- SpaceID=150062170 loc=HEAD noad -->
+<script language="javascript">
+if(window.yzq_d==null)window.yzq_d=new Object();
+window.yzq_d['CVL9PFf4eEU-']='&U=12c7f5ldc%2fN%3dCVL9PFf4eEU-%2fC%3d-1%2fD%3dHEAD%2fB%3d-1%2fV%3d0';
+</script><noscript><img width=1 height=1 alt=""
+src="http://row.bc.yahoo.com/b?P=RaZBe03uoP76t8HCSa1c6wV51T1FekqWr00ADRG.&T=142parjgj%2fX%3d1251389261%2fE%3d150062170%2fR%3ddeprofile%2fK%3d5%2fV%3d2.1%2fW%3dHR%2fY%3dDE%2fF%3d2201711432%2fQ%3d-1%2fS%3d1%2fJ%3dA8A0EE4D&U=12c7f5ldc%2fN%3dCVL9PFf4eEU-%2fC%3d-1%2fD%3dHEAD%2fB%3d-1%2fV%3d0"></noscript>
+	<div id="ygma" class="mod">
+	<div class="bd sprite_bg">
+	  <div id="ygmatop" class="sprite_bg">
+		<h2 class="offscrn">Yahoo! Services</h2>
+		<div id="ygmatopleft">
+		  <ul id="ygmanav">
+			<li class="sprite_bg delim"><a href="http://de.yahoo.com/" target="_top">Yahoo!</a></li> <li class="sprite_bg delim"><a href="http://de.my.yahoo.com/" target="_top">Mein Yahoo!</a></li>
+			<li class="delim"><a href="http://de.mail.yahoo.com/" target="_top">Mail</a></li>
+		  </ul>
+		</div>
+		<div id="ygmauserinfo">
+	<h2 class="offscrn">Account-Optionen</h2>
+	<span class="txtbold sprite_bg delim">Hallo,&nbsp;
+	<a id="ygmausername" href="http://profiles.yahoo.com/" target="_top">
+	michael_tamm...
+	</a>
+	</span>
+	<a class="sprite_bg delim" href="http://login.yahoo.com/config/login?logout=1&amp;.src=prf&amp;.intl=de" target="_top">Abmelden</a>
+	
+		<a id="ygmahelp" href="http://help.yahoo.com/l/de/yahoo/profiles/" target="_top" title="Yahoo! Hilfe Center">Hilfe</a>
+		</div>
+		</div></div></div>
+		<div id="ygma" class="mod">
+		  <div class="bd sprite_bg">
+			<div id="ygmabot" class="sprite_bg"> <a id="ygmalogo" href="http://de.yahoo.com/" target="_top"> 
+			<img src="Yahoo!_Profile_Updates_files/yde4.gif" alt="Yahoo!" width="141" height="36"></a>
+			  <h2 class="offscrn">Yahoo! Suche</h2>
+			  <div class="srch sprite_bg">
+				<form name="ygmasrchfrm" id="ygmasrchfrm" action="http://de.search.yahoo.com/search" method="GET" target="_blank">
+				  <div class="fieldset">
+					<label for="ygmasrchquery" class="sprite_bg">Suche</label>
+					<input id="ygmasrchquery" name="p" maxlength="100" title="Websuche" type="text">
+					<span class="btn sprite_bg"><span class="first-child">
+					<button name="ygmasrchbtn" id="ygmasrchbtn" value="web search" type="submit">Websuche</button>
+					</span></span>
+					<input id="fr" name="fr" value="ush-memdir" type="hidden">
+				  </div>
+				</form>
+			  </div>
+			</div>
+		  </div>
+		  </div>
+    <!-- SpaceID=150062170 loc=N noad -->
+<script language="javascript">
+if(window.yzq_d==null)window.yzq_d=new Object();
+window.yzq_d['EFL9PFf4eEU-']='&U=129t1e7c7%2fN%3dEFL9PFf4eEU-%2fC%3d-1%2fD%3dN%2fB%3d-1%2fV%3d0';
+</script><noscript><img width=1 height=1 alt=""
+src="http://row.bc.yahoo.com/b?P=RaZBe03uoP76t8HCSa1c6wV51T1FekqWr00ADRG.&T=142mkdoi9%2fX%3d1251389261%2fE%3d150062170%2fR%3ddeprofile%2fK%3d5%2fV%3d2.1%2fW%3dHR%2fY%3dDE%2fF%3d4056969621%2fQ%3d-1%2fS%3d1%2fJ%3dA8A0EE4D&U=129t1e7c7%2fN%3dEFL9PFf4eEU-%2fC%3d-1%2fD%3dN%2fB%3d-1%2fV%3d0"></noscript>
+    <div id="profiles-header">
+      <ul id="property-links">
+        <li class="suppress"><a href="http://profiles.yahoo.com/u/CXXS7EJQ6IFTZIPGWWL7DNOGYI" target="_top">Mein Profil</a></li>
+        <li class="here"><a href="http://profiles.yahoo.com/updates/" target="_top">Updates</a></li>
+        <li class="suppress"><a href="http://profiles.yahoo.com/contacts/" target="_top">Kontakte</a></li>
+      </ul>
+      <ul id="settings-links">
+        <li class="settings-link "><a href="http://profiles.yahoo.com/settings/" target="_top">Einstellungen</a></li>
+        <li class="account-info-link "><a href="https://edit.yahoo.com/config/eval_profile?.done=http%3A%2F%2Fprofiles.yahoo.com%2Fupdates%2F&amp;.src=prf&amp;.intl=de" target="_top">Account-Info</a></li>
+      </ul>
+</div>
+<noscript> <div class="highlight-interaction noscript-message">Manche
+Funktionen funktionieren eventuell nicht korrekt, weil Ihr Browser
+keine JavaScript-Ausführung zulässt. Bitte aktivieren Sie JavaScript.
+<a
+href="http://help.yahoo.com/l/de/yahoo/messenger/web/web1/account/account-08.html"
+target="_blank">Weitere Info</a></div>
+</noscript>
+</div>
+<!-- end navComponent //-->
+
+</div>
+  
+<!-- u13checkComponent //-->
+
+<!-- end u13checkComponent //-->
+
+<div id="bd" class="lyt-body lyt-AAbb">
+	<!-- left column -->
+	<div id="primary" class="col-AA">
+		
+<!-- updatesusercardComponent //-->
+<div id="ypf-updatesusercard" class="mod ">	
+<div class="mod-content">
+   <div id="updates-status-container">
+	    <!-- STRING -->
+      <div class="updates-link-container"><a href="http://profiles.yahoo.com/updates/" id="updates-status-text" class="updates-status-text updates-link-selected ">Status</a><span class="dot"></span><a href="http://profiles.yahoo.com/updates/?blog=on" id="updates-blog-text" class="updates-blog-text ">Blog</a></div>
+      <div id="updates-image" class="square-photo">
+         <img src="Yahoo!_Profile_Updates_files/t192.jpeg" width="64" height="64">
+      </div>
+      <div id="updates-status-box" class="">
+	 <form class="inline-edit" id="status-form" method="POST" action="/ws/usercard">
+         <div style="position: relative;" id="updates-status-textarea">
+            <span class="left-arrow"></span>
+            <input name="crumb" value="NhcR7FExsFo" type="hidden">
+            <input name="page" value="updates/" type="hidden">
+            <input name="async" id="updateStatusAsync" value="true" type="hidden">
+            <label style="left: 8px; top: 6.99954px;" for="status-input" id="status-input-label">Was machen Sie gerade?</label>
+            <!--span id="status-o-matic" class="status-o-matic"></span-->
+            <textarea class="status-input" rows="1" cols="65" name="status" id="status-input"></textarea>
+            <span id="status_visible_msg" class="footnote">
+               Für Ihre Verbindungen sichtbar
+	    </span>
+            <span id="status_char_left" class="footnote">
+                <span id="status-limit">140</span> verbleibende Zeichen.
+	    </span>
+	 </div>
+	 <div id="status-buttons">
+            <span class="yui-button yui-push-button">
+               <span class="first-child">
+                  <button id="updates-status" name="updates-status" type="submit">Veröffentlichen</button>
+               </span>
+            </span>
+	 </div>
+	 </form>
+	    <form style="visibility: hidden;" class="inline-edit" id="clearStatus" method="POST" action="/ws/usercard">
+	    <div id="current-status">
+	      <strong></strong><span class="quote-text" title="" id="mystatus"></span><strong></strong>
+                 <input name="crumb" value="NhcR7FExsFo" type="hidden">
+                 <input name="status" value="" type="hidden">
+                 <input name="async" id="clearStatusAsync" value="true" type="hidden">
+	 	 <span id="update-timestamp" class="timestamp"></span><input class="anchortype" value="Löschen" type="submit">
+            </div>
+	    </form>
+      </div>
+      <div id="updates-blog" class="">
+         <span class="left-arrow"></span>
+         <div style="display: none;" id="blog-title-header">Title</div>
+         <form method="post" id="blog-form" action="/ws/blog?action=postblog">
+         <input style="display: none;" class="editable" name="blogTitle" id="blog-title-input" value="Eintrag vom 27.August 2009" maxlength="255" type="text">
+         <input name="crumb" value="NhcR7FExsFo" type="hidden">
+         <input name="async" id="postBlogAsync" value="true" type="hidden">
+         <textarea class="editor-hidden" id="editor" name="blogBody"></textarea>
+	 <div class="entry-content editable" id="blog-body"></div>
+	 <div id="blog-buttons" class="button-wrapper">
+            <span id="blog-submit" class="yui-button yui-push-button">
+               <span class="first-child">
+                  <button id="save-bn" type="submit" class="button">Veröffentlichen</button>
+               </span>
+            </span>    
+         </div>
+            <div id="blog-perm-msg">Ihr Blog ist gegenwärtig für Ihre Verbindungen sichtbar. Ändern Sie Ihre <a href="http://profiles.yahoo.com/settings/">Datenschutzeinstellungen</a>.</div>
+         </form>
+      </div>
+      <div id="myblogtitle"></div>
+   </div>
+</div>
+</div>
+<!-- end updatesusercardComponent //-->
+
+
+<!-- updatesComponent //-->
+<div id="ypf-updates" class="mod ">	
+<div class="mod-content">
+<div id="updates-nav-container"> 
+   <div id="pagelabel">
+      Updates
+   </div>
+   <div id="links">
+      <span> 
+         <a href="http://profiles.yahoo.com/settings/updates/">Meine Updates verwalten</a>
+      </span>
+      <span class="dot"> 
+         <a href="http://profiles.yahoo.com/share_more/">Mehr Updates</a>
+      </span>
+   </div>
+</div>
+                <div id="ycw-container" class="mod hfeed ycw-wide js">
+<script type="text/javascript">(document.getElementById("ycw-container").className!=="") ? document.getElementById("ycw-container").className += " js" : document.getElementById("ycw-container").className ="js"</script>
+        <div id="ycw-event-list" class="bd">
+                               
+                                                                </div>
+        <div style="visibility: visible; width: 150px; z-index: 2;" id="ycw-item-actions" class="ycw-no-display yui-module yui-overlay">
+        <div id="ycw-button-icn"><img src="Yahoo!_Profile_Updates_files/btn_menu.png" alt=""></div>
+        <div id="ycw-action-item-bar">
+            <!-- just report abuse for now //-->
+            <a id="ycw-report-abuse-cta" href="#" target="_top">Missbrauch melden</a>
+        </div>
+    </div>
+    <!-- <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/container/assets/container.css"> //-->
+        
+        </div>
+            
+        
+
+<script type="text/javascript" src="Yahoo!_Profile_Updates_files/ycw_003.js"></script>
+<script type="text/javascript" src="Yahoo!_Profile_Updates_files/ycw_002.js"></script>
+<script type="text/javascript" src="Yahoo!_Profile_Updates_files/ycw.js"></script>
+<script type="text/javascript">
+
+YCW.util.Event.onDOMReady(function () {
+
+	var vitalityOptions = {
+		type:        "curl",
+        container:   "ypf-updates",
+		baseUrl:     "http://wapi.updates.yossocial.yahoo.com:4080/updates/V1/user/CXXS7EJQ6IFTZIPGWWL7DNOGYI/updates",
+		".crumb":    "WzFGxlNno3t"
+	};
+
+	YCW.Profiles.Widgets.vitality.parentPage.init(vitalityOptions);
+});
+
+</script>
+
+</div>
+</div>
+<!-- end updatesComponent //-->
+
+		<div id="dragLeft">
+			
+		</div>
+	</div>
+   <!-- right column -->
+	<div id="secondary" class="col-bb">
+		
+<!-- invitesComponent //-->
+
+<!-- end invitesComponent //-->
+
+
+<!-- connectionsComponent //-->
+<div id="ypf-connections" class="mod ">	
+<div class="mod-content">
+		   <div class="hd">
+			   <h3>Verbindungen</h3>
+			   
+			</div>
+			<div class="bd">
+                  
+			    <ul class="party ypf-usercards" id="contacts-list">
+		                <li class="no-connections">Sie haben keine Verbindungen. Finden Sie Freunde oder laden Sie Andere ein.</li>
+	            </ul>
+	      </div>
+			<div class="ft">
+                
+                    
+			</div>
+</div>
+</div>
+<!-- end connectionsComponent //-->
+
+
+<!-- suggestionsComponent //-->
+
+<!-- end suggestionsComponent //-->
+
+
+<!-- connectComponent //-->
+<div id="ypf-connect" class="mod ">	
+<div class="mod-content">
+<div class="bd">
+  <ul class="activator-default clearfix">
+    <li><img src="Yahoo!_Profile_Updates_files/32_connect.gif" alt="" width="32" height="32"></li>
+    <li>  
+	  <a href="" id="activator-invite-people-link" class="invite-people-link">Freude und Verwandte einladen</a>
+      <a href="http://help.yahoo.com/l/de/yahoo/profiles/connections/18.html">Warum soll ich eine Verbindung herstellen?</a>
+	</li>
+  </ul>	  
+</div>
+</div>
+</div>
+<!-- end connectComponent //-->
+
+
+<!-- peoplesearchComponent //-->
+<div id="ypf-peoplesearch" class="mod ">	
+<div class="mod-content">
+<div id="ypf-search-form" class="mod">
+<div class="mod-content">
+	<div class="bd">
+        <div class="title">Leute suchen</div>
+		<form method="get" action="http://profiles.yahoo.com/people-search/" id="peopleSearch">
+		<div style="position: relative;" id="people-search-elements" class="search-input">
+		    <label style="left: 0px; top: 2px;" for="q" id="enter-search-label">Namen oder Mail-Adresse eingeben</label>
+		    <input id="q" name="q" size="" type="text">
+		</div>
+		<span class="yui-button yui-push-button"> 
+			<span class="first-child">
+				<button id="people_search" type="button">Suche</button>
+			</span>
+		</span>
+		</form>
+            
+	</div>
+</div>
+</div>
+</div>
+</div>
+<!-- end peoplesearchComponent //-->
+
+		<div id="dragRight">
+			
+		</div>
+   </div>
+</div>
+
+<div id="ft" class="lyt-foot">
+    
+<!-- footerComponent //-->
+<div id="ypf-mastfoot">
+    <div class="marketing">
+        <div class="bd">
+    	    <ul id="global-footer-actions">
+                <li class="first"><a href="http://www.yprofileblog.com/" target="_top">Profile-Blog</a></li>
+                <li><a href="http://help.yahoo.com/l/de/yahoo/profiles/" target="_top">Hilfe</a></li>
+                
+    		</ul>
+                
+	    </div>
+    </div>
+    <div class="legal">
+	    <div>
+	    	<p>Copyright © 2009 <a href="http://de.yahoo.com/" target="_top">Yahoo!</a> Alle Rechte vorbehalten. | <a href="http://de.docs.yahoo.com/copyright.html" target="_top">Copyright/IP-Bestimmungen</a> | <a href="http://de.docs.yahoo.com/info/utos.html" target="_top">AGB</a> | <a href="http://de.docs.yahoo.com/help/help_community.html" target="_new">Community-Richtlinien</a><br>HINWEIS:
+Auf dieser Site erfassen wir persönliche Daten. Weitere Informationen
+dazu, wie wir Ihre Daten nutzen, entnehmen Sie bitte unseren <a href="http://privacy.yahoo.com/privacy/de/index.html" target="_top">Hinweisen zum Datenschutz</a></p>
+    	</div>
+	</div>
+</div>
+   <script type="text/javascript">
+      //   try{rt_LogTime('t1');}catch(e){}
+   </script>
+<!-- end footerComponent //-->
+
+</div>
+</div>
+<script>if(typeof YAHOO=="undefined"||!YAHOO){var YAHOO={};}</script>
+<script type="text/javascript">
+var getString = function () {
+    var strings = {"module_save":"Speichern ...","malky_failed":"Element wurde nicht initialisiert:","addcontact_connect":"Sie sind verbunden mit $name","bubble_close":"schlie\u00dfen","bubble_close_this":"Blase schlie\u00dfen","bubble_change":"Dies ist Ihre \u00c4nderung","color_click":"Klicken Sie auf die Farbprobe, um die Farbe zu w\u00e4hlen","contact_list_error":"Es ist ein Fehler beim Abrufen Ihrer Kontakte aufgetreten. Bitte versuchen Sie es sp\u00e4ter erneut.","select_options":"Beliebige dieser Optionen w\u00e4hlen","textarea_length_alert":"Sie haben zu viele Zeichen eingegeben.","editInt_one_char_count":"Sie haben <span>1<\/span> verbleibendes Zeichen.","editInt_zero_char_count":"Sie haben <span>0<\/span> verbleibende Zeichen.","editInt_char_count":"Sie haben <span>500<\/span> verbleibende Zeichen.","coreid_one_char_count":"<span id=\"status-limit\">1<\/span> verbleibendes Zeichen.","coreid_zero_char_count":"<span id=\"status-limit\">0<\/span> verbleibende Zeichen.","coreid_char_count":"<span id=\"status-limit\">140<\/span> verbleibende Zeichen.","guestbook_one_char_count":"Sie haben <span>1<\/span> verbleibendes Zeichen.","guestbook_zero_char_count":"Sie haben <span>0<\/span> verbleibende Zeichen.","guestbook_char_count":"Sie haben <span>$num<\/span> verbleibende Zeichen","blog_one_char_count":"<span>1<\/span> Zeichen \u00fcbrig. Bitte keinen HTML-Code eingeben!","blog_zero_char_count":"<span>0<\/span> Zeichen \u00fcbrig. Bitte keinen HTML-Code eingeben!","blog_char_count":"<span>4000<\/span> Zeichen \u00fcbrig. Bitte keinen HTML-Code eingeben!","vitalitysettings_btn_cancel":"Abbrechen","vitalitysettings_ysources_hide":"Alle Yahoo! Quellen ausblenden","vitalitysettings_ysources_show":"Alle Yahoo! Quellen anzeigen","vitalitysettings_ysources_hide_mini":"Ausblenden","vitalitysettings_disclosure_header":"\u00d6ffentlichkeitseinstellungen","error_errorid":"Leider ist ein unerwarteter Fehler aufgetreten. Bitte versuchen Sie es erneut.","vitaNotBroadcasting":"Sie \u00fcbertragen derzeit keine Updates. Aktivieren Sie die Update-Funktion erneut, um Ihre Freunde auf dem Laufenden zu halten.","activator_invite_sent":"Einladung gesendet","aggregator_ok":"OK","aggregator_cancel":"Abbrechen","aggregator_confirm_remove_header":"Sind Sie sicher, dass Sie die \u00dcbertragung von dieser Site beenden m\u00f6chten?","aggregator_confirm_body1":"Wenn Sie die \u00dcbertragung beenden, erhalten Ihre Bekannten keine Neuigkeiten mehr von Ihnen.","aggregator_confirm_body2":"Wenn Sie sicher sind, klicken Sie auf \u201eOK\u201c.","aggregator_checking_note":"Pr\u00fcfen","aggregator_adding_note":"Hinzuf\u00fcgen","aggregator_findurl_tip_blogger":"Bitte geben Sie die URL f\u00fcr Ihr Blog an","aggregator_findurl_tip_goodreads":"Bitte geben Sie die URL Ihres Goodreads-Profils an, z.\u00a0B.: e.g. http:\/\/www.goodreads.com\/user\/show\/1234. Gehen Sie dazu auf http:\/\/goodreads.com und klicken Sie \"My Profile\" an. Kopieren Sie die URL dann in dieses Textfeld.","aggregator_findurl_tip_yelp":"Bitte geben Sie die URL Ihres Yelp-Profils an, z.\u00a0B.: http:\/\/www.yelp.com\/user_details?userid=1234. Gehen Sie dazu auf http:\/\/www.yelp.com und klicken Sie \"About Me\". Kopieren Sie die URL der Seite und f\u00fcgen Sie sie in die Text-Box hier ein.","aggregator_findurl_tip_vimeo":"Melden Sie sich bei http:\/\/www.vimeo.com an. Klicken Sie \"Me\" im oberen Men\u00fc an und gehen Sie zu \"My Profile.\" Kopieren Sie dann die URL dieser Seite hierher.","aggregator_findurl_tip_vox":"Geben Sie den Nutzernamen an, der in Ihrer Vox Blog URL scheint - z.B.: http:\/\/username.vox.com","aggregator_findurl_tip_zooomr":"Geben Sie Ihren Zoomr Nutzernamen in die Textbox ein. Danach melden Sie sich bei http:\/\/www.zooomr.com an und klicken \"You\" im oberen Men\u00fc. Scrollen Sie zur Ende der Seite und klicken Sie \"Feed.\" Dies ist Ihr RSS-Feed. Kopieren Sie diese URL und f\u00fcgen Sie sie in das URL-Feld hier ein.","aggregator_findurl_tip_movabletype":"Bitte geben Sie die URL Ihres Blogs an","aggregator_findurl_tip_netflix":"Bitte geben Sie Ihre Netflix Queue URL hier ein (z.B.: http:\/\/rss.netflix.com\/QueueRSS?id=1234). Sie finden diese auf der  <a href=\"{$netflixQueueRSSLink}\">Netflix Queue RSS Seite<\/a>.","aggregator_findurl_tip_google":"Geben Sie bitte Ihre Google Notebook Web URL an. W\u00e4hlen Sie die \"Share\"-Option. Kopieren SIe die URL f\u00fcr \"Adresse der Webseite\" hierher:","aggregator_findurl_tip_typepad":"Bitte geben Sie die URL Ihres Blogs an","jsnux_name_required":"Erforderlich","jsnux_birthday_required":"Geben Sie ein g\u00fcltiges Geburtsdatum ein.","jsnux_fullname_tip":"Erforderlich. Nur f\u00fcr Ihre Verbindung sichtbar.","jsnux_nickname_tip":"Erforderlich. Ihre \u00f6ffentliche Identit\u00e4t auf Yahoo!","jsnux_birthday_tip":"F\u00fcr Ihre Verbindungen sichtbar. Wird verwendet, um andere an Ihren Geburtstag zu erinnern.","usercard_what_ru_doing_now":"Was machen Sie gerade?","updates_bday_comment_default":"Kommentar hinterlassen","edit_firstname_error":"Geben Sie Ihren Vornamen ein.","edit_lastname_error":"Geben Sie Ihren Nachnamen ein.","edit_nickname_error":"Geben Sie Ihren Anzeigenamen ein.","edit_bday_error":"Geben Sie ein g\u00fcltiges Geburtsdatum ein."};
+
+    return function(token, args) {
+        var str = strings[token];
+        if (!args) return str;
+        for (key in args) {
+            if (args.hasOwnProperty(key)) {
+                str = str.replace(new RegExp('returnreturnreturnreturn$' + key + 'returnreturnreturnreturnb'), args[key]);
+            }
+        }
+        return str;
+    };
+}();
+</script><script type="text/javascript" src="Yahoo!_Profile_Updates_files/profilestatic.js"></script>
+
+<script type="text/javascript">
+YAHOO.profiles.Context = {"owner":"CXXS7EJQ6IFTZIPGWWL7DNOGYI","viewer":"CXXS7EJQ6IFTZIPGWWL7DNOGYI","server":"profiles.yahoo.com","property":"profiles"};
+
+
+
+try {
+   YAHOO.profiles.updatestatus.init();
+} catch(e) { }
+
+function statusTimeMsg() {
+   return 'sagte vor einem Augenblick';
+}
+
+/** common YUI Editor content **/
+var blogEditorConfig = {
+  height: '300px',
+  width: '600px',
+  animate: true,
+  dompath: false,
+  focusAtStart: true,
+  extracss:'img { display:block; margin:0 auto; } html { overflow-x:hidden; } .yui-media { display:block; height:100px; width:100px; overflow:hidden; border:1px solid #bbb; cursor:pointer !important; background:#f2f2f2 url(http://l.yimg.com/a/i/us/mash/gr/media_placeholder.gif) no-repeat center center; } .yui-media * { position:relative; left:-999em; }',
+  toolbar: {
+      buttons: [
+      {group: 'textstyle',
+        buttons: [
+        { type: 'push', label: 'Fett', value: 'bold' }, 
+        { type: 'push', label: 'Kursiv', value: 'italic' }, 
+        { type: 'push', label: 'Unterstreichen', value: 'underline' }, 
+        { type: 'separator' },
+        { type: 'color', label: 'Schriftfarbe', value: 'forecolor', disabled: true }, 
+	{ type: 'spin', label: '13', value: 'fontsize', range: [ 9, 75 ], disabled: true },        
+        { type: 'separator' },
+        { type: 'push', label: 'Unsortierte Liste erstellen', value: 'insertunorderedlist' },
+        { type: 'push', label: 'Sortierte Liste erstellen', value: 'insertorderedlist' },
+        { type: 'separator' },
+        { type: 'push', label: 'HTML-Link STRG + UMSCHALT + L', value: 'createlink', disabled: true },
+        { type: 'push', label: 'Bild einfügen', value: 'insertimage' },
+        { type: 'push', label: 'Medien hinzufügen', value: 'insertmedia' },
+        { type: 'separator' },
+        { type: 'push', label: 'HTML-Code bearbeiten', value: 'editcode' }
+      ]
+    }
+    ]
+  }
+};
+
+/** EDITOR STRINGS **/
+function initEditorStrings() {
+   blogEditor.STR_BEFORE_EDITOR        = 'Dieses Textfeld kann stilisierten Text und Grafiken enthalten. Sie können die Formatierungsoptionen durchblättern, indem Sie die Symbolleiste mit der Tastenkombination Strg + Umschalt + T aktivieren und zwischen den Optionstiteln hin und her schalten. <h4>Häufig verwendete Tastenkombinationen für die Formatierung sind:</h4><ul><li>Strg+Umschalt+B für Fettdruck</li> <li>Strg+Umschalt+I für Kursivdruck</li> <li>Strg+Umschalt+U für Unterstreichung</li> <li>Strg+Umschalt+[ für Linksausrichtung</li> <li>Strg+Umschalt+| für Zentrierung</li> <li>Strg+Umschalt+] für Rechtsausrichtung</li> <li>Strg+Umschalt+L für HTML-Links</li> <li>Mit Strg+Umschalt+ESC können Sie den Text-Editor beenden.</li></ul>';
+   blogEditor.STR_CLOSE_WINDOW         = 'Fenster schließen';
+   blogEditor.STR_CLOSE_WINDOW_NOTE    = 'Wählen Sie die Tastenkombination Strg + Umschalt + W, um dieses Fenster zu schließen.';
+   blogEditor.STR_IMAGE_PROP_TITLE     = 'Bildoptionen';
+   blogEditor.STR_IMAGE_URL            = "Bild-URL";
+   blogEditor.STR_IMAGE_HERE           = "Bild-URL";
+   blogEditor.STR_IMAGE_TITLE          = 'Beschreibung'; 
+   blogEditor.STR_IMAGE_SIZE           = 'Größe'; 
+   blogEditor.STR_IMAGE_ORIG_SIZE      = 'Originalgröße'; 
+   blogEditor.STR_IMAGE_COPY           = '<span class="tip"><span class="icon icon-info"></span><strong>Hinweis:</strong>Sie können dieses Bild verschieben, indem Sie es einfach markieren, ausschneiden und an der gewünschten Stelle einfügen.</span>';
+   blogEditor.STR_IMAGE_PADDING        = 'Abstand';
+   blogEditor.STR_IMAGE_BORDER         = 'Rahmen';
+   blogEditor.STR_IMAGE_TEXTFLOW       = 'Textfluss';
+   blogEditor.STR_LOCAL_FILE_WARNING   = '<span class="tip"><span class="icon icon-warn"></span><strong>Hinweis:</strong>Dieses Bild/dieser Link verweist auf eine Datei auf Ihrem Computer, auf die Nutzer im Internet keinen Zugriff haben.</span>';
+   blogEditor.STR_LINK_PROP_TITLE      = 'Link-Optionen';
+   blogEditor.STR_LINK_PROP_REMOVE     = 'Link aus Text entfernen';
+   blogEditor.STR_LINK_NEW_WINDOW      = 'In neuem Fenster öffnen';
+   blogEditor.STR_LINK_TITLE           = 'Beschreibung';
+   blogEditor.STR_COLLAPSE             = "Symbolleiste minimieren";
+   blogEditor.STR_SPIN_LABEL           = 'Drehfeld mit Wert {VALUE}. Verwenden Sie STRG+Umschalt+Auf-/Abwärtspfeiltaste, um den Wert zu erhöhen oder zu senken.';
+   blogEditor.STR_SPIN_UP              = 'Klicken Sie, um den Wert dieser Eingabe zu erhöhen';
+   blogEditor.STR_SPIN_DOWN            = 'Klicken Sie, um den Wert dieser Eingabe herabzusetzen';
+   blogEditor.STR_FONTSIZE_LABEL          = 'Mit der Tastenkombination Strg+Nach oben bzw. Strg+Nach unten können Sie den Wert erhöhen oder verringern.';
+   blogEditor.STR_FONTSIZE_UP          = 'Klicken, um den Wert dieser Eingabe zu erhöhen';
+   blogEditor.STR_FONTSIZE_DOWN          = 'Klicken, um den Wert dieser Eingabe zu verringern';
+   blogEditor.STR_IMAGE_LEFT           = "Links";
+   blogEditor.STR_IMAGE_RIGHT 	       = "Rechts";
+   blogEditor.STR_IMAGE_BLOCK 	       = "Block";
+   blogEditor.STR_IMAGE_INLINE         = "Inline";
+}
+
+function getMediaPanelBody(embedContent) {
+   var bodyText = "<p><em>Sie möchten Ihr Blog um ein Video ergänzen?</em> Wird es auf einer anderen Site gehostet, können Sie es ganz einfach zu Ihrem Blog hinzuzufügen. Fügen Sie einfach den Code <strong>Embed</strong> in das nachstehende Feld ein.</p><div class=\"embed-container\"><div id=\"embed-preview\"><span>Videovorschau</span></div><textarea id=\"embed-code\" rows=\"8\" cols=\"25\">" + embedContent + "</textarea></div><dl><dt><span>*</span>Yahoo! Video-Nutzer:</dt>\ <dd>Klicken Sie unten im Video auf das <strong>Umschlagsymbol</strong>. Der Code <strong>Embed</strong> wird darüber angezeigt.</dd><dt><span>*</span>Flickr Video-Nutzer:</dt><dd>Klicken Sie oben rechts auf dem Bildschirm auf <strong>Share This</strong> (Dies freigeben) und im daraufhin angezeigten Feld dann auf <strong>Embed it</strong> (Einbetten).</dd><dt><span>*</span>YouTube-Nutzer:</dt><dd>Der <strong>Embed</strong>-Code befindet sich rechts vom Video im Informationsfeld.</dd><div id=\"doneCont\" class=\"cls\"><span class=\"yui-button yui-push-button cancel\"><span class=\"first-child\"><button class=\"mediaDone\" id=\"mediaDone\">Fertig</button></span></span><span class=\"yui-button yui-push-button cancel\"><span class=\"first-child\"><button class=\"previewBtn\" id=\"previewBtn\">Vorschau</button></span></span></div>";
+   return bodyText;
+}
+
+function getMediaPanelStr(str) {
+   var strArray = {'mediapanel_header' :'Medien hinzufügen','mediapanel_embed_error':'Bitte vergewissern Sie sich, dass Sie den korrekten Code <strong>Embed</strong> kopiert haben.','mediapanel_done':'Fertig'};
+   return strArray[str];
+}
+
+var deleteBlogJson = {
+     //update: ['replace', 'commentlist'],
+	 update: ['replace', 'blog-comments'],
+     removed: function(evt,params){window.location = params[0].done;},
+     async: 'true',
+     assignto: 'ypf-bubble-link',
+     str_close: 'Schließen',
+     str_confirm: 'Diesen Blog-Eintrag löschen?',
+     str_confirm_desc: 'Dieser Eintrag wird aus Ihrem Blog gelöscht.',
+     str_cancel: 'Abbrechen',
+     str_delete: 'Löschen'
+};
+
+var commentActions = {
+     //update: ['replace', 'commentlist'],
+	 update: ['replace', 'blog-comments'],
+     done: YAHOO.profiles.blog.commentCleanup,
+     assignto: 'del-comment',
+     str_close: 'Schließen',
+     str_confirm: 'Diesen Kommentar löschen?',
+     str_confirm_desc: 'Dieser Kommentar wird aus Ihrem Blog gelöscht.',
+     str_cancel: 'Abbrechen',
+     str_delete: 'Löschen'
+};
+
+var commentsLabel = 'Ihren Kommentar hier eingeben...';
+var editor_button_edit_html = 'HTML-Code bearbeiten';
+var editor_editing_html_code = 'Bearbeiten von HTML-Code';
+var editor_title_not_empty = 'Der Blog-Titel darf nicht leer sein.';
+var editor_body_not_empty = 'Der Blog-Text darf nicht leer sein.';
+var entry_edit = '';
+if(entry_edit) {
+   YUE.onDOMReady(blogHandler);
+}
+
+YUE.onDOMReady(YAHOO.profiles.blog.init);
+    var vitalityJsonActions = {
+        update: ["replace", "vitality-entries"],
+        done: YAHOO.profiles.vitality.vitalityCleanUp,
+        assignto: "delete-update",
+        async: "true",
+        str_close: "Schließen",
+        str_confirm: "Dieses Ereignis löschen?",
+        str_confirm_desc: "Dieses Ereignis ist für niemanden sichtbar, wenn Sie es löschen.",
+        str_cancel: "Abbrechen",
+        str_delete: "Löschen",
+        alignment: "right"
+    };
+    getCommonDialog(vitalityJsonActions);
+
+    YAHOO.profiles.vitalityinvite = function () {
+    YUE.on("invite-people-link", "click", function(e){
+        YAHOO.profiles.inviteKiosk.retrieveSenderData(e);
+    });
+    };
+    YAHOO.profiles.vitalityinvite();
+
+YAHOO.util.Event.onDOMReady(function(){
+  YAHOO.profiles.PopUserCard.url = 'profiles.yahoo.com';
+});YAHOO.profiles.connections.init();
+YAHOO.profiles.redirect_login = "https://login.yahoo.com?.done=http%3A%2F%2Fprofiles.yahoo.com%2Fupdates%2F&.intl=de&.src=prf&.pd=c%3DpjYaRE2p2e7qnVyDc3WyJsc-";
+
+
+  YAHOO.profiles.connections.init();
+  YAHOO.util.Event.onDOMReady(function() {
+    if(YAHOO.util.Dom.get('invite_connect')) {
+      YAHOO.util.Event.addListener('invite_connect', 'click', function(e) {
+        YAHOO.util.Event.preventDefault(e);
+        YAHOO.profiles.ownerEmail = "";
+        YAHOO.profiles.redirect_login = "https://login.yahoo.com?.done=http%3A%2F%2Fprofiles.yahoo.com%2Fupdates%2F&.intl=de&.src=prf&.pd=c%3DpjYaRE2p2e7qnVyDc3WyJsc-";
+        YAHOO.profiles.inviteKiosk.retrieveSenderData(e);
+      });
+    }
+
+  });
+YAHOO.util.Event.onDOMReady(function(){
+  YAHOO.profiles.PopUserCard.url = 'profiles.yahoo.com';
+});  YAHOO.profiles.flashChecker.setCookie();
+</script>
+<script src="Yahoo!_Profile_Updates_files/invite_to_connect.js"></script>
+<script type="text/javascript">
+loader = YAHOO.LoadAddCxn.getInstance();loader.setConfig({"path":"http:\/\/l.yimg.com\/a\/lib\/pim\/r\/abook\/kiosks\/invite\/1.0.42\/"});loader.loadCustom([]);loader.LoadSuccessEvent.subscribe(function(e){
+YAHOO.AddCxn.sender={givenName:"",familyName:"",nickName:"",nux:"3",guid:"CXXS7EJQ6IFTZIPGWWL7DNOGYI"};
+YAHOO.AddCxn.conf={ip:"213.61.69.122",proxy:"/ws/sd?",src:"prf",intl:"de",spaceid_offset:"16000",wssid:"MzjaxFOeM4j",urlExtras:"",timeout:30000,maxRec:20};
+});
+</script>
+<!-- SpaceId=150062170--><!-- SpaceID=150062170 loc=FOOT9 noad -->
+<script language="javascript">
+if(window.yzq_p==null)document.write("<scr"+"ipt language=javascript src=http://l.yimg.com/d/lib/bc/bcr_2.0.4.js></scr"+"ipt>");
+</script><script language="javascript" src="Yahoo!_Profile_Updates_files/bcr_2.js"></script><div id="ypf-overlay"></div><script language="javascript">
+if(window.yzq_p)yzq_p('P=RaZBe03uoP76t8HCSa1c6wV51T1FekqWr00ADRG.&T=13thu5civ%2fX%3d1251389261%2fE%3d150062170%2fR%3ddeprofile%2fK%3d5%2fV%3d1.1%2fW%3dJR%2fY%3dDE%2fF%3d1739950604%2fS%3d1%2fJ%3dA8A0EE4D');
+if(window.yzq_s)yzq_s();
+</script><noscript><img width=1 height=1 alt=""
+src="http://row.bc.yahoo.com/b?P=RaZBe03uoP76t8HCSa1c6wV51T1FekqWr00ADRG.&T=140o27kkp%2fX%3d1251389261%2fE%3d150062170%2fR%3ddeprofile%2fK%3d5%2fV%3d3.1%2fW%3dJR%2fY%3dDE%2fF%3d89587239%2fQ%3d-1%2fS%3d1%2fJ%3dA8A0EE4D"></noscript>
+<!-- fe9.yosup.ch1.yahoo.com compressed/chunked Thu Aug 27 16:07:41 GMT 2009 -->
+</body></html>
