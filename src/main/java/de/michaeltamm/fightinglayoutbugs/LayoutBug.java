@@ -32,7 +32,7 @@ public class LayoutBug {
     private static final int TRANSPARENT = 0xFF000000;
 
     private final String _description;
-    private final File _screenshot;
+    private File _screenshot;
 
     public LayoutBug(String description, File screenshot) {
         _description = description;
@@ -104,7 +104,20 @@ public class LayoutBug {
             }
             // 3.) Blend red lines into screenshot ...
             ImageHelper.blend(pixels, redLines);
-            ImageIO.write(ImageHelper.pixelsToImage(pixels), "png", _screenshot);
+            // Sometimes overwriting the existing screenshot filedid not work
+            // on my machine (Windows Vista 64 bit, Sun JDK 1.6.0_10 64 bit),
+            // therefore I always create a new file here ...
+            final String name = _screenshot.getName();
+            final String prefix = name.substring(name.indexOf('.') + 1);
+            final File newFile = File.createTempFile(prefix, ".png", _screenshot.getParentFile());
+            ImageIO.write(ImageHelper.pixelsToImage(pixels), "png", newFile);
+            try {
+                if (!_screenshot.delete()) {
+                    _screenshot.deleteOnExit();
+                }
+            } finally {
+                _screenshot = newFile;
+            }
         }
     }
 
