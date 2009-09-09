@@ -1,0 +1,310 @@
+        a:link 	{ color:#00497d; }
+        a:visited 	{ color:#00497d; }
+        a:active, a:hover 	{ color:#25385a; }
+
+        .blue { color:#00497d; }
+        #orange { color:#ff6633; }
+        #white { color:#fff; }
+
+      
+        #boxesAllIn 
+        {
+            position:relative; top:inherit; left:inherit; height:450px;
+            padding:10px 0 0 10px;
+        }
+       
+       .box700top {
+                width:700px;
+                padding:0 0 20px 0;
+                margin:0px;
+                background:transparent url("box_white_700_bottom.png") bottom left no-repeat;
+                text-align:left;
+                position:relative; top:0px; left:0px;
+        }
+        
+        .head700top {
+                font: 1.2em Verdana;
+                font-weight: 600;
+                color:#00497d;
+                margin:0px;
+                padding:10px 10px 7px 15px;
+                background:transparent url("box_white_700_top.png") top left no-repeat;
+                /*text-transform:uppercase;*/
+        }
+        
+        .p700_head {
+                font: 1.2em Verdana;
+                font-weight: 600;
+                color:#00497d;
+                margin:0;
+                padding:0 15px 7px;
+                background:transparent url("box_white_700_corpus.png") top left repeat-y;
+        }
+
+	.head_detail {
+                font: 1.2em Verdana;
+                font-weight: 600;
+                color:#00497d;
+                margin:0px;
+                padding:10px 10px 7px 15px;
+		}
+        
+        .head_inter {
+                font: 9pt Verdana;
+                color:#00497d;
+                font-weight: 600;
+                margin:0;
+                padding:7px 10px 7px 15px;
+                background:transparent url("box_white_700_corpus.png") top left repeat-y;
+                /*text-transform:uppercase;*/
+        }
+        
+        
+        .p700 {
+                font: 8.5pt/1.2em Verdana;
+                margin:0;
+                padding:0 15px 7px;
+                background:transparent url("box_white_700_corpus.png") top left repeat-y;
+                /*border:1px solid #98a2a4;
+                border-width:0 1px;
+                background:#fff;*/
+        }
+        
+
+        
+        ul.bull700 {
+                margin:0;
+                padding:7px 15px 7px 35px;
+                background:transparent url("box_white_700_corpus.png") top left repeat-y;
+               /*border:1px solid #98a2a4;
+                border-width:0 1px;
+                background:#dbe8d7;*/
+                color:#00497d;
+        }
+        
+        
+       ul.bull700_inTab {
+                margin:0;
+                padding:5px 15px 15px 25px;
+                background:transparent url("box_white_700_corpus.png") top left repeat-y;
+                /*background:#dbe8d7;*/
+                color:#00497d;
+        }
+     
+   
+
+        
+       .boxFrame340 {
+                width:340px;
+                padding:0 0 14px 0;
+                margin:10px 15px;
+                background:transparent url("box_frame_340.png") top left no-repeat;
+                text-align:left;
+                position:relative; top:0px; left:0px;
+                min-height:600px;
+        }
+        
+
+        .head 
+        {
+			font-size:14px;line-height:15px;font-weight:bold;margin:5px 10px 10px 10px;
+               /* font: 1.4em Verdana;
+                font-weight: 600;
+                color:#00497d;
+                margin:0;
+                padding:7px 10px 7px 15px;
+               /* background:transparent url("/library/media/1031/germany/careers/images/box_frame_340.png") top left no-repeat;
+                text-transform:uppercase;*/
+        }  
+           
+        
+        .par {
+                font: 8.5pt/1.2em Verdana;
+                margin:0;
+                padding:0 10px 10px;
+                /*border:1px solid #98a2a4;
+                border-width:0 1px;
+                background:#fff;*/
+        }
+
+
+	.par_search {
+		font: 8.5pt/1.2em Verdana;
+                margin:0;
+		}
+        
+        /* Bildunterschrift*/
+        .bu_340 
+        {
+                font: 8.5pt/1.2em Verdana;
+                text-align:left;
+                width:219px; 
+                padding:0px;
+                margin:0px;
+        }
+
+
+        
+        ul.bull {
+                margin:0;
+                padding:0 15px 15px 25px;
+                /*border:1px solid #98a2a4;
+                border-width:0 1px;
+                background:#dbe8d7;
+                color:#96a097;*/
+        }
+        
+        
+       ul.bull_inTab {
+                margin:0;
+                padding:0 15px 15px 25px;
+                /*background:#dbe8d7;
+                color:#96a097;*/
+        }
+        
+        
+        ul.bull_side { 
+                margin:0;
+                padding:0 15px 15px 25px;
+                background:transparent url("box_blue_190_corpus.png") top left repeat-y;
+               /*border:1px solid #98a2a4;
+                border-width:0 1px;
+                background:#dbe8d7;
+                color:#96a097;*/
+        }
+
+
+       .box_side {
+                width:190px;
+                padding:0 0 14px 0;
+                margin:0 0 10px 0;
+                background:transparent url("box_blue_190.png") bottom left no-repeat;
+                text-align:left;
+                position:relative; top:0px; left:0px; 
+                color:#fff;
+        }
+        
+                
+        div.box_side a:link { color:#fff; }
+
+        .head_side {
+                font: 1.3em Verdana;
+                font-weight: 600;
+                color:#fff;
+                margin:0;
+                padding:7px 10px 7px 7px;
+                background:transparent url("box_blue_190.png") top left no-repeat;
+                /*text-transform:uppercase;*/
+        }
+
+        .par_side {
+                font: font: 8.5pt/1.2em Verdana;
+                margin:0px;
+                padding:5px 8px 3px;
+                background:transparent url("box_blue_190_corpus.png") top left repeat-y;
+                /*border:1px solid #98a2a4;
+                border-width:0 1px;
+                background:#dbe8d7;*/
+        }
+        p, td.box 
+        {
+                font: 8.5pt/1.2em Verdana;
+                vertical-align:top;
+                padding: 0 10 0 0;
+        }
+        
+        td.mehr 
+        {
+                font: 8.5pt/1.2em Verdana;
+                vertical-align:bottom;
+                text-align:right;
+                padding: 0px;
+                margin:0px;
+        }
+        td.linie 
+        {       height: 15px;
+                background:transparent url("linie.jpg") center left no-repeat;
+
+            
+        }
+
+             
+       .thumb { float:left; 
+                vertical-align:text-top; 
+                margin:3px 3px 0 0;
+                padding:0px;
+        }
+        
+       .thumb_side { float:left; margin:3px 5px 5px -6px; }
+        
+
+       .box_side_banner {
+                width:190px;
+                padding:0 0 14px 0;
+                margin:0 0 10px 0;
+                background:transparent url("box_blue_190_bottom_banner.png") bottom left no-repeat;
+                text-align:left;
+                position:relative; top:0px; left:0px; 
+        }
+        .head_side_banner {
+                font: 1.3em Verdana;
+                font-weight: 600;
+                color:#fff;
+                margin:0;
+                padding:7px 10px 7px 7px;
+                background:transparent url("box_blue_190_top_banner.png") top left no-repeat;
+                /*text-transform:uppercase;*/
+        }
+        .par_banner {
+                font: font: 8.5pt/1.2em Verdana;
+                text-align:center;
+                margin:0px;
+                padding:5px 8px 3px;
+                background:transparent url("/library/media/1031/germany/careers/images/box_blue_190_corpus.png") top left repeat-y;
+        }
+        
+        .myIndent { margin-left:1em;}
+        
+/*********** NAV ********************/
+
+.bgCobalt {
+	background-color: #71a2ce;
+}
+
+.navBorder {border-top:3px solid #71a2ce;}
+
+.navBG {
+	background: url(/library/media/1031/germany/careers/images/bg_nav.png) no-repeat top left;
+}
+
+.navBtn {
+	cursor: pointer;
+	font-size: 12px;
+	color: #00497d;
+	font-weight: bold;
+	padding: 8px 16px 8px 0;
+}
+
+.navBtnOn {
+	cursor: pointer;
+	font-size: 12px;
+	color: #00497d;
+	font-weight: bold;
+	background-color: #FFF;
+	padding: 8px 16px 8px 0;
+}
+
+.navBtnOnSingle {
+	font-size: 12px;
+	color: #00497d;
+	font-weight: bold;
+	background-color: #FFF;
+	padding: 8px 16px 8px 0;
+}
+
+
+
+
+
+
+        

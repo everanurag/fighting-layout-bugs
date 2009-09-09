@@ -1,0 +1,219 @@
+﻿          /* tabs */
+          #ddtabs {
+margin: 5px 15px 5px 15px;
+}
+
+.basictab ul
+{ 
+ margin:0px;
+ padding:0px;
+}
+
+.basictab li {
+font: 8.5pt Verdana;
+width: 140px;
+height: 20px;
+text-align: center;
+padding:3px 0 0 0;
+float:left;
+background: url(tab.gif) no-repeat;
+display: inline;
+margin: 0;
+}
+
+.basictab li a {
+text-decoration: none;
+color: #fffaf4;
+}
+
+.basictab li a:visited {
+color: #fffaf4;
+}
+
+.basictab li a:hover, .basictab a.current {
+font: bold 8.5pt Verdana;
+color: #fffaf4;
+}
+
+.basictab li a:active {
+color: #fffaf4;
+}
+        
+.tabcontent{
+display:none;
+}
+
+          /* stylesheet */
+
+          #header {
+          width: 590px;
+          height: 303px;
+          background: url(nl_home_header.jpg) 0 0 no-repeat transparent;
+          }
+
+          #tabcontentcontainer {
+          width: 700px;
+          background: url(nl_home_tabcontainer.jpg_back) 0 0 no-repeat transparent;
+          padding: 10px 15px 10px 15px;
+		  left:10px;
+
+          }
+          
+
+          #header h3 {
+          margin:0px;
+          padding: 180px 16px 0px 16px;
+          color:#2a8ecc;
+          }
+
+          #header p {
+          margin: 5px 16px 0px 16px;
+          color:#000000;
+          }
+
+          #tbl {
+          width:560px;
+          }
+
+          #tbl a:link {
+          font-weight:bold;
+          text-decoration: none;
+          color: #2a8ecc;
+          }
+
+          #tbl a:link:hover {
+          font-weight:bold;
+          text-decoration: underline;
+          color: #2a8ecc;
+          }
+
+          #tbl a::visited {
+          font-weight:bold;
+          text-decoration: underline;
+          color: #2a8ecc;
+          }
+
+          #tbl a:visited:hover {
+          font-weight:bold;
+          text-decoration: none;
+          color: #2a8ecc;
+          }
+
+          #tbl p.td1 {
+          width: 400px;
+          padding: 2px 5px 0px 5px;
+          margin:0px;
+          border-top:1px dashed #7e7e7e;
+          font: 8.5pt Verdana;
+          line-height:1.3em;
+          }
+
+          #tbl p.td2 {
+          width: 135px;
+          padding: 2px 5px 0px 5px;
+          margin:0px;
+          border-top:1px dashed #7e7e7e;
+          font: 8.5pt Verdana;
+          line-height:1.3em;
+          }
+
+          #tbl img {
+          margin:0px 5px 0px 0px;
+          }
+
+          #tbl .sphr {
+          padding:0px 15px 0px 25px;
+          }
+
+          #faqcontentcontainer{
+          width: 590px;
+          height: 517px;
+          background: url(nl_faq_container.jpg) 0 0 no-repeat transparent;
+          padding: 10px 15px 10px 15px;
+          margin-bottom:-21px;
+          }
+
+          #faq {
+          width:560px;
+          }
+
+          #faq a:link {
+          text-decoration: none;
+          color: #2a8ecc;
+          }
+
+          #faq a:link:hover {
+          text-decoration: underline;
+          color: #2a8ecc;
+          }
+
+          #faq a:visited {
+          text-decoration: underline;
+          color: #2a8ecc;
+          }
+
+          #faq a:visited:hover {
+          text-decoration: none;
+          color: #2a8ecc;
+          }
+                    
+          #lk a:link {
+          text-decoration: none;
+          color: #2a8ecc;
+          font-weight:bold;
+          }
+
+          #lk a:link:hover {
+          text-decoration: underline;
+          color: #2a8ecc;
+          font-weight:bold;
+          }
+
+          #lk a:visited {
+          text-decoration: underline;
+          color: #2a8ecc;
+          font-weight:bold;
+          }
+
+          #lk a:visited:hover {
+          text-decoration: none;
+          color: #2a8ecc;
+          font-weight:bold;
+          }
+
+          #reg{
+          width: 590px;
+          height: 517px;
+          background: url(nl_faq_container.jpg) 0 0 no-repeat transparent;
+          padding: 10px 15px 10px 15px;
+          margin-bottom:-21px;
+          }
+          
+          #reg a:link {
+          text-decoration: none;
+          color: #2a8ecc;
+          font-weight:bold;
+          }
+
+          #reg a:link:hover {
+          text-decoration: underline;
+          color: #2a8ecc;
+          font-weight:bold;
+          }
+
+          #reg a:visited {
+          text-decoration: underline;
+          color: #2a8ecc;
+          font-weight:bold;
+          }
+
+          #reg a:visited:hover {
+          text-decoration: none;
+          color: #2a8ecc;
+          font-weight:bold;
+          }
+          
+          #reg h3 {
+          margin:0px;
+          color:#2a8ecc;
+          }

@@ -1,0 +1,191 @@
+html{ background: url(bg_html_main.jpg) left top repeat-x; background-color: #daebf5;} 
+ 	body {margin:0px;padding:0px;font:12px/13px Verdana, Arial, Helvetica, sans-serif;color:#000; background: url(bg_body_main.jpg) left bottom repeat-x;} 
+
+	div{position:relative; }
+	a{color:#000;text-decoration:none;}
+	a:hover{text-decoration:underline;}
+	hr{margin:10px 0 10px 0; height:1px; border: none; border-top:1px solid #aaa;}
+    h2{font-size:13px;line-height:14px;margin:0px 0px 10px;font-weight:bold;}
+    .header		{font-size:11px;FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;margin:0px 10px 10px 20px;}
+	.header h3	{font-size:12px; font-weight:bold;margin:10px 0px 5px 0px;}
+    .tabcontent	{font-size:11px;FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;}
+
+    form{margin:0px;padding:0px;}
+			.inputFields{border:1px solid;border-color:#7b7b7b #dcdcdc #dcdcdc #7b7b7b;margin:0px;padding:0px 2px;}
+			.inputButtons{border:2px solid;border-color:#dcdcdc #7b7b7b #7b7b7b #dcdcdc;margin:0px;padding:0px 2px;line-height:13px;font-size:11px;}
+			.radioFields{margin:0px;padding:0px;border-width:0px;width:12px;height:12px;}
+		#dvBodyContainer{margin:0em auto; width:995px;overflow:hidden;background:url(bg_content_top.jpg) right top no-repeat;}
+			#dvBodyContainer_bottom{width:995px;overflow:hidden;}
+				#dvBodyContainer_minHeight{width:30px;height:760px;overflow:hidden;float:left;}
+				#dvBodyContainer_middle{width:965px;overflow:hidden;float:left;}
+					#dvHeader{width:965px;height:78px;overflow:hidden;font-size:10px;}
+						#dvLogoButton{width:317px;height:78px;overflow:hidden;}
+						#dvQuickAndSearch{position:absolute;top:3px;right:5px;width:350px;overflow:hidden;color:#FFF;}
+							#dvQuickAndSearch a{text-decoration:none;color:#FFF;}
+							#dvQuickAndSearch form{margin-top:4px;}
+					#dvContent{overflow:hidden;padding:10px 5px 0px;} /*-> war falschgeschrieben width:655px;*/
+						#dvCnt_MasterNavigation{margin-left:5px; }
+						#dvCnt_Navigation{width:943px;		height:27px;		overflow:hidden;	padding: 3px 3px 0px 3px;	background:url(bg_cnt_navi.jpg) left top no-repeat;}
+						
+						#dvCnt_SubNavigation{width:943px;	height:25px; 		overflow:hidden; 	padding: 3px 3px 3px 10px;	background:url(bg_cnt_subnavi.jpg) left top no-repeat;}
+							#dvCnt_SubNavigation a:hover{text-decoration:none;}
+							.dvSubNav_item{display:block; height:23px;overflow:hidden;padding-right:12px; margin-right:-1px; background:url(shim_12x23_left.gif) right top no-repeat;}
+								.dvSubNav_item a{display:block;line-height:15px;padding:4px 0px 4px 12px;white-space:nowrap;text-decoration:none;background:url(shim_12x23.gif) left top no-repeat;font-weight:bold;}
+							.dvSubNav_item_hover, .dvSubNav_item_active{display:block;height:23px; overflow:hidden;padding-right:12px;background:url(bg_subnavitem_right.gif) right top no-repeat;}
+								.dvSubNav_item_hover a, .dvSubNav_item_active a{display:block;line-height:15px;white-space:nowrap;margin-right:-1px;padding:4px 0px 4px 12px; text-decoration:none;background:url(bg_subnavitem_main.gif) left top no-repeat;font-weight:bold;}
+								
+								.flyoutnavi_div{padding:5px; position: absolute; display: none; top:146px;   z-index:5000;  background-color: #fff; border:1px solid #9EA2AE; background: url(Win_vertical_divline_top.gif) left bottom repeat-x #fff;}
+									.flyoutnavi_div .dvSubNav_item{height:23px;overflow:hidden;padding-right:6px; background:url(shim_12x23.gif) right top no-repeat;}
+									.flyoutnavi_div .dvSubNav_item a{display:block;line-height:15px;padding:4px 0px 4px 6px;text-decoration:none;background:url(shim_12x23.gif) left top no-repeat;font-weight:bold;}
+						
+									
+						
+							/*flyout*/
+							.flyoutnavi_div .dvSubNav_item_hover, .flyoutnavi_div .dvSubNav_item_active{height:23px; overflow:hidden;padding-right:6px;background:url(bg_subnavitem_right_fly.gif) right top no-repeat;}
+								.flyoutnavi_div .dvSubNav_item_hover a, .flyoutnavi_div .dvSubNav_item_active a{display:block;line-height:15px;padding:4px 0px 4px 6px;text-decoration:none;background:url(bg_subnavitem_main_fly.gif) left top no-repeat;font-weight:bold;}
+							/*flyout*/
+							
+								.flyoutnavi_div .dvSubNav_item{display:block;float:none;}
+								.flyoutnavi_div .dvSubNav_item_hover{display:block;float:none;}
+								.flyoutnavi_div .dvSubNav_item_active{display:block;float:none;}
+								
+							.dvSubNav_itemSep{float:left;height:15px;width:1px;overflow:hidden;background-color:#000;margin:4px 2px;}
+						#dvContentHeader{width:955px;overflow:hidden;padding-bottom:1px;margin-left:5px;/*background:url(/germany/newsletter/images/style/bg_ContentHeader.gif) left bottom no-repeat;*/}
+						#dvContentValues{width:955px;overflow:hidden;padding:2px 0px 0px 0px;margin-left:5px;}
+							#dvCntVal_left{width:750px;overflow:hidden;padding:0px 0px 0px 0px;/*background:url(/germany/newsletter/images/style/trans.gif) left top no-repeat;*/float:left;margin-right:7px;}
+								.dvBigTeaserContainer{width:750px;overflow:hidden;}
+								.dvTeaserCont_mdl {width:750px;background:url(bg_bigteaser_mdl.png) left top repeat-y;}
+									.dvTeaserCont_top{width:750px;height:8px;overflow:hidden;background:url(bg_bigteaser_top.png) left top no-repeat;}
+										.dvTeaserCont_bottom{width:750px;margin-bottom:8px;height:8px;overflow:hidden;background:url(bg_bigteaser_btm.png) left top no-repeat;}
+											.dvTeaserCont_mdl .dvTeaserImage{overflow:hidden;float:left;margin-right:9px;}
+											.dvTeaserCont_mdl .dvTeaserText{overflow:hidden;float:left;padding:0px 10px 0px 10px;}
+                        .dvTeaserCont_mdl .dvTeaserText h1{font-size:14px;line-height:15px;margin:0px 0px 10px;font-weight:bold;}
+												.linkspecial{color:#06547C; margin:10px 0; font-weight:bold; text-decoration:underline;}
+												.dvTeaserCont_mdl .dvTeaserText .dvTeaserForwardLink{text-align:right;padding-top:5px;}
+													.dvTeaserCont_mdl .dvTeaserText .dvTeaserForwardLink a{color:#06547C;font-weight:bold;text-decoration:underline;}
+											.dvTeaserCont_mdl .dvTeaserTextwithout{overflow:hidden;float:left;padding:0px 10px 0px 10px;}
+											  .dvTeaserCont_mdl .dvTeaserTextwithout h1{font-size:14px;line-height:15px;font-weight:bold;}
+												.dvTeaserCont_mdl .dvTeaserTextwithout .dvTeaserForwardLink{text-align:right;padding-right:15px;padding-top:5px;}
+													.dvTeaserCont_mdl .dvTeaserTextwithout .dvTeaserForwardLink a{color:#06547C;font-weight:bold;text-decoration:underline;}
+								
+								
+								
+								
+								.dvBigTeaserContainerOnly{width:750px;overflow:hidden;margin-bottom:3px;background:url(bg_detailteaser_top.gif) left top no-repeat;}
+									.dvBigTeaserContainerOnly .dvTeaserCont_top{width:750px;overflow:hidden;}
+										.dvBigTeaserContainerOnly .dvTeaserCont_bottom{width:750px;overflow:hidden;padding:27px 12px 7px 6px;}
+											.dvBigTeaserContainerOnly .dvTeaserImage{overflow:hidden;float:left;margin-right:8px;}
+											.dvBigTeaserContainerOnly .dvTeaserText{overflow:hidden;float:left;}
+    									.dvBigTeaserContainerOnly .dvTeaserText ul{margin-bottom:0;}
+											.dvBigTeaserContainerOnly .dvTeaserText li{margin-left: -25px; margin-bottom:-5px; padding-bottom:-5px}
+											.dvBigTeaserContainerOnly .dvTeaserText li p{padding-bottom:-5px}
+																							
+												.dvBigTeaserContainerOnly .dvTeaserText h1{font-size:14px;line-height:15px;margin:0px 0px 5px;font-weight:bold;}
+												.linkspecial{color:#06547C; margin:10px 0; font-weight:bold; text-decoration:underline;}
+												.dvBigTeaserContainerOnly .dvTeaserText .dvTeaserForwardLink{text-align:right;padding-right:15px;padding-top:5px;}
+													.dvBigTeaserContainerOnly .dvTeaserText .dvTeaserForwardLink a{color:#06547C;font-weight:bold;text-decoration:underline;}
+													.dvBigTeaserContainerOnly .dvTeaserText .dvTeaserLink a{color:#06547C;}
+													.dvBigTeaserContainerOnly .dvTeaserText .flapcontainer{width:100%; margin-bottom:5px;}
+													.dvBigTeaserContainerOnly .dvTeaserText .linkcontent{color:#06547C;font-weight:bold;text-decoration:underline;}
+													.dvBigTeaserContainerOnly .dvTeaserText	.divlinkflapdown{float:left; margin-left:5px;}
+													.dvBigTeaserContainerOnly .dvTeaserText .imglinkflapdown{float:left; vertical-align:top;}
+													.dvBigTeaserContainerOnly .dvTeaserText .linkflapdown{color:#06547C; font-weight:bold;text-decoration:underline;}
+													.dvBigTeaserContainerOnly .dvTeaserText .flapdown{padding-left:10px;} 
+											
+											.dvBigTeaserContainerOnly .dvTeaserTextwithout{width:750px; margin-left:5px; overflow:hidden;float:left;}
+											  .dvBigTeaserContainerOnly .dvTeaserTextwithout h1{font-size:14px;line-height:15px;margin:0px 0px 10px;font-weight:bold;}
+												.dvBigTeaserContainerOnly .dvTeaserTextwithout .linkcontent{color:#06547C;font-weight:bold;text-decoration:underline;}
+												.dvBigTeaserContainerOnly .dvTeaserTextwithout .dvTeaserForwardLink{text-align:right;padding-right:15px;padding-top:5px;}
+													.dvBigTeaserContainerOnly .dvTeaserTextwithout .dvTeaserForwardLink a{color:#06547C;font-weight:bold;text-decoration:underline;}
+													.dvBigTeaserContainerOnly .dvTeaserTextwithout	.divlinkflapdown{float:left; margin-left:5px;}
+													.dvBigTeaserContainerOnly .dvTeaserTextwithout .imglinkflapdown{float:left; vertical-align:top;}
+													.dvBigTeaserContainerOnly .dvTeaserTextwithout .linkflapdown{color:#06547C; font-weight:bold;text-decoration:underline;}
+													.dvBigTeaserContainerOnly .dvTeaserTextwithout .flapdown{padding-left:10px;} 
+											
+
+
+								.dvItemsTeaserContainer{width:750px;overflow:hidden;background:url(bg_itemsteaser_top.png) left top no-repeat;}
+									.dvItemsTeaserContainer .dvTeaserImage{overflow:hidden;float:left;margin-right:5px;margin-bottom:8px;}
+									.dvItemsTeaserContainer .dvTeaserText{overflow:hidden;float:left;padding:8px 10px 0px 10px;margin-bottom:0px;}
+										.dvItemsTeaserContainer .dvTeaserText h1{font-size:14px;line-height:15px;margin:0px 0px 3px;font-weight:bold;}
+										.dvItemsTeaserContainer .dvTeaserText a{color:#06547C;font-weight:bold;text-decoration:underline;}
+									.dvItemsTeaserContainer .dvTeaserTextwithout{overflow:hidden;float:left;padding:8px 10px 0px 10px;}
+										.dvItemsTeaserContainer .dvTeaserTextwithout h1{font-size:14px;line-height:15px;margin:0px 0px 3px;font-weight:bold;}
+										.dvItemsTeaserContainer .dvTeaserTextwithout a{color:#06547C;font-weight:bold;text-decoration:underline;}
+										.dvItemsTeaserContainer .dvTeaserTextwithout .dvTeaserForwardLink a{color:#06547C;font-weight:bold;text-decoration:underline;}
+										.dvItemsTeaserContainer .dvTeaserTextwithout	.divlinkflapdown{float:left; margin-left:5px;}
+										.dvItemsTeaserContainer .dvTeaserTextwithout .imglinkflapdown{float:left; vertical-align:top;}
+										.dvItemsTeaserContainer .dvTeaserTextwithout .linkflapdown{color:#06547C; font-weight:bold;text-decoration:underline;}
+										.dvItemsTeaserContainer .dvTeaserTextwithout .flapdown{padding-left:10px;} 
+					    
+										.dvItemsTeaserContainer .hlDivider{height:2px; background-color:#990000;}
+			
+								.dvDetailTeaserContainer{width:750px;overflow:hidden;padding:27px 15px 10px 6px;background:url(bg_detailteaser_top.gif) left top no-repeat;}
+									.dvDetailTeaserContainer .dvTeaserImage{overflow:hidden;float:left;}
+									.dvDetailTeaserContainer .dvTeaserText{overflow:hidden;float:left;margin-bottom:8px;}
+										.dvDetailTeaserContainer .dvTeaserText_noImage{width:567px;overflow:hidden;margin-bottom:8px;}
+										.dvDetailTeaserContainer .dvTeaserText h1, .dvDetailTeaserContainer .dvTeaserText_noImage h1{font-size:14px;line-height:15px;margin:0px 0px 3px;font-weight:bold;}
+										.dvDetailTeaserContainer .dvTeaserText a, .dvDetailTeaserContainer .dvTeaserText_noImage a{color:#06547C;font-weight:bold;text-decoration:underline;}
+											.dvDetailTeaserContainer .dvTeaserText .dvTeaserTextBlock{width:398px;overflow:hidden;padding:0px 10px 10px;border-bottom:1px solid #a5a5a5;margin-bottom:10px;}
+											.dvDetailTeaserContainer .dvTeaserText_noImage .dvTeaserTextBlock{width:547px;overflow:hidden;padding:0px 10px 10px;border-bottom:1px solid #a5a5a5;margin-bottom:10px;}
+								
+				
+										
+												.ListWithLink{padding:0px 0px 5px 10px;margin:2px 0px 5px 0;background:url(ico_pList.gif) left top no-repeat;}
+														.ListWithLink a{display:block;font-weight:bold;color:#06547C;text-decoration:underline;}
+											.dvDetailTeaserContainer .dvTeaserText .dvTeaserTextFooter{width:401px;overflow:hidden;padding:0px 10px 10px;}
+											.dvDetailTeaserContainer .dvTeaserText_noImage .dvTeaserTextFooter{width:547px;overflow:hidden;padding:0px 10px 10px;}
+											
+							#dvCntVal_right{width:186px;overflow:hidden;padding:0px 0px 0px 0px;/*background:url(/germany/newsletter/images/style/trans.gif) left top no-repeat;*/float:left;}							
+								.dvListBlock{width:186px;overflow:hidden;}
+									
+                  .dvListBlock .dvListHeadline{width:171px;height:18px;overflow:hidden;letter-spacing:-1px;padding:10px 5px 6px 10px;font:bold 12px Tohama,Verdana,Arial,sans-serif;color:#000000;text-transform:uppercase;background:url(bg_cnt_right_votingblock_headline.png) left top no-repeat;}
+									.dvListBlock .dvListHeadlinewithout{width:186px;height:1px;overflow:hidden;letter-spacing:-1px;padding:0px 10px 6px 10px;font:bold 16px/18px Tohama,Verdana,Arial,sans-serif;color:#FFF;text-transform:uppercase;background:url(bg_cnt_right_votingblock_headline.png) left top no-repeat;}
+								                                                                                                                        
+                  .dvListBlock .dvListItems{width:166px;overflow:hidden;padding:10px 10px 15px 10px;background: url(bg_cnt_right_votingblock_repeat.png) repeat-y;/*background-position:0px 7px;*/}
+										.dvListBlock .dvListItems a{display:block;color:#ffffff;font-weight:bold;text-decoration:none;background:url(ico_list.gif) left top no-repeat;padding-left:12px;margin:2px 0px 4px;}
+										.dvListBlock .dvListItems a:hover{display:block;color:#ffffff;font-weight:bold;text-decoration:underline;background:url(ico_list.gif) left top no-repeat;padding-left:12px;margin:2px 0px 4px;}
+
+								  
+                  .dvListBlock .dvListFooter{width:257px;height:14px;overflow:hidden;background:url(bg_cnt_right_votingblock_footer.png) left bottom no-repeat;}
+									
+                .dvBannerBlock{width:186px;overflow:hidden;}
+								.dvVotingBlock{width:186px;overflow:hidden;}
+									.dvVotingHeadline{width:166px;overflow:hidden;padding:11px 10px 7px 10px;background:url(bg_cnt_right_votingblock_headline.png) left top no-repeat;}
+									.dvVotingContent{width:166px;overflow:hidden;padding:11px 10px 7px 10px;background:url(bg_cnt_right_votingblock_content.png) left bottom no-repeat;}
+									.dvVotingBlock h1{font-size:11px;line-height:15px;margin:0px 0px 5px;font-weight:bold;}
+									.dvVotingBlock td{padding:1px 0px 4px;vertical-align:top;}
+										.dvVotingBlock .radioFields{margin-top:2px;margin-right:5px;}
+									.dvVotingBlock .dvVotingSubmit{position:absolute;left:188px;top:107px;}
+								.dvTextBlock{width:166px;overflow:hidden;padding:0px 15px;}
+									.dvTextBlock a{display:block;margin:3px 0px 10px;color:#06547C;text-decoration:underline;}
+								.dvHorSepLine{width:166px;height:1px;overflow:hidden;margin:10px 0px;background-color:#879193;}
+								
+					#dvFooter{width:945px;height:60px;overflow:hidden;padding:87px 10px 5px;background:url(bg_footer.png) left top no-repeat;font-size:10px;}
+						#dvMetaNavigation{height:14px;line-height:14px;overflow:hidden;padding-right:25px;white-space:nowrap;margin-bottom:15px;}
+							#dvMetaNavigation a{display:block;line-height:14px;}
+						#dvFooterCopyright{width:320px;overflow:hidden;float:left;}
+						#dvFooterNavigation{width:625px;overflow:hidden;float:left;}
+
+	#dvQuickLinks{position:absolute;z-index:444;display:none;width:515px;overflow:hidden;}
+		#dvQuickLinks a{font-size:10px;line-height:11px;}
+		#msviQL{padding: 0px 2px 0px 9px;margin: 0px;width: 463px;border-style: solid;border-color: #999999;border-width: 1px 2px 2px 1px;background-color: #ffffff;color:#000000;filter: progid:DXImageTransform.Microsoft.Shadow(color=#a9a9a9,direction=135, strength=3);}
+			#msviQL h5{font-weight: bold;margin: 8px 0px 2px 5px;color: #003399;font-size:11px;line-height:15px;}
+			#msviQL td.msviqlhrtd{padding:0px 0px 0px 6px;}
+			#msviQL tr > td.msviqlhrtd{padding: 3px 0px;}
+			#msviQL td{margin: 0px;padding: 0px;}
+			#msviQL td div{width: 170px;padding: 0px 0px 5px 0px;margin:0px 0px 0px 7px;}
+			#msviQL p.msviqlspacer{	padding:7px 0px 0px 0px;margin:0px;}
+			#msviQL tr > td > div{width: 170px;padding: 0px 7px 5px 0px;margin: 0px;}
+			#msviQL tr > td > hr{color: #d0e0f0;width: 100%;margin: 0px;background-color: #d0e0f0;height: 1px;}
+			#msviQL tr td hr{color: #d0e0f0;width: 99%;margin: -3px;padding: 0px;height: 1px;overflow: hidden;}
+			#msviQL ul{margin: 0px;padding:0px;display: block;list-style-type: none;background-image:none;list-style-image:none;}
+			#msviQL li{width: 170px;display: block;margin:0px 0px 1px 0px;list-style-type: none;background-image:none;padding:0px;list-style-image:none;}
+			#msviQL li a{color: #000000;text-decoration: none;padding: 1px 0px 1px 3px;display: block;vertical-align: middle;border: solid 1px #ffffff;height: 11px;margin:0px;}
+			#msviQL a:hover{border: solid 1px #a2c5eb;background-color: #f0f7fd;cursor: pointer;vertical-align: middle;display: block;}
+			#msviQL div > ul > li > a:hover, #msviQL div > ul > li > a{	height: auto;}
+			
+/* MS CSS OVERRIDE START*/
+	#msviMasthead{display:none;}
+	#msviFooter{display:none;}
+/* MS CSS OVERRIDE END*/
