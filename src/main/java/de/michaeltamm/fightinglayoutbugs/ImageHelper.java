@@ -129,36 +129,25 @@ public class ImageHelper {
         return copy;
     }
 
-    private static class Offset {
-        private final int x;
-        private final int y;
-
-        @SuppressWarnings({"ParameterHidesMemberVariable"})
-        private Offset(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-    }
-
     /**
      * Returns <code>true</code> if the given image contains the
      * given subimage at an arbitrary location. (Pixels of subimage
      * with an alpha value lower than 255 are ignored.)
      */
     public static boolean contains(BufferedImage image, BufferedImage subimage) {
-        final Map<Integer, List<Offset>> rgb2offsets = new HashMap<Integer, List<Offset>>();
+        final Map<Integer, List<Point>> rgb2offsets = new HashMap<Integer, List<Point>>();
         for (int x = 0; x < subimage.getWidth(); ++x) {
             for (int y = 0; y < subimage.getHeight(); ++y) {
                 final int argb = subimage.getRGB(x, y);
                 final int a = argb >>> 24;
                 if (a == 255) {
                     final Integer rgb = argb & 0xFFFFFF;
-                    List<Offset> offsets = rgb2offsets.get(rgb);
+                    List<Point> offsets = rgb2offsets.get(rgb);
                     if (offsets == null) {
-                        offsets = new ArrayList<Offset>();
+                        offsets = new ArrayList<Point>();
                         rgb2offsets.put(rgb, offsets);
                     }
-                    offsets.add(new Offset(x, y));
+                    offsets.add(new Point(x, y));
                 }
             }
         }
@@ -179,12 +168,12 @@ public class ImageHelper {
             }
             for (int x = 0; x < w; ++x) {
                 for (int y = 0; y < h; ++y) {
-                    final Iterator<Map.Entry<Integer,List<Offset>>> i = rgb2offsets.entrySet().iterator();
+                    final Iterator<Map.Entry<Integer,List<Point>>> i = rgb2offsets.entrySet().iterator();
                     compareWithSubimageLoop:
                     do {
-                        final Map.Entry<Integer,List<Offset>> mapEntry = i.next();
+                        final Map.Entry<Integer,List<Point>> mapEntry = i.next();
                         final int expectedRgb = mapEntry.getKey();
-                        for (Offset offset : mapEntry.getValue()) {
+                        for (Point offset : mapEntry.getValue()) {
                             final int xx = x + offset.x;
                             final int yy = y + offset.y;
                             if (xx >= w || yy >= h || expectedRgb != p[xx][yy]) {
@@ -423,24 +412,23 @@ public class ImageHelper {
             return outlines;
         }
         // Find outlines ...
-        final Queue<Offset> todo = new ArrayDeque<Offset>();
-        todo.add(new Offset(x0, y0));
+        final Queue<Point> todo = new ArrayDeque<Point>();
+        todo.add(new Point(x0, y0));
         final boolean[][] visited = new boolean[w][h];
         while (!todo.isEmpty()) {
-            final Offset o = todo.poll();
-            final int x = o.x;
-            final int y = o.y;
+            final Point p = todo.poll();
+            final int x = p.x;
+            final int y = p.y;
             if (!visited[x][y]) {
                 visited[x][y] = true;
-                final boolean p = pixels[x][y];
-                if (!p) {
+                if (!pixels[x][y]) {
                     // Compare with pixel above ...
                     if (y > 0) {
                         final int y1 = y - 1;
                         if (pixels[x][y1]) {
                             outlines[x][y] = true;
                         } else if (!visited[x][y1]){
-                            todo.add(new Offset(x, y1));
+                            todo.add(new Point(x, y1));
                         }
                     }
                     // Compare with pixel to the right ...
@@ -449,7 +437,7 @@ public class ImageHelper {
                         if (pixels[x1][y]) {
                             outlines[x][y] = true;
                         } else if (!visited[x1][y]){
-                            todo.add(new Offset(x1, y));
+                            todo.add(new Point(x1, y));
                         }
                     }
                     // Compare with pixel below ...
@@ -458,7 +446,7 @@ public class ImageHelper {
                         if (pixels[x][y1]) {
                             outlines[x][y] = true;
                         } else if (!visited[x][y1]){
-                            todo.add(new Offset(x, y1));
+                            todo.add(new Point(x, y1));
                         }
                     }
                     // Compare with pixel to the left ...
@@ -467,7 +455,7 @@ public class ImageHelper {
                         if (pixels[x1][y]) {
                             outlines[x][y] = true;
                         } else if (!visited[x1][y]){
-                            todo.add(new Offset(x1, y));
+                            todo.add(new Point(x1, y));
                         }
                     }
                 }
