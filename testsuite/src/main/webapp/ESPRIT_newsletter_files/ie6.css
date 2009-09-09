@@ -1,0 +1,113 @@
+body {
+	font-size:13px;
+}
+
+div#bodyContent {
+	background-image: none;
+	filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src=/bg_content_shaddow.png, sizingMethod=scale);
+	width: 962px;
+	height: 1px;
+}
+
+div#shaddow {
+	background-image: none;
+	filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src=bg_content_shaddow_comletition_ie6.png, sizingMethod=image);
+	height: 8px;
+	width: 962px;
+}
+
+div#mainNavigation ul iframe { /* fix for ie < 7 selectbox bug (eg. storefinderpage with club-subnavigation) */
+	display:none;/*sorry for IE5*/
+	display/**/:block;/*sorry for IE5*/
+	position:absolute;/*must have*/
+	top:0;/*must have*/
+	left:0;/*must have*/
+	z-index:-1;/*must have*/
+	filter:mask();/*must have*/
+	width:175px;/*must have for any big value*/
+	height:340px/*must have for any big value*/;
+}
+
+div#mainNavigation ul li a {
+font-size:10px;
+}
+
+div#mainNavigation ul li ul li a {
+
+}
+
+div#mainNavigation ul li ul li {
+padding: 0;
+margin: 0;
+}
+
+div#contentSection div#contentBody {
+	/*zoom: 1.0;*/ /* IE6 Fix: Apply 'hasLayout' property */ 
+	width: 896px;
+}
+
+div#contentSection div#contentBody div.sideSection {
+	margin-right: 9px;
+}
+
+div.sideSection div.special {
+	width:179px;
+	overflow: hidden;
+}
+
+div#contentSection div#contentBody div.home {
+	margin-left: 0;
+}
+
+.textTeaser p {
+	font-size: 13px;
+}
+
+div.smallTeaser {
+	margin-bottom: -3px;
+}
+
+div.smallTeaser h3 {
+	text-decoration: none;
+}
+
+div.smallTeaser p {
+	padding-bottom: 1px;;
+}
+
+div.smallTeaser p img {
+	margin-right: -10px;
+}
+
+*html dl.elementFunction dd {
+	float: none !important;
+	width: 475px; /* -3px */
+}
+
+div#subNavigation a {
+	
+}
+
+div#subNavigation div {
+	
+}
+
+div#subNavigation span.sub3 a {
+	
+}
+
+div#subNavigation span.sub4 a {
+	
+}
+
+ul.fineprint li {
+	font-size: 10px;
+}
+
+p#copyright {
+	font-size: 10px;
+}
+
+.mid {
+	margin:0 17px 0 17px;
+}

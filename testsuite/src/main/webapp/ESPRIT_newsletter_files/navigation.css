@@ -1,0 +1,210 @@
+/**
+ * ///////////////////////////////////////////////////
+ * //////////  C M S  G R I D  S T Y L E S  //////////
+ * ///////////////////////////////////////////////////
+ * 
+ * Page Grid Definition
+ * 
+ * @author			Olli, Larsen, Norbert
+ * @since			20080925
+ * @version			0.2esprit
+ * @revision		20090205 / goe
+ * 
+ * ///////////////////////////////////////////////// */
+
+
+/**
+ * @section			MAIN NAVIGATION
+ * @note			Here: Typical SuckerFish Navigation
+ */
+
+
+/* MAIN NAVIGATION SECTION */
+
+div#mainNavigation {
+	left: 81px;
+	position: absolute;
+	top: 87px;
+	width: 875px;
+	z-index: 1000;
+}
+
+
+/* MAIN NAVIGATION, 1st Level */
+
+div#mainNavigation ul {
+	height: 20px;
+	list-style: none;
+	margin: 0px 0px 0px 0px;
+	_margin-bottom: -1px; /* IE6 BugFix */
+	padding: 0px 0px 0px 0px;
+	width: 875px;
+	z-index: 100;
+}
+
+div#mainNavigation ul li {
+	float: left;
+	font-size: 1em;
+	margin: 0px 5px 6px 0px;
+}
+
+div#mainNavigation ul li:hover {
+	background: url(bg_mainnav_first_active.gif) bottom left no-repeat ;
+}
+
+div#mainNavigation ul li:hover ul li {
+	background-image: none;
+	margin-bottom: 0;
+}
+
+div#mainNavigation ul li a {
+	color: #8e8e8e;
+	display: block;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 0.8333em;
+	font-weight: 700;
+	padding: 0;
+	text-decoration: none;
+}
+
+/* MAIN NAVIGATION, 2nd Level */
+
+div#mainNavigation ul li ul {
+	background-color: #f2f2f2;
+	background-image: none;
+	border-color: #d4d4d4;
+	border-style: none solid solid solid;
+	border-width: 0px 1px 1px 1px;
+	left: -999em;
+	height: auto;
+	margin: 0;
+	position: absolute;
+	width: 160px;
+}
+
+div#mainNavigation ul li ul li {
+}
+
+div#mainNavigation ul li ul li.active,
+div#mainNavigation ul li ul li:hover,
+div#mainNavigation ul li ul li.sfhover {
+	/*background: #eeeeee url('mainNavigation_BG.gif') repeat-x left 1px;*/
+	background-color: #fff;
+}
+
+div#mainNavigation li:hover { /* avoid sticky submenues in ie7 */
+	position: static;
+}
+
+div#mainNavigation ul li ul li a {
+	border-bottom: 1px dotted #c1c1c1;
+	border-right: none;
+	margin: 0em 0px 0em 10px;
+	padding: 0.3333em 0px 0.3333em 0px;
+	width: 150px;
+}
+
+div#mainNavigation ul li ul li a:hover {
+	color: #fd0014;
+}
+
+div#mainNavigation ul li ul li:first-child a {
+	/*border-top: 1px solid #dddddd;*/
+}
+
+/*div#mainNavigation ul li ul li span {
+	background: url('mainNavigation_LI_hasChildren.gif') no-repeat right center;
+	border-top: 1px solid #e5e5e5;
+	border-right: none;
+	margin: 0em 0px 0em 12px;
+	padding: 0.3333em 0px 0.3333em 0px;
+	width: 160px;
+}*/
+
+div#mainNavigation ul li ul li.actualPosition {
+	background-color: #fff;
+}
+
+/* MAIN NAVIGATION, 3rd Level */
+
+div#mainNavigation ul li ul li ul {
+	position: absolute;
+	top:255px;
+	border: 1px solid #e5e5e5;
+	margin-top: -24px; /* Korrekturwert zur Zeilenhaltigkeit; abhängig von Schriftgröße und Innenabständen */
+	margin-left: 172px; /* Abstand der dritten zur zweitend Navigationsebene; entspricht der Breite der DropDowns */
+}
+
+div#mainNavigation ul li ul li ul li:first-child {
+	margin-top: -1px;
+}
+
+
+/* Toggle the view of the navigation sub levels; on hover, respectively by applying the sfhover class to IE6 via suckerfish.js */
+
+div#mainNavigation ul li:hover ul ul,
+div#mainNavigation ul li:hover ul ul ul,
+div#mainNavigation ul li.sfhover ul ul,
+div#mainNavigation ul li.sfhover ul ul ul {
+	left: -999em;
+}
+
+div#mainNavigation ul li:hover ul,
+div#mainNavigation ul li li:hover ul,
+div#mainNavigation ul li li li:hover ul,
+div#mainNavigation ul li.sfhover ul,
+div#mainNavigation ul li li.sfhover ul,
+div#mainNavigation ul li li li.sfhover ul {
+	left: auto;
+}
+
+
+/* Subpage navigation, 2nd, 3rd and 4th level */
+
+
+
+/*############################## Navigation List | left column ##*/
+
+
+div#subNavigation a {
+	background: transparent url(casual/listnav-bg1.gif) top left repeat-y; /* casual */
+	color: #5e8162; /* casual */
+	display: block;
+	font-size: 10px;
+	font-weight: bold;
+	margin-bottom: 1px;
+	padding:3px 5px 4px 18px;
+	text-decoration: none;
+}
+
+div#subNavigation .sub3 .activepath a {
+	font-weight: 700;
+}
+
+div#subNavigation .activepath a {
+	background: transparent url(casual/listnav-bg2.gif) top left repeat-y; /* casual */
+}
+
+div#subNavigation .sub3 a {
+	background: transparent url(casual/listnav-bg2.gif) top left repeat-y; /* casual */
+	font-weight: normal;
+	padding-left: 25px;
+}
+
+div#subNavigation .sub4 a {
+	padding-left: 32px;
+}
+
+div#subNavigation div.active a {
+	background: transparent url(casual/listnav-bg3.gif) top left repeat-y; /* casual */
+	border-bottom:1px solid #FFFFFF;
+	border-top:1px solid #FFFFFF;
+	font-weight: 700;
+	margin-bottom: 0;
+	margin-top: -1px;
+}
+
+div#subNavigation a:hover{
+	background: transparent url(casual/listnav-bg3.gif) top left repeat-y; /* casual */
+	text-decoration: none;
+}

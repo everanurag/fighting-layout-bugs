@@ -1,0 +1,221 @@
+/**
+ * ///////////////////////////////////////////////////
+ * //////////  C M S  G R I D  S T Y L E S  //////////
+ * ///////////////////////////////////////////////////
+ * 
+ * Page Grid Definition
+ * 
+ * @author			Olli, Larsen, Norbert
+ * @since			20080925
+ * @version			0.1
+ * @revision		20080925
+ * 
+ * ///////////////////////////////////////////////// */
+
+/**
+ * @section			GLOBAL DOCUMENT
+ * @note			Outer containers of the document
+ */
+
+/* Body Container */
+
+
+/* Outer Container */
+div#bodyContent {
+	background: url(bg_content_shaddow.png) right top transparent;
+	margin: 0px auto 0px auto;
+	padding: 0 1px 15px 0;
+	position: relative;
+	width: 961px;
+}
+
+/* bottom shaddow */
+div#shaddow {
+	background: url(bg_content_shaddow_comletition.png) no-repeat right top transparent;
+	height: 8px;
+	margin: 0px auto 0px auto;
+	padding: 0 0 20px 0;
+	position: relative;
+	width: 962px;
+}
+
+/**
+ * @section			HEADER SECTION
+ * @note			Contains Logo, theme selector, language selector, search, season name
+ */
+
+div#headerSection {
+	background: url(bg_head_season.gif) 81px 0 no-repeat transparent;
+	height: 60px;
+	left: 0;
+	position: absolute;
+	top: 21px;
+	width: 951px;
+}
+
+div#headerSection div#headerBody {
+	position: absolute;
+	left: 20px;
+	top: 0;
+}
+
+#themeSelector {
+	position: absolute;
+	left: 443px;
+	top: 13px;
+}
+
+#languageSelector {
+	position: absolute;
+	left: 613px;
+	top: 13px;
+}
+
+#themeSelector select,
+#languageSelector select {
+	font-size: 10px;
+	height: 18px;
+	width: 145px;
+}
+
+#searchArea {
+	position: absolute;
+	left: 783px;
+	top: 13px;
+}
+
+/**
+ * @section			CONTENT SECTION
+ * @note			Contains all the informational content of the page and (if so) subnavigation
+ */
+
+div#contentSection {
+	background-color: #fff;
+	margin: 0px 0px 0px 76px;
+	padding: 0 1px 0 0;
+}
+
+div#contentSection div#contentBody {
+	background: url(casual/bg_content_pattern.gif) 0 125px no-repeat #fff; /* casual */
+	margin: 0;
+	min-height: 520px;
+	overflow: hidden; /* WorkAround: Visually wrap around the floating elements within */
+	padding: 120px 0 0 0;
+}
+
+div#contentSection div#contentBody div.mainSection {
+	float: left;
+	margin: 11px 0 0 192px;
+	width: 490px;
+}
+
+div#contentSection div#contentBody div.sideSection {
+	background: url(bg_sidesection.gif) repeat-y;
+	float: right;
+	margin: 66px 5px -5000px 0;
+	padding: 0 0 5000px 0;
+	width: 179px;
+}
+
+/* homepage */
+
+div#contentSection div#contentBody.oneColumn {
+	background-image: url(casual/bg_content_pattern_home.gif); /* casual */
+	background-repeat: no-repeat;
+}
+
+div#contentSection div#contentBody.home {
+	background-repeat: repeat-y;
+}
+
+div#contentSection div#contentBody div.oneColumn {
+	width: 880px;
+	margin-left: 0;
+}
+
+div#mainTeaserContainer {
+	height: 310px;
+	margin: 0 0 30px 0;
+	overflow: hidden;
+	padding: 10px 0 0 5px;
+	width: 870px;
+}
+
+div#smallTeaserContainer {
+	height: 130px;
+	overflow: hidden;
+	padding: 0 0 0 5px;
+	width: 880px;
+}
+
+/* end homepage */
+
+/* special: no right column, eg IR analyst coverage */
+div#contentSection div#contentBody.noRightColumn {
+	background-image: url(casual/bg_content_pattern_no_right_margin.gif); /* casual */
+	background-repeat: no-repeat;
+}
+/* end special: no right column, eg IR analyst coverage */
+
+/* pages with subnavigation (standard) */
+
+div#contentSection div#contentBody div.split {
+	float: left;
+	margin: 11px 0 -5000px 0;
+	padding-bottom: 5000px;
+	width: 690px;
+}
+
+div#contentSection div#contentBody.noRightColumn div.split {
+	width: 880px;
+}
+
+div#contentSection div#contentBody div.split div.mainColumn {
+	float: left;
+	margin: 0 0 0 20px;
+	width: 490px;
+}
+
+div#contentSection div#contentBody div.split div.wide {
+	width: 660px;
+}
+
+div#subNavigation {
+	background: url(casual/bg_subnavigation.gif) repeat-y;/* casual */
+	float: left;
+	font-family: Verdana,Helvetica,Arial;
+	margin: 55px 0 -5000px 0;
+	padding: 20px 0 5000px 0;
+	width: 175px;
+}
+
+/**
+ * @section			NAVIGATION SECTION
+ * @note			Contains the mainNavigation, als well as additional navigations, e.g. metaNavigation. These navigations however are to be defined in the navigation.css
+ */
+
+div#navigationSection {
+	margin:0;
+	padding:0;
+}
+
+div#navigationSection div#navigationBody {
+	margin:0;
+	padding:0;
+}
+
+/**
+ * @section			FOOTER SECTION
+ * @note			Usually contains copyright informations etc.
+ */
+
+div#footerSection {
+}
+
+div#footerSection div#footerBody {
+	background-color: #f2f2f2;
+	height: 25px;
+	margin: 30px 10px 0 76px;
+	overflow: hidden;
+	padding: 0px 20px 0px 25px;
+}

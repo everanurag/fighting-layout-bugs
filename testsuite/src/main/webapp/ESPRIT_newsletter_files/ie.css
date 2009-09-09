@@ -1,0 +1,8 @@
+#searchArea input {
+	padding-top: 0;
+}
+
+#themeSelector select,
+#languageSelector select {
+	height: 20px;
+}

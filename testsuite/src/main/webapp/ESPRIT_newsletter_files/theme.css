@@ -1,0 +1,31 @@
+/**
+ * ///////////////////////////////////////////////////
+ * //////////  THEME SECIFIC STYLES  /////////////////
+ * ///////////////////////////////////////////////////
+ * 
+ * Page Grid Definition
+ * 
+ * @author			goe
+ * @since			20090119
+ * @version			0.1
+ * @revision		20090119
+ * 
+ * ///////////////////////////////////////////////// */
+
+body {
+	background: url(casual/backgrounds/06.jpg) top left #d2dfd3 fixed; /* casual */
+}
+
+/**
+ * @note			as casual is the default-style, find more definitions in main stylesheets
+ */
+
+ 
+#presssearch,
+div.pagingCount,
+.newsform,
+.languagearea {
+	border-bottom-color: #5E8162;
+	border-top-color: #5E8162;
+	background-color: #e1eadc;
+}
