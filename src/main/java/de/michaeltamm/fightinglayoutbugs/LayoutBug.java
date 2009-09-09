@@ -108,7 +108,7 @@ public class LayoutBug {
             // on my machine (Windows Vista 64 bit, Sun JDK 1.6.0_10 64 bit),
             // therefore I always create a new file here ...
             final String name = _screenshot.getName();
-            final String prefix = name.substring(name.indexOf('.') + 1);
+            final String prefix = name.substring(0, name.indexOf('.') + 1);
             final File newFile = File.createTempFile(prefix, ".png", _screenshot.getParentFile());
             ImageIO.write(ImageHelper.pixelsToImage(pixels), "png", newFile);
             try {
