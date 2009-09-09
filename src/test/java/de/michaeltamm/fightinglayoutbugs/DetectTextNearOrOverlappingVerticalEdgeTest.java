@@ -40,4 +40,19 @@ public class DetectTextNearOrOverlappingVerticalEdgeTest extends TestUsingFirefo
         assertThat(layoutBug.getScreenshot().lastModified() > startTime);
     }
 
+    @Test
+    public void shouldFindLayoutBugInMicrosoftNewsletterPage() throws Exception {
+        _driver.get("http://localhost:8080/Microsoft_Newsletter.html");
+        final long startTime = System.currentTimeMillis();
+        final LayoutBugDetector detector = new DetectTextNearOrOverlappingVerticalEdge();
+        detector.setScreenshotDir(new File("target"));
+        final Collection<LayoutBug> layoutBugs = detector.findLayoutBugs(_driver);
+        assertThat(layoutBugs.size() == 1);
+        final LayoutBug layoutBug = layoutBugs.iterator().next();
+        assertThat(layoutBug.getScreenshot(), HamcrestHelper.isNotNull());
+        System.out.println(layoutBug);
+        assertThat(layoutBug.getScreenshot().isFile());
+        assertThat(layoutBug.getScreenshot().lastModified() > startTime);
+    }
+
 }
