@@ -32,6 +32,7 @@ public class DetectTextNearOrOverlappingVerticalEdge extends AbstractLayoutBugDe
         final boolean[][] text = textDetector.detectTextPixelsIn(driver);
         final int w = text.length;
         final int h = text[0].length;
+        final boolean[][] textOutlines = ImageHelper.findOutlines(text);
         if (w > 0 && h > 0) {
             final EdgeDetector edgeDetector = new SimpleEdgeDetector();
             final boolean[][] verticalEdges = edgeDetector.detectVerticalEdgesIn(driver, 16);
@@ -41,7 +42,7 @@ public class DetectTextNearOrOverlappingVerticalEdge extends AbstractLayoutBugDe
             boolean foundBuggyPixel = false;
             for (int x = 0; x < w; ++x) {
                 for (int y = 0; y < h; ++y) {
-                    if (text[x][y] && verticalEdges[x][y]) {
+                    if ((text[x][y] || textOutlines[x][y]) && verticalEdges[x][y]) {
                         buggyPixels[x][y] = true;
                         foundBuggyPixel = true;
                     }
