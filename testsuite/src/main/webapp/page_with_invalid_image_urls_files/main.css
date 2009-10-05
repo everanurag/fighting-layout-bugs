@@ -1,0 +1,5 @@
+@import url("imported1.css");
+
+div {
+    background-image: url("/invalid/url/3.png");
+}

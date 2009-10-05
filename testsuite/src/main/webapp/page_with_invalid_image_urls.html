@@ -1,0 +1,23 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+    <head>
+        <title>Page With Invalid Image URLs</title>
+        <link rel="stylesheet" type="text/css" href="page_with_invalid_image_urls_files/main.css" />
+        <style type="text/css">
+            @import "page_with_invalid_image_urls_files/imported2.css";
+            p {
+                background: transparent url("/invalid/url/4.png") repeat-x;
+            }
+        </style>
+    </head>
+    <body style="background-image: url(/invalid/url/5.png)">
+        <h1>Page With Invalid Image URLs</h1>
+        <ul style="list-style-image: url('/invalid/url/6.png')">
+            <li>foo</li>
+            <li>bar</li>
+            <li><img src="" alt="image with empty src attribute" /></li>
+            <li><img src="/invalid/url/7.png" alt="image with invalid URL" /></li>
+        </ul>
+    </body>
+</html>
