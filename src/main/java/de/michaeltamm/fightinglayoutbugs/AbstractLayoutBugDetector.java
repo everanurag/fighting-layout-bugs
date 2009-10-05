@@ -36,6 +36,10 @@ public abstract class AbstractLayoutBugDetector extends AbstractDetector impleme
         _screenshotDir = screenshotDir;
     }
 
+    protected LayoutBug createLayoutBug(String message, FirefoxDriver driver) {
+        return createLayoutBug(message, driver, null);
+    }
+
     protected LayoutBug createLayoutBug(String message, FirefoxDriver driver, boolean[][] buggyPixels) {
         File screenshot = null;
         if (_screenshotDir != null) {
@@ -48,14 +52,18 @@ public abstract class AbstractLayoutBugDetector extends AbstractDetector impleme
                 screenshot = File.createTempFile(prefix + "_" + df.format(new Date()) + ".", ".png", _screenshotDir);
                 driver.saveScreenshot(screenshot);
             } catch (IOException e) {
-                // TODO: LOG.warn("Could not save screenshot.", e);
+                System.err.print("Could not save screenshot: ");
+                e.printStackTrace(System.err);
             }
         }
-        final LayoutBug layoutBug = new LayoutBug(message, screenshot);
-        try {
-            layoutBug.markBuggyPixels(buggyPixels);
-        } catch (Exception e) {
-            // TODO: LOG.warn("Could not mark buggy pixels in screenshot.", e);            
+        final LayoutBug layoutBug = new LayoutBug(message, driver, screenshot);
+        if (buggyPixels != null) {
+            try {
+                layoutBug.markBuggyPixels(buggyPixels);
+            } catch (Exception e) {
+                System.err.print("Could not mark buggy pixels in screenshot: ");
+                e.printStackTrace(System.err);
+            }
         }
         return layoutBug;
     }

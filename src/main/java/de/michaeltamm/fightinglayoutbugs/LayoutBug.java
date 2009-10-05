@@ -16,6 +16,8 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
+import org.openqa.selenium.firefox.FirefoxDriver;
+
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
@@ -32,23 +34,48 @@ public class LayoutBug {
     private static final int TRANSPARENT = 0xFF000000;
 
     private final String _description;
+    private final String _url;
+    private final String _html;
     private File _screenshot;
 
-    public LayoutBug(String description, File screenshot) {
+    public LayoutBug(String description, FirefoxDriver driver, File screenshot) {
         _description = description;
+        _url = driver.getCurrentUrl();
+        _html = driver.getPageSource();
         _screenshot = screenshot;
     }
 
+    /**
+     * Returns a description of this layout bug.
+     */
     public String getDescription() {
         return _description;
     }
 
+    /**
+     * Returns the URL of the page with this layout bug.
+     */
+    public String getUrl() {
+        return _url;
+    }
+
+    /**
+     * Returns the HTML of the page with this layout bug.
+     */
+    public String getHtml() {
+        return _html;
+    }
+
+    /**
+     * Returns a screenshot of this layout bug, might return <code>null</code>.
+     */
     public File getScreenshot() {
         return _screenshot;
     }
 
     /**
-     * Marks the buggy pixels in the screenshot of this layout bug.
+     * Marks the given buggy pixels in the screenshot of this layout bug
+     * by surrounding them with a thick red line.
      */
     public void markBuggyPixels(boolean[][] buggyPixels) throws IOException {
         if (_screenshot != null) {
@@ -77,7 +104,7 @@ public class LayoutBug {
                     }
                 }
             }
-            // 2.) Encircle buggy areas with red lines ...
+            // 2.) Surround buggy areas with red lines ...
             final int[][] redLines = new int[w][h];
             for (int x = 0; x < w; ++x) {
                 for (int y = 0; y < h; ++y) {
@@ -104,7 +131,7 @@ public class LayoutBug {
             }
             // 3.) Blend red lines into screenshot ...
             ImageHelper.blend(pixels, redLines);
-            // Sometimes overwriting the existing screenshot filedid not work
+            // Sometimes overwriting the existing screenshot file did not work
             // on my machine (Windows Vista 64 bit, Sun JDK 1.6.0_10 64 bit),
             // therefore I always create a new file here ...
             final String name = _screenshot.getName();
@@ -124,12 +151,12 @@ public class LayoutBug {
     @Override
     public String toString() {
         if (_screenshot == null) {
-            return _description;
+            return _description + "\n- URL: " + _url;
         } else {
             try {
-                return _description + " - " + _screenshot.getCanonicalPath();
+                return _description + "\n- URL: " + _url + "\n- Screenshot: " + _screenshot.getCanonicalPath();
             } catch (IOException ignored) {
-                return _description + " - " + _screenshot;
+                return _description + "\n- URL: " + _url + "\n- Screenshot: " + _screenshot;
             }
         }
     }
