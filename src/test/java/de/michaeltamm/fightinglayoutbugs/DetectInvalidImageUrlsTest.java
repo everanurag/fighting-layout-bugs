@@ -18,6 +18,11 @@ package de.michaeltamm.fightinglayoutbugs;
 
 import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.assertThat;
 import org.junit.Test;
+import org.junit.internal.matchers.TypeSafeMatcher;
+import static org.hamcrest.Matchers.hasItem;
+import org.hamcrest.Matcher;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 
 import java.util.Collection;
 
@@ -31,7 +36,31 @@ public class DetectInvalidImageUrlsTest extends TestUsingFirefoxDriver {
         for (LayoutBug bug : layoutBugs) {
             System.out.println(bug);
         }
-        assertThat(layoutBugs.size() == 7);
+        assertThat(layoutBugs, containsLayoutBug("/invalid/url/1.png"));
+        assertThat(layoutBugs, containsLayoutBug("/invalid/url/2.png"));
+        assertThat(layoutBugs, containsLayoutBug("/invalid/url/3.png"));
+        assertThat(layoutBugs, containsLayoutBug("/invalid/url/4.png"));
+        assertThat(layoutBugs, containsLayoutBug("/invalid/url/5.png"));
+        assertThat(layoutBugs, containsLayoutBug("/invalid/url/6.png"));
+        assertThat(layoutBugs, containsLayoutBug("/invalid/url/7.png"));
+        assertThat(layoutBugs, containsLayoutBug("Detected <img> without src attribute."));
+        assertThat(layoutBugs, containsLayoutBug("Detected <img> element with empty src attribute."));
+    }
+
+    private Matcher<Collection<LayoutBug>> containsLayoutBug(final String descriptionSubstring) {
+        return new TypeSafeMatcher<Collection<LayoutBug>>() {
+            public boolean matchesSafely(Collection<LayoutBug> layoutBugs) {
+                for (LayoutBug bug : layoutBugs) {
+                    if (bug.getDescription().contains(descriptionSubstring)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            public void describeTo(Description description) {
+                description.appendText("contains LayoutBug \"" + descriptionSubstring + "\"");
+            }
+        };
     }
 
 }

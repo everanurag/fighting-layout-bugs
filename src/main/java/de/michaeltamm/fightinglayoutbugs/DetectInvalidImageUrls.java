@@ -24,9 +24,12 @@ import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.methods.GetMethod;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.io.IOException;
+import static java.lang.Character.isWhitespace;
 
 /**
  * @author Michael Tamm
@@ -57,7 +60,8 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
                 final List<LayoutBug> layoutBugs = new ArrayList<LayoutBug>();
                 // 1. Check the src attribute of all <img> elements ...
                 checkImgElements(driver, layoutBugs);
-                // TODO: 2. Check the style attribute of all elements ...
+                // 2. Check the style attribute of all elements ...
+                checkStyleAttributes(driver, layoutBugs);
                 // TODO: 3. Check all <style> elements ...
                 // TODO: 4. Check all linked CSS resources ...
                 // TODO: 5. Check favicon ...
@@ -86,28 +90,97 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
                         final URL url = getCompleteUrlFor(src);
                         final String error = checkImageUrl(url);
                         if (error.length() > 0) {
-                            layoutBugs.add(createLayoutBug("Detected <img> element with invalid src attribute + \"" + src + "\" - " + error, driver));
+                            layoutBugs.add(createLayoutBug("Detected <img> element with invalid src attribute \"" + src + "\" - " + error, driver));
                         }
                     } catch (MalformedURLException e) {
-                        layoutBugs.add(createLayoutBug("Detected <img> element with invalid src attribute + \"" + src + "\" - " + e.getMessage(), driver));
+                        layoutBugs.add(createLayoutBug("Detected <img> element with invalid src attribute \"" + src + "\" - " + e.getMessage(), driver));
                     }
                     seen.add(src);
                 }
             }
         }
         if (numImgElementsWithEmptySrcAttribute > 0) {
-            
+            if (numImgElementsWithEmptySrcAttribute == 1) {
+                layoutBugs.add(createLayoutBug("Detected <img> element with empty src attribute.", driver));
+            } else {
+                layoutBugs.add(createLayoutBug("Detected " + numImgElementsWithEmptySrcAttribute + " <img> elements with empty src attribute.", driver));
+            }
         }
         if (numImgElementsWithoutSrcAttribute > 0) {
-
+            if (numImgElementsWithEmptySrcAttribute == 1) {
+                layoutBugs.add(createLayoutBug("Detected <img> without src attribute.", driver));
+            } else {
+                layoutBugs.add(createLayoutBug("Detected " + numImgElementsWithoutSrcAttribute + " <img> elements without src attribute.", driver));
+            }
         }
     }
+
+    private void checkStyleAttributes(FirefoxDriver driver, List<LayoutBug> layoutBugs) {
+        for (WebElement element : driver.findElements(By.xpath("//*[@style]"))) {
+            final String css = element.getAttribute("style");
+            for (String url : extractImageUrlsFrom(css).keySet()) {
+                try {
+                    final String error = checkImageUrl(getCompleteUrlFor(url));
+                    if (error.length() > 0) {
+                        layoutBugs.add(createLayoutBug("Detected <" + element.getTagName() + "> element with invalid image URL \"" + url + "\" in its style attribute - " + error, driver));
+                    }
+                } catch (MalformedURLException e) {
+                    layoutBugs.add(createLayoutBug("Detected <" + element.getTagName() + "> element with invalid image URL \"" + url + "\" in its style attribute - " + e.getMessage(), driver));
+                }
+            }
+        }
+    }
+
+    private Map<String, Integer> extractImageUrlsFrom(String css) {
+        final ConcurrentMap<String, Integer> imageUrls = new ConcurrentHashMap<String, Integer>();
+        final int n = css.length();
+        int i = css.indexOf("url(");
+        while (i != -1) {
+            int j = i + 4;
+            while (j < n && isWhitespace(css.charAt(j))) {
+                ++j;
+            }
+            int k;
+            if (j < n && css.charAt(j) == '"') {
+                ++j;
+                k = css.indexOf('"', j);
+                if (k == -1) {
+                    k = n;
+                }
+            } else if (j < n && css.charAt(j) == '\'') {
+                ++j;
+                k = css.indexOf('\'', j);
+                if (k == -1) {
+                    k = n;
+                }
+            } else if (j < n) {
+                k = css.indexOf(')', j);
+                while (k != -1 && css.charAt(k - 1) == '\\') {
+                    k = css.indexOf(')', k + 1);
+                }
+                if (k == -1) {
+                    k = n;
+                }
+                while (k - 1 > j && isWhitespace(css.charAt(k - 1))) {
+                    --k;
+                }
+            } else {
+                j = k = n;
+            }
+            final String url = css.substring(j, k);
+            // Put if absent, so the returned map contains the position of the *first* occurrence for each URL ...
+            imageUrls.putIfAbsent(url, i);
+            i = css.indexOf("url(", k);
+        }
+        return imageUrls;
+    }
+
 
     /**
      * Returns <code>""</code> if the given URL is a valid image URL,
      * otherwise an error message is returned.
      */
-    String checkImageUrl(URL url) {
+    protected String checkImageUrl(URL url) {
         String error = _checkedUrls.get(url);
         if (error == null) {
             final GetMethod getMethod = new GetMethod(url.toExternalForm());
@@ -123,7 +196,7 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
                     } else {
                         final String contentType = contentTypeHeader.getValue();
                         if (!contentType.startsWith("image/")) {
-                            error = "Content-Type \"" + contentType + "\" does not start with \"image/\".";
+                            error = "Content-Type HTTP response header \"" + contentType + "\" does not start with \"image/\".";
                         } else {
                             // The given URL seems to be a valid image URL.
                             error = "";
@@ -140,7 +213,7 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
         return error;
     }
 
-    protected URL getCompleteUrlFor(String url) throws MalformedURLException {
+    private URL getCompleteUrlFor(String url) throws MalformedURLException {
         final URL completeUrl;
         if (hasProtocol(url)) {
             completeUrl = new URL(url);
