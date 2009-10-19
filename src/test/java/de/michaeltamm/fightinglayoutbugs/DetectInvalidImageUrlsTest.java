@@ -48,6 +48,7 @@ public class DetectInvalidImageUrlsTest extends TestUsingFirefoxDriver {
         final Collection<LayoutBug> layoutBugs = detector.findLayoutBugs(_driver);
         for (LayoutBug bug : layoutBugs) {
             System.out.println(bug);
+            System.out.println();
         }
         assertThat(layoutBugs, containsLayoutBug("/invalid/url/1.png"));
         assertThat(layoutBugs, containsLayoutBug("/invalid/url/2.png"));

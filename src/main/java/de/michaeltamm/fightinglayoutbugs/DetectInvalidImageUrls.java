@@ -41,6 +41,11 @@ import static java.lang.Character.isWhitespace;
  */
 public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
 
+    private static class Css {
+        public String charset;
+        public String text;
+    }
+
     static String stripCommentsFrom(String css) {
         final int n = css.length();
         int j = css.indexOf("/*");
@@ -122,8 +127,8 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
             } else {
                 if (!seen.contains(src)) {
                     try {
-                        final URL url = getCompleteUrlFor(src);
-                        final String error = checkImageUrl(url);
+                        final URL imageUrl = getCompleteUrlFor(src);
+                        final String error = checkImageUrl(imageUrl);
                         if (error.length() > 0) {
                             layoutBugs.add(createLayoutBug("Detected <img> element with invalid src attribute \"" + src + "\" - " + error, driver));
                         }
@@ -153,16 +158,17 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
     private void checkStyleAttributes(FirefoxDriver driver, List<LayoutBug> layoutBugs) {
         for (WebElement element : driver.findElements(By.xpath("//*[@style]"))) {
             final String css = element.getAttribute("style");
-            Set<String> importUrls = getImportUrlsFrom(css);
-            // TODO: check imported CSS
-            for (String url : extractUrlsFrom(css).keySet()) {
+            for (String importUrl : getImportUrlsFrom(css)) {
+                checkCssResource(importUrl + " (imported in style attribute of <" + element.getTagName() + "> element)", importUrl, _baseUrl, _documentCharset, driver, layoutBugs);
+            }
+            for (String imageUrl : extractUrlsFrom(css).keySet()) {
                 try {
-                    final String error = checkImageUrl(getCompleteUrlFor(url));
+                    final String error = checkImageUrl(getCompleteUrlFor(imageUrl));
                     if (error.length() > 0) {
-                        layoutBugs.add(createLayoutBug("Detected <" + element.getTagName() + "> element with invalid image URL \"" + url + "\" in its style attribute - " + error, driver));
+                        layoutBugs.add(createLayoutBug("Detected <" + element.getTagName() + "> element with invalid image URL \"" + imageUrl + "\" in its style attribute - " + error, driver));
                     }
                 } catch (MalformedURLException e) {
-                    layoutBugs.add(createLayoutBug("Detected <" + element.getTagName() + "> element with invalid image URL \"" + url + "\" in its style attribute - " + e.getMessage(), driver));
+                    layoutBugs.add(createLayoutBug("Detected <" + element.getTagName() + "> element with invalid image URL \"" + imageUrl + "\" in its style attribute - " + e.getMessage(), driver));
                 }
             }
         }
@@ -171,16 +177,17 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
     private void checkStyleElements(FirefoxDriver driver, List<LayoutBug> layoutBugs) {
         for (WebElement styleElement : driver.findElements(By.tagName("style"))) {
             final String css = (String) driver.executeScript("return arguments[0].textContent", styleElement);
-            Set<String> importUrls = getImportUrlsFrom(css);
-            // TODO: check imported CSS
-            for (String url : extractUrlsFrom(css).keySet()) {
+            for (String importUrl : getImportUrlsFrom(css)) {
+                checkCssResource(importUrl + " (imported in <style> element)", importUrl, _baseUrl, _documentCharset, driver, layoutBugs);
+            }
+            for (String imageUrl : extractUrlsFrom(css).keySet()) {
                 try {
-                    final String error = checkImageUrl(getCompleteUrlFor(url));
+                    final String error = checkImageUrl(getCompleteUrlFor(imageUrl));
                     if (error.length() > 0) {
-                        layoutBugs.add(createLayoutBug("Detected <style> element with invalid image URL \"" + url + "\" - " + error, driver));
+                        layoutBugs.add(createLayoutBug("Detected <style> element with invalid image URL \"" + imageUrl + "\" - " + error, driver));
                     }
                 } catch (MalformedURLException e) {
-                    layoutBugs.add(createLayoutBug("Detected <style> element with invalid image URL \"" + url + "\" - " + e.getMessage(), driver));
+                    layoutBugs.add(createLayoutBug("Detected <style> element with invalid image URL \"" + imageUrl + "\" - " + e.getMessage(), driver));
                 }
             }
         }
@@ -193,32 +200,38 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
             final String href = link.getAttribute("href");
             if ((rel != null && rel.contains("stylesheet")) || (type != null && type.startsWith("text/css"))) {
                 if (href != null) {
-                    URL cssUrl = null;
-                    try {
-                        cssUrl = getCompleteUrlFor(href);
-                    } catch (MalformedURLException e) {
-                        System.err.print("Could not get CSS from " + href + " - " + e.getMessage());
+                    String charset = link.getAttribute("charset");
+                    if (charset == null) {
+                        charset = _documentCharset;
                     }
-                    if (cssUrl != null && !_visitedCssUrls.contains(cssUrl)) {
-                        String charset = link.getAttribute("charset");
-                        if (charset == null) {
-                            charset = _documentCharset;
+                    checkCssResource(href, href, _baseUrl, charset, driver, layoutBugs);
+                }
+            }
+        }
+    }
+
+    private void checkCssResource(String pathToCssResource, String url, URL baseUrl, String fallBackCharset, FirefoxDriver driver, List<LayoutBug> layoutBugs) {
+        URL cssUrl = null;
+        try {
+            cssUrl = getCompleteUrlFor(baseUrl, url);
+        } catch (MalformedURLException e) {
+            System.err.print("Could not get CSS from " + pathToCssResource + " - " + e.getMessage());
+        }
+        if (cssUrl != null && !_visitedCssUrls.contains(cssUrl)) {
+            _visitedCssUrls.add(cssUrl);
+            final Css css = getCssFrom(cssUrl, fallBackCharset);
+            if (css.text != null) {
+                for (String importUrl : getImportUrlsFrom(css.text)) {
+                    checkCssResource(importUrl + " (imported from " + pathToCssResource + ")", importUrl, cssUrl, css.charset, driver, layoutBugs);
+                }
+                for (String imageUrl : extractUrlsFrom(css.text).keySet()) {
+                    try {
+                        final String error = checkImageUrl(getCompleteUrlFor(imageUrl));
+                        if (error.length() > 0) {
+                            layoutBugs.add(createLayoutBug("Detected invalid image URL \"" + imageUrl + "\" in " + pathToCssResource + " - " + error, driver));
                         }
-                        final String css = getCssFrom(cssUrl, charset);
-                        _visitedCssUrls.add(cssUrl);
-                        Set<String> importUrls = getImportUrlsFrom(css);
-                        // TODO: check imported CSS
-                        for (String url : extractUrlsFrom(css).keySet()) {
-                            try {
-                                final String error = checkImageUrl(getCompleteUrlFor(url));
-                                if (error.length() > 0) {
-                                    layoutBugs.add(createLayoutBug("Detected invalid image URL \"" + url + "\" in " + href + " - " + error, driver));
-                                }
-                            } catch (MalformedURLException e) {
-                                layoutBugs.add(createLayoutBug("Detected <style> element with invalid image URL \"" + url + "\" in " + href + " - " + e.getMessage(), driver));
-                            }
-                        }
-                        
+                    } catch (MalformedURLException e) {
+                        layoutBugs.add(createLayoutBug("Detected invalid image URL \"" + imageUrl + "\" in " + pathToCssResource + " - " + e.getMessage(), driver));
                     }
                 }
             }
@@ -327,21 +340,20 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
      * @param externallySpecifiedCharset the charset from the charset attribute of a &lt;link&gt; attribute if present,
      *                                   otherwise the charset of the refering style sheet or document.
      */
-    private String getCssFrom(URL url, String externallySpecifiedCharset) {
-        String result = null;
+    private Css getCssFrom(URL url, String externallySpecifiedCharset) {
+        final Css result = new Css();
         final GetMethod getMethod = new GetMethod(url.toExternalForm());
         getMethod.setFollowRedirects(true);
         try {
             _httpClient.executeMethod(getMethod);
             if (getMethod.getStatusCode() >= 400) {
-                throw new RuntimeException("Could not get CSS from " + url + " - server responded with: " + getMethod.getStatusCode() + " " + getMethod.getStatusText());
+                System.err.println("Could not get CSS from " + url + " - server responded with: " + getMethod.getStatusCode() + " " + getMethod.getStatusText());
             } else {
                 final InputStream in = getMethod.getResponseBodyAsStream();
                 try {
                     final Utf8BomAwareByteArrayOutputStream out = new Utf8BomAwareByteArrayOutputStream();
                     IOUtils.copy(in, out);
                     // Determine charset (see http://www.w3.org/TR/CSS2/syndata.html#charset) ...
-                    String charset = null;
                     // 1. Check charset parameter of Content-Type response header ...
                     final Header contentTypeHeader = getMethod.getResponseHeader("Content-Type");
                     if (contentTypeHeader != null) {
@@ -349,39 +361,39 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
                         if (a.length > 0) {
                             final NameValuePair charsetParam = a[0].getParameterByName("charset");
                             if (charsetParam != null) {
-                                charset = charsetParam.getValue();
+                                result.charset = charsetParam.getValue();
                             }
                         }
                     }
                     // 2. Check for BOM ...
-                    if (charset == null && out.hasUtf8Bom()) {
-                        charset = "UTF-8";
+                    if (result.charset == null && out.hasUtf8Bom()) {
+                        result.charset= "UTF-8";
                     }
                     // 3. Check for @charset rule ...
-                    if (charset == null) {
+                    if (result.charset == null) {
                         String temp = out.toString("US-ASCII");
                         if (temp.startsWith("@charset \"")) {
                             int i = temp.indexOf("\";");
                             if (i == -1) {
-                                result = "";
+                                result.text = "";
                             } else {
-                                charset = temp.substring("@charset \"".length(), i);
+                                result.charset = temp.substring("@charset \"".length(), i);
                             }
                         }
                     }
                     // 4. Fall back to the externally specified charset parameter ...
-                    if (charset == null && result == null) {
-                        charset = externallySpecifiedCharset;
+                    if (result.charset == null && result.text == null) {
+                        result.charset = externallySpecifiedCharset;
                     }
                     // 5. If the charset is not determined by now, assume UTF-8 ...
-                    if (charset == null && result == null) {
-                        charset = "UTF-8";
+                    if (result.charset == null && result.text == null) {
+                        result.charset = "UTF-8";
                     }
-                    if (result == null) {
+                    if (result.text == null) {
                         try {
-                            result = out.toString(charset);
+                            result.text = out.toString(result.charset);
                         } catch (UnsupportedEncodingException e) {
-                            result = "";
+                            result.text = "";
                         }
                     }
                 } finally {
@@ -389,7 +401,7 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException("Could not get CSS from " + url, e);
+            System.err.println("Could not get CSS from " + url + " - " + e.getMessage());
         } finally {
             getMethod.releaseConnection();
         }
@@ -434,11 +446,15 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
     }
 
     private URL getCompleteUrlFor(String url) throws MalformedURLException {
+        return getCompleteUrlFor(_baseUrl, url);
+    }
+
+    private URL getCompleteUrlFor(URL baseUrl, String url) throws MalformedURLException {
         final URL completeUrl;
         if (hasProtocol(url)) {
             completeUrl = new URL(url);
         } else {
-            completeUrl = new URL(_baseUrl, url);
+            completeUrl = new URL(baseUrl, url);
         }
         return completeUrl;
     }
