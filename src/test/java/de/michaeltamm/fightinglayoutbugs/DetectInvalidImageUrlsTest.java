@@ -57,6 +57,7 @@ public class DetectInvalidImageUrlsTest extends TestUsingFirefoxDriver {
         assertThat(layoutBugs, containsLayoutBug("/invalid/url/5.png"));
         assertThat(layoutBugs, containsLayoutBug("/invalid/url/6.png"));
         assertThat(layoutBugs, containsLayoutBug("/invalid/url/7.png"));
+        assertThat(layoutBugs, containsLayoutBug("/invalid/url/8.png"));
         assertThat(layoutBugs, containsLayoutBug("Detected <img> without src attribute."));
         assertThat(layoutBugs, containsLayoutBug("Detected <img> element with empty src attribute."));
     }

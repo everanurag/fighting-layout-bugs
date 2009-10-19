@@ -79,6 +79,8 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
     private String _documentCharset;
     private HttpClient _httpClient;
     private Set<URL> _visitedCssUrls;
+    /** Initialized in by {@link #findLayoutBugs}, might be overwritten by {@link #checkLinkedCss}. */
+    private String _faviconUrl;
 
     public Collection<LayoutBug> findLayoutBugs(FirefoxDriver driver) throws Exception {
         // Determine base URL for completion of relative URLs ...
@@ -93,6 +95,7 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
         try {
             _httpClient = new HttpClient();
             _visitedCssUrls = new HashSet<URL>();
+            _faviconUrl = "/favicon.ico";
             try {
                 final List<LayoutBug> layoutBugs = new ArrayList<LayoutBug>();
                 // 1. Check the src attribute of all <img> elements ...
@@ -103,7 +106,8 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
                 checkStyleElements(driver, layoutBugs);
                 // 4. Check all linked CSS resources ...
                 checkLinkedCss(driver, layoutBugs);
-                // TODO: 5. Check favicon ...
+                // 5. Check favicon ...
+                checkFavicon(driver, layoutBugs);
                 return layoutBugs;
             } finally {
                 _visitedCssUrls = null;
@@ -195,7 +199,10 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
 
     private void checkLinkedCss(FirefoxDriver driver, List<LayoutBug> layoutBugs) {
         for (WebElement link : driver.findElements(By.tagName("link"))) {
-            final String rel = link.getAttribute("rel");
+            String rel = link.getAttribute("rel");
+            if (rel != null) {
+                rel = rel.toLowerCase(Locale.ENGLISH);
+            }
             final String type = link.getAttribute("type");
             final String href = link.getAttribute("href");
             if ((rel != null && rel.contains("stylesheet")) || (type != null && type.startsWith("text/css"))) {
@@ -205,6 +212,12 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
                         charset = _documentCharset;
                     }
                     checkCssResource(href, href, _baseUrl, charset, driver, layoutBugs);
+                }
+            }
+            // prepare checkFavicon ...
+            if (rel != null && ("icon".equals(rel) || "shortcut icon".equals(rel))) {
+                if (href != null) {
+                    _faviconUrl = href;
                 }
             }
         }
@@ -406,6 +419,21 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
             getMethod.releaseConnection();
         }
         return result;
+    }
+
+    private void checkFavicon(FirefoxDriver driver, List<LayoutBug> layoutBugs) {
+        URL faviconUrl = null;
+        try {
+            faviconUrl = getCompleteUrlFor(_faviconUrl);
+        } catch (MalformedURLException e) {
+            layoutBugs.add(createLayoutBug("Detected invalid favicon URL \"" + _faviconUrl + "\" - " + e.getMessage(), driver));
+        }
+        if (faviconUrl != null) {
+            final String error = checkImageUrl(faviconUrl);
+            if (error.length() > 0) {
+                layoutBugs.add(createLayoutBug("Detected invalid favicon URL \"" + _faviconUrl + "\" - " + error, driver));
+            }
+        }
     }
 
     /**
