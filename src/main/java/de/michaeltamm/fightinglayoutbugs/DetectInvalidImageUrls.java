@@ -21,7 +21,10 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HeaderElement;
+import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.io.IOUtils;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentMap;
@@ -29,12 +32,37 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import static java.lang.Character.isWhitespace;
 
 /**
  * @author Michael Tamm
  */
 public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
+
+    static String stripCommentsFrom(String css) {
+        final int n = css.length();
+        int j = css.indexOf("/*");
+        final String result;
+        if (j == -1) {
+            result = css;
+        } else {
+            final StringBuilder sb = new StringBuilder(n);
+            int i = 0;
+            do {
+                sb.append(css, i, j);
+                i = css.indexOf("*/", i) + 2;
+                if (i == 1) {
+                    i = n;
+                }
+                j = css.indexOf("/*", i);
+            } while (j != -1);
+            sb.append(css, i, n);
+            result = sb.toString();
+        }
+        return result;
+    }
 
     /**
      * <code>""</code> as value means the URL is valid, otherwise
@@ -43,7 +71,9 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
     private final Map<URL, String> _checkedUrls = new HashMap<URL, String>();
 
     private URL _baseUrl;
+    private String _documentCharset;
     private HttpClient _httpClient;
+    private Set<URL> _visitedCssUrls;
 
     public Collection<LayoutBug> findLayoutBugs(FirefoxDriver driver) throws Exception {
         // Determine base URL for completion of relative URLs ...
@@ -54,19 +84,24 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
             // Should never happen.
             throw new RuntimeException("Could not convert " + currentUrl + " into an URL.", e);
         }
+        _documentCharset = (String) driver.executeScript("return document.characterSet");
         try {
             _httpClient = new HttpClient();
+            _visitedCssUrls = new HashSet<URL>();
             try {
                 final List<LayoutBug> layoutBugs = new ArrayList<LayoutBug>();
                 // 1. Check the src attribute of all <img> elements ...
                 checkImgElements(driver, layoutBugs);
                 // 2. Check the style attribute of all elements ...
                 checkStyleAttributes(driver, layoutBugs);
-                // TODO: 3. Check all <style> elements ...
-                // TODO: 4. Check all linked CSS resources ...
+                // 3. Check all <style> elements ...
+                checkStyleElements(driver, layoutBugs);
+                // 4. Check all linked CSS resources ...
+                checkLinkedCss(driver, layoutBugs);
                 // TODO: 5. Check favicon ...
                 return layoutBugs;
             } finally {
+                _visitedCssUrls = null;
                 _httpClient = null;
             }
         } finally {
@@ -118,7 +153,9 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
     private void checkStyleAttributes(FirefoxDriver driver, List<LayoutBug> layoutBugs) {
         for (WebElement element : driver.findElements(By.xpath("//*[@style]"))) {
             final String css = element.getAttribute("style");
-            for (String url : extractImageUrlsFrom(css).keySet()) {
+            Set<String> importUrls = getImportUrlsFrom(css);
+            // TODO: check imported CSS
+            for (String url : extractUrlsFrom(css).keySet()) {
                 try {
                     final String error = checkImageUrl(getCompleteUrlFor(url));
                     if (error.length() > 0) {
@@ -131,10 +168,121 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
         }
     }
 
-    private Map<String, Integer> extractImageUrlsFrom(String css) {
+    private void checkStyleElements(FirefoxDriver driver, List<LayoutBug> layoutBugs) {
+        for (WebElement styleElement : driver.findElements(By.tagName("style"))) {
+            final String css = (String) driver.executeScript("return arguments[0].textContent", styleElement);
+            Set<String> importUrls = getImportUrlsFrom(css);
+            // TODO: check imported CSS
+            for (String url : extractUrlsFrom(css).keySet()) {
+                try {
+                    final String error = checkImageUrl(getCompleteUrlFor(url));
+                    if (error.length() > 0) {
+                        layoutBugs.add(createLayoutBug("Detected <style> element with invalid image URL \"" + url + "\" - " + error, driver));
+                    }
+                } catch (MalformedURLException e) {
+                    layoutBugs.add(createLayoutBug("Detected <style> element with invalid image URL \"" + url + "\" - " + e.getMessage(), driver));
+                }
+            }
+        }
+    }
+
+    private void checkLinkedCss(FirefoxDriver driver, List<LayoutBug> layoutBugs) {
+        for (WebElement link : driver.findElements(By.tagName("link"))) {
+            final String rel = link.getAttribute("rel");
+            final String type = link.getAttribute("type");
+            final String href = link.getAttribute("href");
+            if ((rel != null && rel.contains("stylesheet")) || (type != null && type.startsWith("text/css"))) {
+                if (href != null) {
+                    URL cssUrl = null;
+                    try {
+                        cssUrl = getCompleteUrlFor(href);
+                    } catch (MalformedURLException e) {
+                        System.err.print("Could not get CSS from " + href + " - " + e.getMessage());
+                    }
+                    if (cssUrl != null && !_visitedCssUrls.contains(cssUrl)) {
+                        String charset = link.getAttribute("charset");
+                        if (charset == null) {
+                            charset = _documentCharset;
+                        }
+                        final String css = getCssFrom(cssUrl, charset);
+                        _visitedCssUrls.add(cssUrl);
+                        Set<String> importUrls = getImportUrlsFrom(css);
+                        // TODO: check imported CSS
+                        for (String url : extractUrlsFrom(css).keySet()) {
+                            try {
+                                final String error = checkImageUrl(getCompleteUrlFor(url));
+                                if (error.length() > 0) {
+                                    layoutBugs.add(createLayoutBug("Detected invalid image URL \"" + url + "\" in " + href + " - " + error, driver));
+                                }
+                            } catch (MalformedURLException e) {
+                                layoutBugs.add(createLayoutBug("Detected <style> element with invalid image URL \"" + url + "\" in " + href + " - " + e.getMessage(), driver));
+                            }
+                        }
+                        
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Extract the import URLs from CSS.
+     * See <a href="http://www.w3.org/TR/CSS2/cascade.html#at-import">http://www.w3.org/TR/CSS2/cascade.html#at-import</a>
+     */
+    private Set<String> getImportUrlsFrom(String css) {
+        css = stripCommentsFrom(css).trim();
+        // Skip @charset rule if present ...
+        if (css.startsWith("@charset")) {
+            int i = css.indexOf(";");
+            if (i == -1) {
+                css = "";
+            } else {
+                css = css.substring(i + 1).trim();
+            }
+        }
+        // Only parse @import rules at the beginning of the CSS ...
+        final Set<String> result = new HashSet<String>();
+        while (css.startsWith("@import")) {
+            int i = css.indexOf(";");
+            if (i == -1) {
+                // Ignore incomplete @import rule ...
+                css = "";
+            } else {
+                String temp = css.substring("@import".length(), i).trim();
+                if (!temp.startsWith("url(")) {
+                    temp = "url(" + temp + ")";
+                }
+                String url = extractUrlsFrom(temp).keySet().iterator().next();
+                result.add(url);
+                css = css.substring(i + 1).trim();
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Extracts URLs from CSS.
+     * See <a href="http://www.w3.org/TR/CSS2/syndata.html#value-def-uri">http://www.w3.org/TR/CSS2/syndata.html#value-def-uri</a>
+     */
+    private Map<String, Integer> extractUrlsFrom(String css) {
         final ConcurrentMap<String, Integer> imageUrls = new ConcurrentHashMap<String, Integer>();
+        css = stripCommentsFrom(css);
         final int n = css.length();
-        int i = css.indexOf("url(");
+        // 1.) Skip at-rules ...
+        int i = 0;
+        do {
+            while (i < n && isWhitespace(css.charAt(i))) {
+                ++i;
+            }
+            if (i < n && css.charAt(i) == '@') {
+                i = css.indexOf(';', i) + 1;
+                if (i == 0) {
+                    i = n;
+                }
+            }
+        } while (i < n && (isWhitespace(css.charAt(i)) || css.charAt(i) == '@'));
+        // 2. Extract all remaining URLs ...
+        i = css.indexOf("url(", i);
         while (i != -1) {
             int j = i + 4;
             while (j < n && isWhitespace(css.charAt(j))) {
@@ -175,12 +323,84 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
         return imageUrls;
     }
 
+    /**
+     * @param externallySpecifiedCharset the charset from the charset attribute of a &lt;link&gt; attribute if present,
+     *                                   otherwise the charset of the refering style sheet or document.
+     */
+    private String getCssFrom(URL url, String externallySpecifiedCharset) {
+        String result = null;
+        final GetMethod getMethod = new GetMethod(url.toExternalForm());
+        getMethod.setFollowRedirects(true);
+        try {
+            _httpClient.executeMethod(getMethod);
+            if (getMethod.getStatusCode() >= 400) {
+                throw new RuntimeException("Could not get CSS from " + url + " - server responded with: " + getMethod.getStatusCode() + " " + getMethod.getStatusText());
+            } else {
+                final InputStream in = getMethod.getResponseBodyAsStream();
+                try {
+                    final Utf8BomAwareByteArrayOutputStream out = new Utf8BomAwareByteArrayOutputStream();
+                    IOUtils.copy(in, out);
+                    // Determine charset (see http://www.w3.org/TR/CSS2/syndata.html#charset) ...
+                    String charset = null;
+                    // 1. Check charset parameter of Content-Type response header ...
+                    final Header contentTypeHeader = getMethod.getResponseHeader("Content-Type");
+                    if (contentTypeHeader != null) {
+                        final HeaderElement[] a = contentTypeHeader.getElements();
+                        if (a.length > 0) {
+                            final NameValuePair charsetParam = a[0].getParameterByName("charset");
+                            if (charsetParam != null) {
+                                charset = charsetParam.getValue();
+                            }
+                        }
+                    }
+                    // 2. Check for BOM ...
+                    if (charset == null && out.hasUtf8Bom()) {
+                        charset = "UTF-8";
+                    }
+                    // 3. Check for @charset rule ...
+                    if (charset == null) {
+                        String temp = out.toString("US-ASCII");
+                        if (temp.startsWith("@charset \"")) {
+                            int i = temp.indexOf("\";");
+                            if (i == -1) {
+                                result = "";
+                            } else {
+                                charset = temp.substring("@charset \"".length(), i);
+                            }
+                        }
+                    }
+                    // 4. Fall back to the externally specified charset parameter ...
+                    if (charset == null && result == null) {
+                        charset = externallySpecifiedCharset;
+                    }
+                    // 5. If the charset is not determined by now, assume UTF-8 ...
+                    if (charset == null && result == null) {
+                        charset = "UTF-8";
+                    }
+                    if (result == null) {
+                        try {
+                            result = out.toString(charset);
+                        } catch (UnsupportedEncodingException e) {
+                            result = "";
+                        }
+                    }
+                } finally {
+                    in.close();
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Could not get CSS from " + url, e);
+        } finally {
+            getMethod.releaseConnection();
+        }
+        return result;
+    }
 
     /**
      * Returns <code>""</code> if the given URL is a valid image URL,
      * otherwise an error message is returned.
      */
-    protected String checkImageUrl(URL url) {
+    private String checkImageUrl(URL url) {
         String error = _checkedUrls.get(url);
         if (error == null) {
             final GetMethod getMethod = new GetMethod(url.toExternalForm());

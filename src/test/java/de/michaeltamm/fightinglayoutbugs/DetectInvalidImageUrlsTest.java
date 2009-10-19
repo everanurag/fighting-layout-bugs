@@ -16,17 +16,30 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.assertThat;
+import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.*;
 import org.junit.Test;
 import org.junit.internal.matchers.TypeSafeMatcher;
-import static org.hamcrest.Matchers.hasItem;
 import org.hamcrest.Matcher;
-import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 
 import java.util.Collection;
 
 public class DetectInvalidImageUrlsTest extends TestUsingFirefoxDriver {
+
+    @Test
+    public void testStripCommentsFrom() {
+        assertThat(DetectInvalidImageUrls.stripCommentsFrom(""), is(""));
+        assertThat(DetectInvalidImageUrls.stripCommentsFrom("foo"), is("foo"));
+        assertThat(DetectInvalidImageUrls.stripCommentsFrom("foo /* ..."), is("foo "));
+        assertThat(DetectInvalidImageUrls.stripCommentsFrom("foo /* ... */"), is("foo "));
+        assertThat(DetectInvalidImageUrls.stripCommentsFrom("foo /* ... */ bar"), is("foo  bar"));
+        assertThat(DetectInvalidImageUrls.stripCommentsFrom("/**/"), is(""));
+        assertThat(DetectInvalidImageUrls.stripCommentsFrom("/**//**/"), is(""));
+        assertThat(DetectInvalidImageUrls.stripCommentsFrom("foo/**//**/"), is("foo"));
+        assertThat(DetectInvalidImageUrls.stripCommentsFrom("/**/foo/**/"), is("foo"));
+        assertThat(DetectInvalidImageUrls.stripCommentsFrom("/**//**/foo"), is("foo"));
+        assertThat(DetectInvalidImageUrls.stripCommentsFrom("f/**/o/**/o"), is("foo"));
+    }
 
     @Test
     public void shouldFindInvalidImageUrls() throws Exception {
