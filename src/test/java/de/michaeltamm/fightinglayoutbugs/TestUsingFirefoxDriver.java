@@ -28,20 +28,26 @@ import java.io.File;
  */
 public class TestUsingFirefoxDriver {
 
+    private final static String[] FIREFOX_PATH_CANDIDATES = {
+        "C:\\Program Files (x86)\\Mozilla\\Firefox3\\firefox.exe",
+        "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
+        "/usr/bin/firefox"
+    };
+
+
     protected FirefoxDriver _driver;
 
     @Before
     public void createFirefoxDriver() {
         File firefoxExe = null;
         if (System.getProperty("webdriver.firefox.bin") == null) {
-            // Try to find the Firefox executable at places, which are not checked by WebDriver ...
-            final File firefoxExeOnWindows = new File("C:\\Program Files (x86)\\Mozilla\\Firefox3\\firefox.exe");
-            if (firefoxExeOnWindows.exists()) {
-                firefoxExe = firefoxExeOnWindows;
-            } else {
-                final File firefoxExeOnLinux = new File("/usr/bin/firefox");
-                if (firefoxExe.exists()) {
-                    firefoxExe = firefoxExeOnLinux;
+            // Try to find the Firefox executable at places,
+            // which are not checked by WebDriver ...
+            for (String path : FIREFOX_PATH_CANDIDATES) {
+                File temp = new File(path);
+                if (temp.exists()) {
+                    firefoxExe = temp;
+                    break;
                 }
             }
         }
