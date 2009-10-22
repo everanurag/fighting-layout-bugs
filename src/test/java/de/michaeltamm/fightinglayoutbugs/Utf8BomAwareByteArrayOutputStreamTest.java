@@ -35,9 +35,9 @@ public class Utf8BomAwareByteArrayOutputStreamTest {
         assertThat(out.hasUtf8Bom(), is(false));
         out.write((byte) 0xBF);
         assertThat(out.hasUtf8Bom(), is(true));
-        out.write((byte) 0x61);
         assertThat(out.toString(), is(""));
         assertThat(out.toString("UTF-8"), is(""));
+        out.write((byte) 0x61);
         assertThat(out.hasUtf8Bom(), is(true));
         assertThat(out.toString(), is("a"));
         assertThat(out.toString("UTF-8"), is("a"));
