@@ -16,17 +16,15 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import org.openqa.selenium.firefox.FirefoxDriver;
-
 /**
- * Detects edges in a rendered HTML page.
+ * Detects edges in a web page.
  *
  * @author michael.tamm
  * @version 1.0 24.08.2009
  */
 public interface EdgeDetector {
 
-    public boolean[][] detectVerticalEdgesIn(FirefoxDriver driver, int minLength) throws Exception;
-    public boolean[][] detectHorizontalEdgesIn(FirefoxDriver driver, int minLength) throws Exception; 
+    public boolean[][] detectVerticalEdgesIn(WebPage webPage, int minLength) throws Exception;
+    public boolean[][] detectHorizontalEdgesIn(WebPage webPage, int minLength) throws Exception; 
 
 }

@@ -35,6 +35,16 @@ public class ImageHelper {
         return imageToPixels(image);
     }
 
+    public static void pixelsToFile(int[][] pixels, File pngFile) throws IOException {
+        final BufferedImage image = pixelsToImage(pixels);
+        ImageIO.write(image, "png", pngFile);
+    }
+
+    public static void pixelsToFile(boolean[][] pixels, File pngFile) throws IOException {
+        final BufferedImage image = pixelsToImage(pixels);
+        ImageIO.write(image, "png", pngFile);
+    }
+
     public static int[][] imageToPixels(BufferedImage image) {
         if (image == null) {
             return null;

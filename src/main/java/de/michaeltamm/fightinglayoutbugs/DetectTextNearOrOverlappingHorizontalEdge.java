@@ -16,25 +16,21 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import org.openqa.selenium.firefox.FirefoxDriver;
-
 import java.util.Collection;
-import static java.util.Collections.singleton;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singleton;
 
 /**
  * @author Michael Tamm
  */
 public class DetectTextNearOrOverlappingHorizontalEdge extends AbstractLayoutBugDetector {
 
-    public Collection<LayoutBug> findLayoutBugs(FirefoxDriver driver) throws Exception {
-        final TextDetector textDetector = new SimpleTextDetector();
-        final boolean[][] text = textDetector.detectTextPixelsIn(driver);
+    public Collection<LayoutBug> findLayoutBugsIn(WebPage webPage) throws Exception {
+        final boolean[][] text = webPage.getTextPixels();
         final int w = text.length;
         final int h = text[0].length;
         if (w > 0 && h > 0) {
-            final EdgeDetector edgeDetector = new SimpleEdgeDetector();
-            final boolean[][] horizontalEdges = edgeDetector.detectHorizontalEdgesIn(driver, 16);
+            final boolean[][] horizontalEdges = webPage.getHorizontalEdges();
             assert horizontalEdges.length == w;
             assert horizontalEdges[0].length == h;
             final boolean[][] buggyPixels = new boolean[w][h];
@@ -48,7 +44,7 @@ public class DetectTextNearOrOverlappingHorizontalEdge extends AbstractLayoutBug
                 }
             }
             if (foundBuggyPixel) {
-                final LayoutBug layoutBug = createLayoutBug("Detected text near or overlapping horizontal edge.", driver, buggyPixels);
+                final LayoutBug layoutBug = createLayoutBug("Detected text near or overlapping horizontal edge.", webPage, buggyPixels);
                 return singleton(layoutBug);
             } else {
                 return emptyList();

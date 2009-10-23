@@ -16,11 +16,9 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import org.openqa.selenium.firefox.FirefoxDriver;
-
-import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
+import javax.imageio.ImageIO;
 
 /**
  * Represents a layout bug found by a {@link LayoutBugDetector}.
@@ -38,10 +36,10 @@ public class LayoutBug {
     private final String _html;
     private File _screenshot;
 
-    public LayoutBug(String description, FirefoxDriver driver, File screenshot) {
+    public LayoutBug(String description, WebPage webPage, File screenshot) {
         _description = description;
-        _url = driver.getCurrentUrl();
-        _html = driver.getPageSource();
+        _url = webPage.getUrl();
+        _html = webPage.getHtml();
         _screenshot = screenshot;
     }
 

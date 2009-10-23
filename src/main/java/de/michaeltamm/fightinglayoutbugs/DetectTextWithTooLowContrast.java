@@ -16,13 +16,9 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import org.openqa.selenium.firefox.FirefoxDriver;
-
-import javax.imageio.ImageIO;
 import java.util.*;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
-import java.io.File;
 
 /**
  * @author Michael Tamm
@@ -31,13 +27,12 @@ public class DetectTextWithTooLowContrast extends AbstractLayoutBugDetector {
 
     private static final int TOO_LOW_CONTRAST_MAX_DISTANCE = 40;
 
-    public Collection<LayoutBug> findLayoutBugs(FirefoxDriver driver) throws Exception {
-        final int[][] screenshot = takeScreenshot(driver);
+    public Collection<LayoutBug> findLayoutBugsIn(WebPage webPage) throws Exception {
+        final int[][] screenshot = webPage.getScreenshot();
         final int w = screenshot.length;
         final int h = screenshot[0].length;
         if (w > 0 && h > 0) {
-            final TextDetector textDetector = new SimpleTextDetector();
-            final boolean[][] text = textDetector.detectTextPixelsIn(driver);
+            final boolean[][] text = webPage.getTextPixels();
             final boolean[][] handled = new boolean[w][h];
             final boolean[][] buggyPixels = new boolean[w][h];
             boolean foundBuggyPixel = false;
@@ -49,7 +44,7 @@ public class DetectTextWithTooLowContrast extends AbstractLayoutBugDetector {
                 }
             }
             if (foundBuggyPixel) {
-                final LayoutBug layoutBug = createLayoutBug("Detected text with too low contrast.", driver, buggyPixels);
+                final LayoutBug layoutBug = createLayoutBug("Detected text with too low contrast.", webPage, buggyPixels);
                 return singleton(layoutBug);
             } else {
                 return emptyList();
@@ -132,32 +127,30 @@ public class DetectTextWithTooLowContrast extends AbstractLayoutBugDetector {
             if ((y1 < h && y1 > 0) || (y2 > -1 && y2 < h1)) {
                 final Integer backgroundColorAbove = (y1 > 0 ? screenshot[x][y1 - 1] : null);
                 final Integer backgroundColorBelow = (y2 < h1 ? screenshot[x][y2 + 1] : null);
-                final Set<Integer> nearTextColors = new HashSet<Integer>();
+                final Set<Integer> colorsOfNearTextPixels = new HashSet<Integer>();
                 for (int i = -2; i <= 2; ++i) {
                     final int xx = x + i;
                     for (int y = y1; y <= y2; ++y) {
                         if (visited[xx][y]) {
-                            nearTextColors.add(screenshot[xx][y]);
+                            colorsOfNearTextPixels.add(screenshot[xx][y]);
                         }
                     }
                 }
                 // The text has too low contrast in the current column x,
-                // if all of the near text colors have too low contrast
+                // if all of the near text pixels have too low contrast
                 // compared to backgroundColorAbove and backgroundColorBelow ...
                 boolean tooLowContrastInCurrentColumn = true;
                 if (backgroundColorAbove != null && backgroundColorBelow != null && backgroundColorAbove.intValue() == backgroundColorBelow.intValue()) {
                     @SuppressWarnings({"UnnecessaryLocalVariable"})
                     final int backgroundColor = backgroundColorAbove;
-                    for (Iterator<Integer> i = nearTextColors.iterator(); i.hasNext(); ) {
-                        final int c = i.next();
+                    for (final Integer c : colorsOfNearTextPixels) {
                         if (!tooLowContrast(backgroundColor, c)) {
                             tooLowContrastInCurrentColumn = false;
                             break;
                         }
                     }
                 } else {
-                    for (Iterator<Integer> i = nearTextColors.iterator(); i.hasNext(); ) {
-                        final int c = i.next();
+                    for (final Integer c : colorsOfNearTextPixels) {
                         if ((backgroundColorAbove != null && !tooLowContrast(backgroundColorAbove, c)) || (backgroundColorBelow != null && !tooLowContrast(backgroundColorBelow, c))) {
                             tooLowContrastInCurrentColumn = false;
                             break;

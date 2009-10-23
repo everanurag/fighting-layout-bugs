@@ -16,28 +16,25 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import org.openqa.selenium.firefox.FirefoxDriver;
-
 /**
  * @author Michael Tamm
  */
-public class SimpleTextDetector extends AbstractDetector implements TextDetector {
+public class SimpleTextDetector implements TextDetector {
 
-    public boolean[][] detectTextPixelsIn(FirefoxDriver driver) throws Exception {
-        injectJQueryInto(driver);
-        // Backup colors of all elements ...
-        driver.executeScript("jQuery('*').each(function() { var j = jQuery(this); j.attr('color_backup', j.css('color')); });");
+    public boolean[][] detectTextPixelsIn(WebPage webPage) throws Exception {
+        webPage.backupTextColors();
         try {
+            webPage.injectJQueryIfNotPresent();
             // Colorize all text black ...
-            driver.executeScript("jQuery('*').css('color', '#000000');");
+            webPage.executeJavaScript("jQuery('*').css('color', '#000000');");
             // Take first screenshot ...
-            final int[][] pixels1 = takeScreenshot(driver);
+            final int[][] pixels1 = webPage.takeScreenshot();
             final int w = pixels1.length;
             final int h = pixels1[0].length;
             // Colorize all text white ...
-            driver.executeScript("jQuery('*').css('color', '#ffffff');");
+            webPage.executeJavaScript("jQuery('*').css('color', '#ffffff');");
             // Take second screenshot ...
-            final int[][] pixels2 = takeScreenshot(driver);
+            final int[][] pixels2 = webPage.takeScreenshot();
             assert pixels2.length == w;
             assert pixels2[0].length == h;
             // Detect text pixels ...
@@ -45,12 +42,12 @@ public class SimpleTextDetector extends AbstractDetector implements TextDetector
             for (int x = 0; x < w; ++x) {
                 for (int y = 0; y < h; ++y) {
                     result[x][y] = (pixels1[x][y] != pixels2[x][y]);
+                    // TODO: if pixels1[x][y] is brighter than pixels2[x][y] there is probably animation on the page, handle this
                 }
             }
             return result;
         } finally {
-            // Restore colors ...
-            driver.executeScript("jQuery('*').each(function() { var j = jQuery(this); j.css('color', j.attr('color_backup')); });");
+            webPage.restoreTextColors();
         }
     }
 }

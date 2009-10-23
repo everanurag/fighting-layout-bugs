@@ -27,8 +27,9 @@ public class SimpleTextDetectorTest extends TestUsingFirefoxDriver {
     public void shouldDetectTextPixelsInYahooProfileUpdatesPage() throws Exception {
         _driver.get("http://localhost:8080/Yahoo!_Profile_Updates.html");
         _driver.executeScript("window.resizeTo(1008, 706)");
+        final WebPage webPage = new WebPage(_driver);
         final TextDetector detector = new SimpleTextDetector();
-        final boolean[][] textPixels = detector.detectTextPixelsIn(_driver);
+        final boolean[][] textPixels = detector.detectTextPixelsIn(webPage);
         // TODO: add assertion(s)
     }
 

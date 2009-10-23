@@ -28,12 +28,13 @@ public class SimpleEdgeDetectorTest extends TestUsingFirefoxDriver {
     public void shouldDetectHorizontalAndVerticalEdgesInYahooProfileUpdatesPage() throws Exception {
         _driver.get("http://localhost:8080/Yahoo!_Profile_Updates.html");
         _driver.executeScript("window.resizeTo(1008, 706)");
+        final WebPage webPage = new WebPage(_driver);
         final EdgeDetector edgeDetector = new SimpleEdgeDetector();
-        final boolean[][] horizontalEdges = edgeDetector.detectHorizontalEdgesIn(_driver, 16);
+        final boolean[][] horizontalEdges = edgeDetector.detectHorizontalEdgesIn(webPage, 16);
         // TODO: add assertion
         final int w = horizontalEdges.length;
         final int h = horizontalEdges[0].length;
-        final boolean[][] verticalEdges = edgeDetector.detectVerticalEdgesIn(_driver, 16);
+        final boolean[][] verticalEdges = edgeDetector.detectVerticalEdgesIn(webPage, 16);
         assertThat(verticalEdges.length == w);
         assertThat(verticalEdges[0].length == h);
         // TODO: add assertion

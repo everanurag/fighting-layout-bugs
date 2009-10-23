@@ -23,11 +23,12 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Collection;
 
 /**
  * @author Michael Tamm
  */
-public abstract class AbstractLayoutBugDetector extends AbstractDetector implements LayoutBugDetector {
+public abstract class AbstractLayoutBugDetector implements LayoutBugDetector {
 
     /** The directory where screenshots of erroneous pages will be saved. */
     File _screenshotDir;
@@ -36,11 +37,11 @@ public abstract class AbstractLayoutBugDetector extends AbstractDetector impleme
         _screenshotDir = screenshotDir;
     }
 
-    protected LayoutBug createLayoutBug(String message, FirefoxDriver driver) {
-        return createLayoutBug(message, driver, null);
+    protected LayoutBug createLayoutBug(String message, WebPage webPage) {
+        return createLayoutBug(message, webPage, null);
     }
 
-    protected LayoutBug createLayoutBug(String message, FirefoxDriver driver, boolean[][] buggyPixels) {
+    protected LayoutBug createLayoutBug(String message, WebPage webPage, boolean[][] buggyPixels) {
         File screenshot = null;
         if (_screenshotDir != null) {
             final DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
@@ -50,13 +51,13 @@ public abstract class AbstractLayoutBugDetector extends AbstractDetector impleme
             }
             try {
                 screenshot = File.createTempFile(prefix + "_" + df.format(new Date()) + ".", ".png", _screenshotDir);
-                driver.saveScreenshot(screenshot);
+                webPage.saveScreenshotTo(screenshot);
             } catch (IOException e) {
                 System.err.print("Could not save screenshot: ");
                 e.printStackTrace(System.err);
             }
         }
-        final LayoutBug layoutBug = new LayoutBug(message, driver, screenshot);
+        final LayoutBug layoutBug = new LayoutBug(message, webPage, screenshot);
         if (buggyPixels != null) {
             try {
                 layoutBug.markBuggyPixels(buggyPixels);
@@ -67,4 +68,9 @@ public abstract class AbstractLayoutBugDetector extends AbstractDetector impleme
         }
         return layoutBug;
     }
+
+    public final Collection<LayoutBug> findLayoutBugsIn(FirefoxDriver driver) throws Exception {
+        return findLayoutBugsIn(new WebPage(driver));
+    }
+
 }

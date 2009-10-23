@@ -30,7 +30,7 @@ public class DetectTextWithTooLowContrastTest extends TestUsingFirefoxDriver {
         final long startTime = System.currentTimeMillis();
         final LayoutBugDetector detector = new DetectTextWithTooLowContrast();
         detector.setScreenshotDir(new File("target"));
-        final Collection<LayoutBug> layoutBugs = detector.findLayoutBugs(_driver);
+        final Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(_driver);
         assertThat(layoutBugs.size() == 1);
         final LayoutBug layoutBug = layoutBugs.iterator().next();
         assertThat(layoutBug.getScreenshot(), HamcrestHelper.isNotNull());

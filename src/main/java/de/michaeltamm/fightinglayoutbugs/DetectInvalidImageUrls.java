@@ -16,25 +16,24 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
-import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HeaderElement;
+import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.io.IOUtils;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.net.URL;
-import java.net.MalformedURLException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import static java.lang.Character.isWhitespace;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author Michael Tamm
@@ -79,19 +78,19 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
     private String _documentCharset;
     private HttpClient _httpClient;
     private Set<URL> _visitedCssUrls;
-    /** Initialized in by {@link #findLayoutBugs}, might be overwritten by {@link #checkLinkedCss}. */
+    /** Initialized in by {@link #findLayoutBugsIn}, might be overwritten by {@link #checkLinkedCss}. */
     private String _faviconUrl;
 
-    public Collection<LayoutBug> findLayoutBugs(FirefoxDriver driver) throws Exception {
+    public Collection<LayoutBug> findLayoutBugsIn(WebPage webPage) throws Exception {
         // Determine base URL for completion of relative URLs ...
-        final String currentUrl = driver.getCurrentUrl();
+        final String url = webPage.getUrl();
         try {
-            _baseUrl = new URL(currentUrl);
+            _baseUrl = new URL(url);
         } catch (MalformedURLException e) {
             // Should never happen.
-            throw new RuntimeException("Could not convert " + currentUrl + " into an URL.", e);
+            throw new RuntimeException("Could not convert " + url + " into an URL.", e);
         }
-        _documentCharset = (String) driver.executeScript("return document.characterSet");
+        _documentCharset = (String) webPage.executeJavaScript("return document.characterSet");
         try {
             _httpClient = new HttpClient();
             _visitedCssUrls = new HashSet<URL>();
@@ -99,15 +98,15 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
             try {
                 final List<LayoutBug> layoutBugs = new ArrayList<LayoutBug>();
                 // 1. Check the src attribute of all <img> elements ...
-                checkImgElements(driver, layoutBugs);
+                checkImgElements(webPage, layoutBugs);
                 // 2. Check the style attribute of all elements ...
-                checkStyleAttributes(driver, layoutBugs);
+                checkStyleAttributes(webPage, layoutBugs);
                 // 3. Check all <style> elements ...
-                checkStyleElements(driver, layoutBugs);
+                checkStyleElements(webPage, layoutBugs);
                 // 4. Check all linked CSS resources ...
-                checkLinkedCss(driver, layoutBugs);
+                checkLinkedCss(webPage, layoutBugs);
                 // 5. Check favicon ...
-                checkFavicon(driver, layoutBugs);
+                checkFavicon(webPage, layoutBugs);
                 return layoutBugs;
             } finally {
                 _visitedCssUrls = null;
@@ -118,11 +117,11 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
         }
     }
 
-    private void checkImgElements(FirefoxDriver driver, List<LayoutBug> layoutBugs) {
+    private void checkImgElements(WebPage webPage, List<LayoutBug> layoutBugs) {
         int numImgElementsWithoutSrcAttribute = 0;
         int numImgElementsWithEmptySrcAttribute = 0;
         final Set<String> seen = new HashSet<String>();
-        for (WebElement img : driver.findElements(By.tagName("img"))) {
+        for (WebElement img : webPage.findElements(By.tagName("img"))) {
             final String src = img.getAttribute("src");
             if (src == null) {
                 ++numImgElementsWithoutSrcAttribute;
@@ -134,10 +133,10 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
                         final URL imageUrl = getCompleteUrlFor(src);
                         final String error = checkImageUrl(imageUrl);
                         if (error.length() > 0) {
-                            layoutBugs.add(createLayoutBug("Detected <img> element with invalid src attribute \"" + src + "\" - " + error, driver));
+                            layoutBugs.add(createLayoutBug("Detected <img> element with invalid src attribute \"" + src + "\" - " + error, webPage));
                         }
                     } catch (MalformedURLException e) {
-                        layoutBugs.add(createLayoutBug("Detected <img> element with invalid src attribute \"" + src + "\" - " + e.getMessage(), driver));
+                        layoutBugs.add(createLayoutBug("Detected <img> element with invalid src attribute \"" + src + "\" - " + e.getMessage(), webPage));
                     }
                     seen.add(src);
                 }
@@ -145,60 +144,60 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
         }
         if (numImgElementsWithEmptySrcAttribute > 0) {
             if (numImgElementsWithEmptySrcAttribute == 1) {
-                layoutBugs.add(createLayoutBug("Detected <img> element with empty src attribute.", driver));
+                layoutBugs.add(createLayoutBug("Detected <img> element with empty src attribute.", webPage));
             } else {
-                layoutBugs.add(createLayoutBug("Detected " + numImgElementsWithEmptySrcAttribute + " <img> elements with empty src attribute.", driver));
+                layoutBugs.add(createLayoutBug("Detected " + numImgElementsWithEmptySrcAttribute + " <img> elements with empty src attribute.", webPage));
             }
         }
         if (numImgElementsWithoutSrcAttribute > 0) {
             if (numImgElementsWithEmptySrcAttribute == 1) {
-                layoutBugs.add(createLayoutBug("Detected <img> without src attribute.", driver));
+                layoutBugs.add(createLayoutBug("Detected <img> without src attribute.", webPage));
             } else {
-                layoutBugs.add(createLayoutBug("Detected " + numImgElementsWithoutSrcAttribute + " <img> elements without src attribute.", driver));
+                layoutBugs.add(createLayoutBug("Detected " + numImgElementsWithoutSrcAttribute + " <img> elements without src attribute.", webPage));
             }
         }
     }
 
-    private void checkStyleAttributes(FirefoxDriver driver, List<LayoutBug> layoutBugs) {
-        for (WebElement element : driver.findElements(By.xpath("//*[@style]"))) {
+    private void checkStyleAttributes(WebPage webPage, List<LayoutBug> layoutBugs) {
+        for (WebElement element : webPage.findElements(By.xpath("//*[@style]"))) {
             final String css = element.getAttribute("style");
             for (String importUrl : getImportUrlsFrom(css)) {
-                checkCssResource(importUrl + " (imported in style attribute of <" + element.getTagName() + "> element)", importUrl, _baseUrl, _documentCharset, driver, layoutBugs);
+                checkCssResource(importUrl + " (imported in style attribute of <" + element.getTagName() + "> element)", importUrl, _baseUrl, _documentCharset, webPage, layoutBugs);
             }
             for (String imageUrl : extractUrlsFrom(css).keySet()) {
                 try {
                     final String error = checkImageUrl(getCompleteUrlFor(imageUrl));
                     if (error.length() > 0) {
-                        layoutBugs.add(createLayoutBug("Detected <" + element.getTagName() + "> element with invalid image URL \"" + imageUrl + "\" in its style attribute - " + error, driver));
+                        layoutBugs.add(createLayoutBug("Detected <" + element.getTagName() + "> element with invalid image URL \"" + imageUrl + "\" in its style attribute - " + error, webPage));
                     }
                 } catch (MalformedURLException e) {
-                    layoutBugs.add(createLayoutBug("Detected <" + element.getTagName() + "> element with invalid image URL \"" + imageUrl + "\" in its style attribute - " + e.getMessage(), driver));
+                    layoutBugs.add(createLayoutBug("Detected <" + element.getTagName() + "> element with invalid image URL \"" + imageUrl + "\" in its style attribute - " + e.getMessage(), webPage));
                 }
             }
         }
     }
 
-    private void checkStyleElements(FirefoxDriver driver, List<LayoutBug> layoutBugs) {
-        for (WebElement styleElement : driver.findElements(By.tagName("style"))) {
-            final String css = (String) driver.executeScript("return arguments[0].textContent", styleElement);
+    private void checkStyleElements(WebPage webPage, List<LayoutBug> layoutBugs) {
+        for (WebElement styleElement : webPage.findElements(By.tagName("style"))) {
+            final String css = (String) webPage.executeJavaScript("return arguments[0].textContent", styleElement);
             for (String importUrl : getImportUrlsFrom(css)) {
-                checkCssResource(importUrl + " (imported in <style> element)", importUrl, _baseUrl, _documentCharset, driver, layoutBugs);
+                checkCssResource(importUrl + " (imported in <style> element)", importUrl, _baseUrl, _documentCharset, webPage, layoutBugs);
             }
             for (String imageUrl : extractUrlsFrom(css).keySet()) {
                 try {
                     final String error = checkImageUrl(getCompleteUrlFor(imageUrl));
                     if (error.length() > 0) {
-                        layoutBugs.add(createLayoutBug("Detected <style> element with invalid image URL \"" + imageUrl + "\" - " + error, driver));
+                        layoutBugs.add(createLayoutBug("Detected <style> element with invalid image URL \"" + imageUrl + "\" - " + error, webPage));
                     }
                 } catch (MalformedURLException e) {
-                    layoutBugs.add(createLayoutBug("Detected <style> element with invalid image URL \"" + imageUrl + "\" - " + e.getMessage(), driver));
+                    layoutBugs.add(createLayoutBug("Detected <style> element with invalid image URL \"" + imageUrl + "\" - " + e.getMessage(), webPage));
                 }
             }
         }
     }
 
-    private void checkLinkedCss(FirefoxDriver driver, List<LayoutBug> layoutBugs) {
-        for (WebElement link : driver.findElements(By.tagName("link"))) {
+    private void checkLinkedCss(WebPage webPage, List<LayoutBug> layoutBugs) {
+        for (WebElement link : webPage.findElements(By.tagName("link"))) {
             String rel = link.getAttribute("rel");
             if (rel != null) {
                 rel = rel.toLowerCase(Locale.ENGLISH);
@@ -211,7 +210,7 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
                     if (charset == null) {
                         charset = _documentCharset;
                     }
-                    checkCssResource(href, href, _baseUrl, charset, driver, layoutBugs);
+                    checkCssResource(href, href, _baseUrl, charset, webPage, layoutBugs);
                 }
             }
             // prepare checkFavicon ...
@@ -223,7 +222,7 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
         }
     }
 
-    private void checkCssResource(String pathToCssResource, String url, URL baseUrl, String fallBackCharset, FirefoxDriver driver, List<LayoutBug> layoutBugs) {
+    private void checkCssResource(String pathToCssResource, String url, URL baseUrl, String fallBackCharset, WebPage webPage, List<LayoutBug> layoutBugs) {
         URL cssUrl = null;
         try {
             cssUrl = getCompleteUrlFor(baseUrl, url);
@@ -235,16 +234,16 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
             final Css css = getCssFrom(cssUrl, fallBackCharset);
             if (css.text != null) {
                 for (String importUrl : getImportUrlsFrom(css.text)) {
-                    checkCssResource(importUrl + " (imported from " + pathToCssResource + ")", importUrl, cssUrl, css.charset, driver, layoutBugs);
+                    checkCssResource(importUrl + " (imported from " + pathToCssResource + ")", importUrl, cssUrl, css.charset, webPage, layoutBugs);
                 }
                 for (String imageUrl : extractUrlsFrom(css.text).keySet()) {
                     try {
                         final String error = checkImageUrl(getCompleteUrlFor(imageUrl));
                         if (error.length() > 0) {
-                            layoutBugs.add(createLayoutBug("Detected invalid image URL \"" + imageUrl + "\" in " + pathToCssResource + " - " + error, driver));
+                            layoutBugs.add(createLayoutBug("Detected invalid image URL \"" + imageUrl + "\" in " + pathToCssResource + " - " + error, webPage));
                         }
                     } catch (MalformedURLException e) {
-                        layoutBugs.add(createLayoutBug("Detected invalid image URL \"" + imageUrl + "\" in " + pathToCssResource + " - " + e.getMessage(), driver));
+                        layoutBugs.add(createLayoutBug("Detected invalid image URL \"" + imageUrl + "\" in " + pathToCssResource + " - " + e.getMessage(), webPage));
                     }
                 }
             }
@@ -421,17 +420,17 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
         return result;
     }
 
-    private void checkFavicon(FirefoxDriver driver, List<LayoutBug> layoutBugs) {
+    private void checkFavicon(WebPage webPage, List<LayoutBug> layoutBugs) {
         URL faviconUrl = null;
         try {
             faviconUrl = getCompleteUrlFor(_faviconUrl);
         } catch (MalformedURLException e) {
-            layoutBugs.add(createLayoutBug("Detected invalid favicon URL \"" + _faviconUrl + "\" - " + e.getMessage(), driver));
+            layoutBugs.add(createLayoutBug("Detected invalid favicon URL \"" + _faviconUrl + "\" - " + e.getMessage(), webPage));
         }
         if (faviconUrl != null) {
             final String error = checkImageUrl(faviconUrl);
             if (error.length() > 0) {
-                layoutBugs.add(createLayoutBug("Detected invalid favicon URL \"" + _faviconUrl + "\" - " + error, driver));
+                layoutBugs.add(createLayoutBug("Detected invalid favicon URL \"" + _faviconUrl + "\" - " + error, webPage));
             }
         }
     }

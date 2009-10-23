@@ -27,7 +27,7 @@ import java.util.Collection;
 public interface LayoutBugDetector {
 
     /**
-     * Call this method before you call {@link #findLayoutBugs} if you
+     * Call this method before you call {@link #findLayoutBugsIn} if you
      * want to have screenshots of the detected layout bugs.
      */
     void setScreenshotDir(File screenshotDir);
@@ -37,6 +37,12 @@ public interface LayoutBugDetector {
      * If you want screenshots for the returned layout bugs,
      * you need to {@link #setScreenshotDir set the screenshot directory} first.
      */
-    Collection<LayoutBug> findLayoutBugs(FirefoxDriver driver) throws Exception;
+    Collection<LayoutBug> findLayoutBugsIn(FirefoxDriver driver) throws Exception;
 
+    /**
+     * Finds layout bugs in the given web page.
+     * If you want screenshots for the returned layout bugs,
+     * you need to {@link #setScreenshotDir set the screenshot directory} first.
+     */
+    Collection<LayoutBug> findLayoutBugsIn(WebPage webPage) throws Exception;
 }

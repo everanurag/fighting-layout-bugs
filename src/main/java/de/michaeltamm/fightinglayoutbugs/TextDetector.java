@@ -16,15 +16,13 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import org.openqa.selenium.firefox.FirefoxDriver;
-
 /**
- * Detects pixels, which belong to textual content in a rendered HTML page.
+ * Detects pixels, which belong to textual content in a web page.
  *
  * @author Michael Tamm
  */
 public interface TextDetector {
 
-    public boolean[][] detectTextPixelsIn(FirefoxDriver driver) throws Exception;
+    public boolean[][] detectTextPixelsIn(WebPage webpage) throws Exception;
 
 }
