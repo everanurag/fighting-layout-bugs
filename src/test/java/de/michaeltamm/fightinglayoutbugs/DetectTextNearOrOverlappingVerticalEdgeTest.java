@@ -16,14 +16,13 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
+import com.thoughtworks.selenium.Selenium;
 import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.assertThat;
 import org.junit.Test;
 import org.openqa.selenium.WebDriverBackedSelenium;
 
 import java.io.File;
 import java.util.Collection;
-
-import com.thoughtworks.selenium.Selenium;
 
 public class DetectTextNearOrOverlappingVerticalEdgeTest extends TestUsingFirefoxDriver {
 

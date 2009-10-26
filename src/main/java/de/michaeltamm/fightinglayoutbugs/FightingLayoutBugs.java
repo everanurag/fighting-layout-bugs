@@ -16,8 +16,8 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import java.util.Collection;
 import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Finds layout bugs in a web page by applying all available

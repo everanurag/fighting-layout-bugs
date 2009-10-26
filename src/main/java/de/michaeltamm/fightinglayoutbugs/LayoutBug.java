@@ -16,9 +16,9 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
+import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
-import javax.imageio.ImageIO;
 
 /**
  * Represents a layout bug found by a {@link LayoutBugDetector}.

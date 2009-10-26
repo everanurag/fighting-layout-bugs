@@ -17,9 +17,10 @@
 package de.michaeltamm.fightinglayoutbugs;
 
 import com.thoughtworks.selenium.Selenium;
+import org.openqa.selenium.WebDriver;
+
 import java.io.File;
 import java.util.Collection;
-import org.openqa.selenium.WebDriver;
 
 /**
  * @author Michael Tamm

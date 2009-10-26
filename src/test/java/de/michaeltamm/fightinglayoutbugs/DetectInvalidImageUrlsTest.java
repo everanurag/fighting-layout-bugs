@@ -16,11 +16,12 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.*;
+import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.assertThat;
+import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.is;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
 import org.junit.Test;
 import org.junit.internal.matchers.TypeSafeMatcher;
-import org.hamcrest.Matcher;
-import org.hamcrest.Description;
 
 import java.util.Collection;
 

@@ -16,12 +16,11 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
+import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.assertThat;
+import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.is;
 import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
-
-import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.assertThat;
-import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.is;
 
 
 public class Utf8BomAwareByteArrayOutputStreamTest {
