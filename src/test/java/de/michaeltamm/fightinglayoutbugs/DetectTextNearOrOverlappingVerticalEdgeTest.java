@@ -18,9 +18,12 @@ package de.michaeltamm.fightinglayoutbugs;
 
 import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.assertThat;
 import org.junit.Test;
+import org.openqa.selenium.WebDriverBackedSelenium;
 
 import java.io.File;
 import java.util.Collection;
+
+import com.thoughtworks.selenium.Selenium;
 
 public class DetectTextNearOrOverlappingVerticalEdgeTest extends TestUsingFirefoxDriver {
 
@@ -42,11 +45,12 @@ public class DetectTextNearOrOverlappingVerticalEdgeTest extends TestUsingFirefo
 
     @Test
     public void shouldFindLayoutBugInMicrosoftNewsletterPage() throws Exception {
-        _driver.get("http://localhost:8080/Microsoft_Newsletter.html");
+        Selenium selenium = new WebDriverBackedSelenium(_driver, "http://localhost:8080/");
+        selenium.open("/Microsoft_Newsletter.html");
         final long startTime = System.currentTimeMillis();
         final LayoutBugDetector detector = new DetectTextNearOrOverlappingVerticalEdge();
         detector.setScreenshotDir(new File("target"));
-        final Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(_driver);
+        final Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(selenium);
         assertThat(layoutBugs.size() == 1);
         final LayoutBug layoutBug = layoutBugs.iterator().next();
         assertThat(layoutBug.getScreenshot(), HamcrestHelper.isNotNull());

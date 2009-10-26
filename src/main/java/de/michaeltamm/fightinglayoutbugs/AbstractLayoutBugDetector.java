@@ -16,14 +16,18 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import org.openqa.selenium.firefox.FirefoxDriver;
-
+import com.thoughtworks.selenium.Selenium;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Collection;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverBackedSelenium;
+
+
 
 /**
  * @author Michael Tamm
@@ -69,8 +73,22 @@ public abstract class AbstractLayoutBugDetector implements LayoutBugDetector {
         return layoutBug;
     }
 
-    public final Collection<LayoutBug> findLayoutBugsIn(FirefoxDriver driver) throws Exception {
-        return findLayoutBugsIn(new WebPage(driver));
+    public final Collection<LayoutBug> findLayoutBugsIn(WebDriver driver) throws Exception {
+        if (driver instanceof FirefoxDriver) {
+            final WebPage webPage = new WebPage((FirefoxDriver) driver);
+            return findLayoutBugsIn(webPage);
+        }
+        throw new IllegalArgumentException("Currently only FirefoxDriver is supported.");
     }
 
+    public Collection<LayoutBug> findLayoutBugsIn(Selenium selenium) throws Exception {
+        if (selenium instanceof WebDriverBackedSelenium) {
+            WebDriver driver = ((WebDriverBackedSelenium) selenium).getUnderlyingWebDriver();
+            if (driver instanceof FirefoxDriver) {
+                final WebPage webPage = new WebPage((FirefoxDriver) driver);
+                return findLayoutBugsIn(webPage);
+            }
+        }
+        throw new IllegalArgumentException("Currently on WebDriverBackedSelenium backed by a FirefoxDriver is supported.");
+    }
 }

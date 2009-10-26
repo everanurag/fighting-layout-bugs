@@ -16,10 +16,10 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import org.openqa.selenium.firefox.FirefoxDriver;
-
+import com.thoughtworks.selenium.Selenium;
 import java.io.File;
 import java.util.Collection;
+import org.openqa.selenium.WebDriver;
 
 /**
  * @author Michael Tamm
@@ -33,11 +33,18 @@ public interface LayoutBugDetector {
     void setScreenshotDir(File screenshotDir);
 
     /**
-     * Finds layout bugs in the page currently displayed by the given driver.
+     * Finds layout bugs in the web page currently displayed by the given selenium.
      * If you want screenshots for the returned layout bugs,
      * you need to {@link #setScreenshotDir set the screenshot directory} first.
      */
-    Collection<LayoutBug> findLayoutBugsIn(FirefoxDriver driver) throws Exception;
+    Collection<LayoutBug> findLayoutBugsIn(Selenium selenium) throws Exception;
+
+    /**
+     * Finds layout bugs in the web page currently displayed by the given driver.
+     * If you want screenshots for the returned layout bugs,
+     * you need to {@link #setScreenshotDir set the screenshot directory} first.
+     */
+    Collection<LayoutBug> findLayoutBugsIn(WebDriver driver) throws Exception;
 
     /**
      * Finds layout bugs in the given web page.
