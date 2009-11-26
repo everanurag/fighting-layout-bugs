@@ -165,80 +165,14 @@ public class HamcrestHelper {
 
     public static void assertThat(boolean shouldBeTrue) {
         if (!shouldBeTrue) {
-            // Try to extract condition from the source file, from which assertThat has been called ...
-            final StackTraceElement[] stack = Thread.currentThread().getStackTrace();
-            int i = 0;
-            while (!"assertThat".equals(stack[i].getMethodName())) {
-                ++i;
-            }
-            ++i;
-            final File javaFile = findSourceFileFor(stack[i]);
-            if (javaFile != null) {
-                final int lineNumber = stack[i].getLineNumber();
-                try {
-                    @SuppressWarnings({"unchecked"})
-                    final List<String> lines = (List<String>) FileUtils.readLines(javaFile, "UTF-8");
-                    final String line = lines.get(lineNumber - 1);
-                    String message = line.trim();
-                    if (message.startsWith("assertThat(")) {
-                        message = message.substring("assertThat(".length());
-                    } else {
-                        // noinspection ThrowCaughtLocally
-                        throw new IOException(
-                            "Line " + lineNumber + " of " + javaFile.getPath() + " (" + asString(line) + ") does not start with \"assertThat(\"."
-                        );
-                    }
-                    if (message.endsWith(");")) {
-                        message = message.substring(0, message.length() - ");".length());
-                    } else {
-                        message += " ...";
-                    }
-                    throw new AssertionError(message);
-                } catch (IOException e) {
-                    System.err.println("Could not read line " + lineNumber + " from " + javaFile.getPath() + " because:");
-                    e.printStackTrace(System.err);
-                }
-            }
-            throw new AssertionError();
-        }
-    }
-
-    private static File findSourceFileFor(StackTraceElement stackTraceElement) {
-        final String className = stackTraceElement.getClassName();
-        final int i = className.lastIndexOf('.');
-        final String packageDir = (i == -1 ? "" : "/" + className.substring(0, i).replace('.', '/'));
-        final File workDir = new File(new File("dummy").getAbsolutePath()).getParentFile();
-        final String testSourcesDir;
-        if ("runenv".equals(workDir.getName())) {
-            // old optivo directory layout ...
-            testSourcesDir = "../source";
-        } else {
-            // Maven 2 directory layout ...
-            testSourcesDir = "src/test/java";
-        }
-        final String sourceFileName = stackTraceElement.getFileName();
-        File sourceFile = new File(testSourcesDir + packageDir, sourceFileName);
-        if (!sourceFile.exists()) {
-            System.err.println("Could not find " + sourceFile.getAbsolutePath() + " (current work dir: " + workDir.getAbsolutePath() + ").");
-            sourceFile = null;
-        }
-        return sourceFile;
-    }
-
-    public static void assertThat(String message, boolean shouldBeTrue) {
-        if (!shouldBeTrue) {
-            throw new AssertionError(message);
+            throw new AssertionError(getAssertionMessage());
         }
     }
 
     public static <T> void assertThat(T actual, Matcher<T> matcher) {
-        assertThat("", actual, matcher);
-    }
-
-    public static <T> void assertThat(String reason, T actual, Matcher<T> matcher) {
         if (!matcher.matches(actual)) {
             final Description description = new StringDescription();
-            description.appendText(reason)
+            description.appendText(getAssertionMessage())
                 .appendText("\nExpected: ")
                 .appendDescriptionOf(matcher)
                 .appendText("\n     got: ")
@@ -593,6 +527,60 @@ public class HamcrestHelper {
 
     public static Matcher<String> isNotBlank() {
         return not(blank());
+    }
+
+    private static String getAssertionMessage() {
+        String message = "";
+        // Try to extract assertion from the source file, from which assertThat has been called ...
+        final StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+        int i = 0;
+        while (!"assertThat".equals(stack[i].getMethodName())) {
+            ++i;
+        }
+        ++i;
+        final File javaFile = findSourceFileFor(stack[i]);
+        if (javaFile != null) {
+            final int lineNumber = stack[i].getLineNumber();
+            try {
+                @SuppressWarnings({"unchecked"})
+                final List<String> lines = (List<String>) FileUtils.readLines(javaFile, "UTF-8");
+                final String line = lines.get(lineNumber - 1);
+                message = line.trim();
+                if (message.startsWith("assertThat(")) {
+                    message = message.substring("assertThat(".length());
+                } else {
+                    // noinspection ThrowCaughtLocally
+                    throw new IOException(
+                        "Line " + lineNumber + " of " + javaFile.getPath() + " (" + asString(line) + ") does not start with \"assertThat(\"."
+                    );
+                }
+                if (message.endsWith(");")) {
+                    message = message.substring(0, message.length() - ");".length());
+                } else {
+                    message += " ...";
+                }
+            } catch (IOException e) {
+                System.err.println("Could not read line " + lineNumber + " from " + javaFile.getPath() + " because:");
+                e.printStackTrace(System.err);
+            }
+        }
+        return message;
+    }
+
+    private static File findSourceFileFor(StackTraceElement stackTraceElement) {
+        final String className = stackTraceElement.getClassName();
+        final int i = className.lastIndexOf('.');
+        final String packageDir = (i == -1 ? "" : "/" + className.substring(0, i).replace('.', '/'));
+        final File workDir = new File(new File("dummy").getAbsolutePath()).getParentFile();
+        // Maven 2 directory layout ...
+        final String testSourcesDir = "src/test/java";
+        final String sourceFileName = stackTraceElement.getFileName();
+        File sourceFile = new File(testSourcesDir + packageDir, sourceFileName);
+        if (!sourceFile.exists()) {
+            System.err.println("Could not find " + sourceFile.getAbsolutePath() + " (current work dir: " + workDir.getAbsolutePath() + ").");
+            sourceFile = null;
+        }
+        return sourceFile;
     }
 
     private HamcrestHelper() {}
