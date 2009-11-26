@@ -422,7 +422,7 @@ public class ImageHelper {
             return outlines;
         }
         // Find outlines ...
-        final Queue<Point> todo = new ArrayDeque<Point>();
+        final Queue<Point> todo = new LinkedList<Point>();
         todo.add(new Point(x0, y0));
         final boolean[][] visited = new boolean[w][h];
         while (!todo.isEmpty()) {

@@ -72,7 +72,7 @@ public class DetectTextWithTooLowContrast extends AbstractLayoutBugDetector {
         final int w1 = w - 1;
         final int h1 = h - 1;
         // 1.) Visit all pixels in the text area and determine min and max y for each column ...
-        final Queue<Point> todo = new ArrayDeque<Point>();
+        final Queue<Point> todo = new LinkedList<Point>();
         todo.add(new Point(x0, y0));
         final boolean[][] visited = new boolean[w][h];
         while (!todo.isEmpty()) {
