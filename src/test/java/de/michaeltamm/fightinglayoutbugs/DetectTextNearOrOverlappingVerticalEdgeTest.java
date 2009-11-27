@@ -18,7 +18,7 @@ package de.michaeltamm.fightinglayoutbugs;
 
 import com.thoughtworks.selenium.Selenium;
 import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.assertThat;
-import org.junit.Test;
+import org.testng.annotations.Test;
 import org.openqa.selenium.WebDriverBackedSelenium;
 
 import java.io.File;
@@ -28,7 +28,7 @@ public class DetectTextNearOrOverlappingVerticalEdgeTest extends TestUsingFirefo
 
     @Test
     public void shouldFindLayoutBugInYahooProfileUpdatesPage() throws Exception {
-        _driver.get("http://localhost:8080/Yahoo!_Profile_Updates.html");
+        _driver.get(makeUrlAbsolute("/Yahoo!_Profile_Updates.html"));
         _driver.executeScript("window.resizeTo(1008, 706)");
         final long startTime = System.currentTimeMillis();
         final LayoutBugDetector detector = new DetectTextNearOrOverlappingVerticalEdge();
@@ -44,12 +44,15 @@ public class DetectTextNearOrOverlappingVerticalEdgeTest extends TestUsingFirefo
 
     @Test
     public void shouldFindLayoutBugInMicrosoftNewsletterPage() throws Exception {
-        Selenium selenium = new WebDriverBackedSelenium(_driver, "http://localhost:8080/");
+/*
+        Selenium selenium = new WebDriverBackedSelenium(_driver, "/");
         selenium.open("/Microsoft_Newsletter.html");
+*/
+        _driver.get(makeUrlAbsolute("/Microsoft_Newsletter.html"));
         final long startTime = System.currentTimeMillis();
         final LayoutBugDetector detector = new DetectTextNearOrOverlappingVerticalEdge();
         detector.setScreenshotDir(new File("target"));
-        final Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(selenium);
+        final Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(_driver);
         assertThat(layoutBugs.size() == 1);
         final LayoutBug layoutBug = layoutBugs.iterator().next();
         assertThat(layoutBug.getScreenshot(), HamcrestHelper.isNotNull());
@@ -57,5 +60,4 @@ public class DetectTextNearOrOverlappingVerticalEdgeTest extends TestUsingFirefo
         assertThat(layoutBug.getScreenshot().isFile());
         assertThat(layoutBug.getScreenshot().lastModified() > startTime);
     }
-
 }

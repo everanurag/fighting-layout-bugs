@@ -560,7 +560,7 @@ public class HamcrestHelper {
                     message += " ...";
                 }
             } catch (IOException e) {
-                System.err.println("Could not read line " + lineNumber + " from " + javaFile.getPath() + " because:");
+                System.err.print("Could not read line " + lineNumber + " from " + javaFile.getPath() + " because: ");
                 e.printStackTrace(System.err);
             }
         }

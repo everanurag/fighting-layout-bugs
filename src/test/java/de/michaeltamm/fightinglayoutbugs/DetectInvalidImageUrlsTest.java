@@ -20,8 +20,8 @@ import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.assertThat;
 import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.is;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.junit.Test;
-import org.junit.internal.matchers.TypeSafeMatcher;
+import org.hamcrest.TypeSafeMatcher;
+import org.testng.annotations.Test;
 
 import java.util.Collection;
 
@@ -44,7 +44,7 @@ public class DetectInvalidImageUrlsTest extends TestUsingFirefoxDriver {
 
     @Test
     public void shouldFindInvalidImageUrls() throws Exception {
-        _driver.get("http://localhost:8080/page_with_invalid_image_urls.html");
+        _driver.get(makeUrlAbsolute("/page_with_invalid_image_urls.html"));
         final LayoutBugDetector detector = new DetectInvalidImageUrls();
         final Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(_driver);
         for (LayoutBug bug : layoutBugs) {

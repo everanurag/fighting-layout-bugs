@@ -16,17 +16,21 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import org.junit.After;
-import org.junit.Before;
 import org.openqa.selenium.firefox.FirefoxBinary;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.AfterSuite;
 
 import java.io.File;
+import java.net.URL;
+import java.net.MalformedURLException;
+
+import static de.michaeltamm.fightinglayoutbugs.StringHelper.asString;
 
 /**
  * @author Michael Tamm
  */
-public class TestUsingFirefoxDriver {
+public class TestUsingFirefoxDriver extends TestAccessingWebserver {
 
     private final static String[] FIREFOX_PATH_CANDIDATES = {
         "C:\\Program Files (x86)\\Mozilla\\Firefox3\\firefox.exe",
@@ -34,11 +38,11 @@ public class TestUsingFirefoxDriver {
         "/usr/bin/firefox"
     };
 
+    protected static FirefoxDriver _driver;
 
-    protected FirefoxDriver _driver;
-
-    @Before
+    @BeforeSuite
     public void createFirefoxDriver() {
+        System.out.println("Creating FirefoxDriver ...");
         File firefoxExe = null;
         if (System.getProperty("webdriver.firefox.bin") == null) {
             // Try to find the Firefox executable at places,
@@ -54,9 +58,47 @@ public class TestUsingFirefoxDriver {
         _driver = new FirefoxDriver(new FirefoxBinary(firefoxExe), null);
     }
 
-    @After
+
+    @AfterSuite
     public void destroyFirefoxDriver() {
+        System.out.println("Destroying FirefoxDriver ...");
         _driver.quit();
     }
 
+    protected String makeUrlAbsolute(String url) {
+        String absoluteUrl;
+        if (isAbsolute(url)) {
+            absoluteUrl = url;
+        } else {
+            String baseUrl = getBaseUrl();
+            if (url == null) {
+                absoluteUrl = baseUrl;
+            } else {
+                URL context;
+                try {
+                    context = new URL(baseUrl);
+                } catch (MalformedURLException e) {
+                    throw new IllegalArgumentException("Invalid baseUrl: " + asString(baseUrl));
+                }
+                try {
+                    absoluteUrl = new URL(context, url).toString();
+                } catch (MalformedURLException e) {
+                    throw new IllegalArgumentException("Invalid url: " + asString(url));
+                }
+            }
+        }
+        return absoluteUrl;
+    }
+
+    /**
+     * Returns <code>true</code> if the given <code>url</code> specifies a host.
+     */
+    private boolean isAbsolute(String url) {
+        try {
+            String host = new URL(url).getHost();
+            return (host != null);
+        } catch(MalformedURLException e) {
+            return false;
+        }
+    }
 }

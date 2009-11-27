@@ -17,7 +17,7 @@
 package de.michaeltamm.fightinglayoutbugs;
 
 import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.assertThat;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import java.io.File;
 import java.util.Collection;
@@ -26,7 +26,7 @@ public class DetectTextWithTooLowContrastTest extends TestUsingFirefoxDriver {
 
     @Test
     public void shouldFindLayoutBugInEspiritNewsletterPage() throws Exception {
-        _driver.get("http://localhost:8080/ESPRIT_newsletter.html");
+        _driver.get(makeUrlAbsolute("/ESPRIT_newsletter.html"));
         final long startTime = System.currentTimeMillis();
         final LayoutBugDetector detector = new DetectTextWithTooLowContrast();
         detector.setScreenshotDir(new File("target"));
