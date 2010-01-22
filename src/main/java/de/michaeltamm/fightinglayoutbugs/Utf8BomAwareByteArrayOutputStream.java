@@ -21,7 +21,7 @@ import java.io.UnsupportedEncodingException;
 
 /**
  * @author Michael Tamm
-*/
+ */
 class Utf8BomAwareByteArrayOutputStream extends ByteArrayOutputStream {
 
     public boolean hasUtf8Bom() {

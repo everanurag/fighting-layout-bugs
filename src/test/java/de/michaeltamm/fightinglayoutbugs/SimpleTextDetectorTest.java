@@ -21,15 +21,14 @@ import org.testng.annotations.Test;
 /**
  * @author Michael Tamm
  */
-public class SimpleTextDetectorTest extends TestUsingFirefoxDriver {
+public class SimpleTextDetectorTest extends TestUsingSelenium {
 
     @Test
     public void shouldDetectTextPixelsInYahooProfileUpdatesPage() throws Exception {
-        _driver.get(makeUrlAbsolute("/Yahoo!_Profile_Updates.html"));
-        _driver.executeScript("window.resizeTo(1008, 706)");
-        final WebPage webPage = new WebPage(_driver);
+        WebPage testPage = getWebPageFor("/Yahoo!_Profile_Updates.html").usingFirefoxDriver();
+        testPage.executeJavaScript("window.resizeTo(1008, 706)");
         final TextDetector detector = new SimpleTextDetector();
-        final boolean[][] textPixels = detector.detectTextPixelsIn(webPage);
+        final boolean[][] textPixels = detector.detectTextPixelsIn(testPage);
         // TODO: add assertion(s)
     }
 

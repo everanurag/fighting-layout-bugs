@@ -16,24 +16,25 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import com.thoughtworks.selenium.Selenium;
 import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.assertThat;
 import org.testng.annotations.Test;
-import org.openqa.selenium.WebDriverBackedSelenium;
 
 import java.io.File;
 import java.util.Collection;
 
-public class DetectTextNearOrOverlappingVerticalEdgeTest extends TestUsingFirefoxDriver {
+/**
+ * @author Michael Tamm
+ */
+public class DetectTextNearOrOverlappingVerticalEdgeTest extends TestUsingSelenium {
 
     @Test
     public void shouldFindLayoutBugInYahooProfileUpdatesPage() throws Exception {
-        _driver.get(makeUrlAbsolute("/Yahoo!_Profile_Updates.html"));
-        _driver.executeScript("window.resizeTo(1008, 706)");
+        WebPage testPage = getWebPageFor("/Yahoo!_Profile_Updates.html").usingDefaultSelenium();
+        testPage.executeJavaScript("window.resizeTo(1008, 706)");
         final long startTime = System.currentTimeMillis();
         final LayoutBugDetector detector = new DetectTextNearOrOverlappingVerticalEdge();
         detector.setScreenshotDir(new File("target"));
-        final Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(_driver);
+        final Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(testPage);
         assertThat(layoutBugs.size() == 1);
         final LayoutBug layoutBug = layoutBugs.iterator().next();
         assertThat(layoutBug.getScreenshot(), HamcrestHelper.isNotNull());
@@ -44,15 +45,11 @@ public class DetectTextNearOrOverlappingVerticalEdgeTest extends TestUsingFirefo
 
     @Test
     public void shouldFindLayoutBugInMicrosoftNewsletterPage() throws Exception {
-/*
-        Selenium selenium = new WebDriverBackedSelenium(_driver, "/");
-        selenium.open("/Microsoft_Newsletter.html");
-*/
-        _driver.get(makeUrlAbsolute("/Microsoft_Newsletter.html"));
+        WebPage testPage = getWebPageFor("/Microsoft_Newsletter.html").usingFirefoxDriver();
         final long startTime = System.currentTimeMillis();
         final LayoutBugDetector detector = new DetectTextNearOrOverlappingVerticalEdge();
         detector.setScreenshotDir(new File("target"));
-        final Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(_driver);
+        final Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(testPage);
         assertThat(layoutBugs.size() == 1);
         final LayoutBug layoutBug = layoutBugs.iterator().next();
         assertThat(layoutBug.getScreenshot(), HamcrestHelper.isNotNull());

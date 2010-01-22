@@ -13,162 +13,59 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package de.michaeltamm.fightinglayoutbugs;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.firefox.FirefoxDriver;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 /**
- * Represents a web page. This class was created
- * to improve performance: It caches all information
- * when it is retrieved the first time. So if several
- * layout bug detectors request the same information,
- * it is only retrieved once.
+ * Represents a web page. This interface was created
+ * to improve performance when several {@link LayoutBugDetector}s
+ * analyze the same page. Implementations are supposed to cache
+ * all information when they are retrieved the first time.
  *
  * @author Michael Tamm
  */
-public class WebPage {
-
-    private final FirefoxDriver _driver;
-
-    private String _url;
-    private String _html;
-    private int[][] _screenshot;
-    private int[][] _screenshotWithoutText;
-    private boolean[][] _textPixels;
-    private boolean[][] _horizontalEdges;
-    private boolean[][] _verticalEdges;
-    private boolean _jqueryInjected;
-    private boolean _textColorsBackedUp;
-
-    public WebPage(FirefoxDriver driver) {
-        _driver = driver;
-    }
+public interface WebPage {
 
     /** Returns the URL of this web page. */
-    public String getUrl() {
-        if (_url == null) {
-            _url = _driver.getCurrentUrl();
-        }
-        return _url;
-    }
+    public String getUrl();
 
     /** Returns the source HTML of this web page. */
-    public String getHtml() {
-        if (_html == null) {
-            _html = _driver.getPageSource();
-        }
-        return _html;
-    }
+    public String getHtml();
 
     /** Returns a screenshot of this web page. */
-    public int[][] getScreenshot() throws Exception {
-        if (_screenshot == null) {
-            _screenshot = takeScreenshot();
-        }
-        return _screenshot;
-    }
+    public int[][] getScreenshot() throws Exception;
 
-    /** Returns a screenshot of this web page where all text is transparent. */
-    public int[][] getScreenshotWithoutText() throws Exception {
-        if (_screenshotWithoutText == null) {
-            backupTextColors();
-            try {
-                injectJQueryIfNotPresent();
-                // Hide all text ...
-                executeJavaScript("jQuery('*').css('color', 'transparent');");
-                // take screenshot ...
-                _screenshotWithoutText = takeScreenshot();
-            } finally {
-                restoreTextColors();
-            }
-        }
-        return _screenshotWithoutText;
-    }
-    
-    /** Injects <a href="http://jquery.com/">jQuery</a> into this web page, if not already present. */
-    public void injectJQueryIfNotPresent() {
-        if (!_jqueryInjected) {
-            executeJavaScript(
-                "if (typeof jQuery == 'undefined') {\n" +
-                "    document.body.appendChild(document.createElement('script')).src = 'http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js';\n" +
-                "}"
-            );
-            _jqueryInjected = true;
-        }
-    }
+    /** Saves the {@link #getScreenshot() screenshot} of this web page to the given file in PNG format. */
+    public void saveScreenshotTo(File pngFile) throws Exception;
 
     /** Takes a screenshot of what is currently displayed. */
-    public int[][] takeScreenshot() throws IOException {
-        final File tempFile = File.createTempFile("screenshot-", ".png");
-        try {
-            _driver.saveScreenshot(tempFile);
-            return ImageHelper.fileToPixels(tempFile);
-        } finally {
-            if (tempFile.exists() && !tempFile.delete()) {
-                tempFile.deleteOnExit();
-            }
-        }
-    }
+    public int[][] takeScreenshot() throws Exception;
 
-    /** Saves a {@link #getScreenshot() screenshot} of this web page to the given PNG file. */
-    public void saveScreenshotTo(File pngFile) throws IOException {
-        if (_screenshot == null) {
-            _driver.saveScreenshot(pngFile);
-        } else {
-            ImageHelper.pixelsToFile(_screenshot, pngFile);
-        }
-    }
+    /** Returns all elements on this web page for the given find criteria. */
+    public List<WebElement> findElements(By by);
 
-    public boolean[][] getTextPixels() throws Exception {
-        if (_textPixels == null) {
-            final TextDetector textDetector = new SimpleTextDetector();
-            _textPixels = textDetector.detectTextPixelsIn(this);
-        }
-        return _textPixels;
-    }
+    /** Executes the given JavaScript in the context of this web page. */
+    public Object executeJavaScript(String javaScript, Object... arguments);
 
-    public boolean[][] getHorizontalEdges() throws Exception {
-        if (_horizontalEdges == null) {
-            final EdgeDetector edgeDetector = new SimpleEdgeDetector();
-            _horizontalEdges = edgeDetector.detectHorizontalEdgesIn(this, 16);
-        }
-        return _horizontalEdges;
-    }
+    /** Injects <a href="http://jquery.com/">jQuery</a> into this web page, if not already present. */
+    public void injectJQueryIfNotPresent() throws Exception;
 
-    public boolean[][] getVerticalEdges() throws Exception {
-        if (_verticalEdges == null) {
-            final EdgeDetector edgeDetector = new SimpleEdgeDetector();
-            _verticalEdges = edgeDetector.detectVerticalEdgesIn(this, 16);
-        }
-        return _verticalEdges;
-    }
+    public void backupTextColors() throws Exception;
 
-    public void backupTextColors() {
-        if (!_textColorsBackedUp) {
-            injectJQueryIfNotPresent();
-            executeJavaScript("jQuery('*').each(function() { var j = jQuery(this); j.attr('flb_color_backup', j.css('color')); });");
-            _textColorsBackedUp = true;
-        }
-    }
+    public void restoreTextColors() throws Exception;
 
-    public void restoreTextColors() {
-        if (!_textColorsBackedUp) {
-            throw new IllegalStateException("You must call backupTextColors() before you can call restoreTextColors()");
-        }
-        executeJavaScript("jQuery('*').each(function() { var j = jQuery(this); j.css('color', j.attr('flb_color_backup')); });");
-    }
+    /** Returns a screenshot of this web page where all text is transparent. */
+    public int[][] getScreenshotWithoutText() throws Exception;
 
-    public List<WebElement> findElements(By by) {
-        return _driver.findElements(by);
-    }
+    public boolean[][] getTextPixels() throws Exception;
 
-    public Object executeJavaScript(String javaScript, Object...  arguments) {
-        return _driver.executeScript(javaScript, arguments);
-    }
+    public boolean[][] getHorizontalEdges() throws Exception;
+
+    public boolean[][] getVerticalEdges() throws Exception;
 }

@@ -16,40 +16,20 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import org.mortbay.jetty.Server;
+import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.assertThat;
 import org.mortbay.jetty.Connector;
+import org.mortbay.jetty.Server;
 import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.webapp.WebAppContext;
 
-import java.net.ServerSocket;
-import java.io.IOException;
 import java.io.File;
 
-import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.assertThat;
-
 /**
- * This is the web server for all tests derived from {@link TestAccessingWebserver}.
- * It serves the web application found in <code>src/test/webapp</code>.
+ * A simple HTTP server, which serves all files located under the <code>src/test/webapp</code> directory.
  *
  * @author Michael Tamm
  */
 public class Webserver {
-
-    private static int findFreePort() {
-        ServerSocket socket = null;
-        try {
-            socket = new ServerSocket(0);
-            return socket.getLocalPort();
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to create ServerSocket on free port.", e);
-        } finally {
-            if (socket != null) {
-                try {
-                    socket.close();
-                } catch (IOException ignored) {}
-            }
-        }
-    }
 
     private Server _server;
     private int _port;
@@ -64,7 +44,7 @@ public class Webserver {
     }
 
     public void start() {
-        _port = findFreePort();
+        _port = SocketHelper.findFreePort();
         Connector connector = new SocketConnector();
         connector.setPort(_port);
         _server.addConnector(connector);

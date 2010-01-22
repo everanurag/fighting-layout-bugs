@@ -21,8 +21,10 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 /**
@@ -33,6 +35,16 @@ public class ImageHelper {
     public static int[][] fileToPixels(File imageFile) throws IOException {
         final BufferedImage image = ImageIO.read(imageFile);
         return imageToPixels(image);
+    }
+
+    public static int[][] bytesToPixels(byte[] bytes) throws IOException {
+        InputStream in = new ByteArrayInputStream(bytes);
+        try {
+            final BufferedImage image = ImageIO.read(in);
+            return imageToPixels(image);
+        } finally {
+            in.close();
+        }
     }
 
     public static void pixelsToFile(int[][] pixels, File pngFile) throws IOException {

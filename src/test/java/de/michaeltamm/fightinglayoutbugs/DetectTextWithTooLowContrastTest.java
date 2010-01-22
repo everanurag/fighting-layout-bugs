@@ -22,15 +22,18 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.util.Collection;
 
-public class DetectTextWithTooLowContrastTest extends TestUsingFirefoxDriver {
+/**
+ * @author Michael Tamm
+ */
+public class DetectTextWithTooLowContrastTest extends TestUsingSelenium {
 
     @Test
     public void shouldFindLayoutBugInEspiritNewsletterPage() throws Exception {
-        _driver.get(makeUrlAbsolute("/ESPRIT_newsletter.html"));
+        WebPage testPage = getWebPageFor("/ESPRIT_newsletter.html").usingChromeDriver();
         final long startTime = System.currentTimeMillis();
         final LayoutBugDetector detector = new DetectTextWithTooLowContrast();
         detector.setScreenshotDir(new File("target"));
-        final Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(_driver);
+        final Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(testPage);
         assertThat(layoutBugs.size() == 1);
         final LayoutBug layoutBug = layoutBugs.iterator().next();
         assertThat(layoutBug.getScreenshot(), HamcrestHelper.isNotNull());

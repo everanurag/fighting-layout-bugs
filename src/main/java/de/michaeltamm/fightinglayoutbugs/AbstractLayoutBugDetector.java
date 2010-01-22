@@ -18,17 +18,12 @@ package de.michaeltamm.fightinglayoutbugs;
 
 import com.thoughtworks.selenium.Selenium;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebDriverBackedSelenium;
-import org.openqa.selenium.firefox.FirefoxDriver;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
-
-
 
 /**
  * @author Michael Tamm
@@ -42,27 +37,31 @@ public abstract class AbstractLayoutBugDetector implements LayoutBugDetector {
         _screenshotDir = screenshotDir;
     }
 
-    protected LayoutBug createLayoutBug(String message, WebPage webPage) {
-        return createLayoutBug(message, webPage, null);
+    protected LayoutBug createLayoutBug(String message, WebPage webPage, boolean saveScreenshot) {
+        return createLayoutBug(message, webPage, saveScreenshot, null);
     }
 
     protected LayoutBug createLayoutBug(String message, WebPage webPage, boolean[][] buggyPixels) {
-        File screenshot = null;
-        if (_screenshotDir != null) {
+        return createLayoutBug(message, webPage, true, buggyPixels);
+    }
+
+    private LayoutBug createLayoutBug(String message, WebPage webPage, boolean saveScreenshot, boolean[][] buggyPixels) {
+        File screenshotFile = null;
+        if (saveScreenshot && _screenshotDir != null) {
             final DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
             String prefix = getClass().getSimpleName();
             if (prefix.startsWith("Detect")) {
                 prefix = prefix.substring("Detect".length());
             }
             try {
-                screenshot = File.createTempFile(prefix + "_" + df.format(new Date()) + ".", ".png", _screenshotDir);
-                webPage.saveScreenshotTo(screenshot);
-            } catch (IOException e) {
+                screenshotFile = File.createTempFile(prefix + "_" + df.format(new Date()) + ".", ".png", _screenshotDir);
+                webPage.saveScreenshotTo(screenshotFile);
+            } catch (Exception e) {
                 System.err.print("Could not save screenshot: ");
                 e.printStackTrace(System.err);
             }
         }
-        final LayoutBug layoutBug = new LayoutBug(message, webPage, screenshot);
+        final LayoutBug layoutBug = new LayoutBug(message, webPage, screenshotFile);
         if (buggyPixels != null) {
             try {
                 layoutBug.markBuggyPixels(buggyPixels);
@@ -75,21 +74,12 @@ public abstract class AbstractLayoutBugDetector implements LayoutBugDetector {
     }
 
     public final Collection<LayoutBug> findLayoutBugsIn(WebDriver driver) throws Exception {
-        if (driver instanceof FirefoxDriver) {
-            final WebPage webPage = new WebPage((FirefoxDriver) driver);
-            return findLayoutBugsIn(webPage);
-        }
-        throw new IllegalArgumentException("Currently only FirefoxDriver is supported.");
+        WebPage webPage = new WebPageBackedByWebDriver(driver);
+        return findLayoutBugsIn(webPage);
     }
 
-    public Collection<LayoutBug> findLayoutBugsIn(Selenium selenium) throws Exception {
-        if (selenium instanceof WebDriverBackedSelenium) {
-            WebDriver driver = ((WebDriverBackedSelenium) selenium).getUnderlyingWebDriver();
-            if (driver instanceof FirefoxDriver) {
-                final WebPage webPage = new WebPage((FirefoxDriver) driver);
-                return findLayoutBugsIn(webPage);
-            }
-        }
-        throw new IllegalArgumentException("Currently on WebDriverBackedSelenium backed by a FirefoxDriver is supported.");
+    public final Collection<LayoutBug> findLayoutBugsIn(Selenium selenium) throws Exception {
+        WebPage webPage = new WebPageBackedBySelenium(selenium);
+        return findLayoutBugsIn(webPage);
     }
 }

@@ -16,31 +16,29 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import org.testng.annotations.BeforeSuite;
-import org.testng.annotations.AfterSuite;
+import java.io.IOException;
+import java.net.ServerSocket;
 
 /**
  * @author Michael Tamm
  */
-public class TestAccessingWebserver {
+public class SocketHelper {
 
-    static Webserver _webserver;
-
-    @BeforeSuite
-    public void startWebserver() {
-        System.out.println("Starting Webserver ...");
-        _webserver = new Webserver();
-        _webserver.start();
+    public static int findFreePort() {
+        ServerSocket socket = null;
+        try {
+            socket = new ServerSocket(0);
+            return socket.getLocalPort();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to create ServerSocket on free port.", e);
+        } finally {
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException ignored) {}
+            }
+        }
     }
 
-    @AfterSuite
-    public void stopWebserver() {
-        System.out.println("Stopping Webserver ...");
-        _webserver.stop();
-    }
-
-    protected String getBaseUrl() {
-        return "http://localhost:" + _webserver.getPort() + "/";
-    }
-
+    private SocketHelper() {}
 }

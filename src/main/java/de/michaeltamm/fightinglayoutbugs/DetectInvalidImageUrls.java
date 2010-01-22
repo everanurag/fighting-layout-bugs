@@ -75,6 +75,7 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
     private final Map<URL, String> _checkedUrls = new HashMap<URL, String>();
 
     private URL _baseUrl;
+    private boolean _screenshotTaken;
     private String _documentCharset;
     private HttpClient _httpClient;
     private Set<URL> _visitedCssUrls;
@@ -117,6 +118,15 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
         }
     }
 
+    boolean saveScreenshot() {
+        if (_screenshotTaken) {
+            return false;
+        } else {
+            _screenshotTaken = true;
+            return true;
+        }
+    }
+
     private void checkImgElements(WebPage webPage, List<LayoutBug> layoutBugs) {
         int numImgElementsWithoutSrcAttribute = 0;
         int numImgElementsWithEmptySrcAttribute = 0;
@@ -133,10 +143,10 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
                         final URL imageUrl = getCompleteUrlFor(src);
                         final String error = checkImageUrl(imageUrl);
                         if (error.length() > 0) {
-                            layoutBugs.add(createLayoutBug("Detected <img> element with invalid src attribute \"" + src + "\" - " + error, webPage));
+                            layoutBugs.add(createLayoutBug("Detected <img> element with invalid src attribute \"" + src + "\" - " + error, webPage, saveScreenshot()));
                         }
                     } catch (MalformedURLException e) {
-                        layoutBugs.add(createLayoutBug("Detected <img> element with invalid src attribute \"" + src + "\" - " + e.getMessage(), webPage));
+                        layoutBugs.add(createLayoutBug("Detected <img> element with invalid src attribute \"" + src + "\" - " + e.getMessage(), webPage, saveScreenshot()));
                     }
                     seen.add(src);
                 }
@@ -144,16 +154,16 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
         }
         if (numImgElementsWithEmptySrcAttribute > 0) {
             if (numImgElementsWithEmptySrcAttribute == 1) {
-                layoutBugs.add(createLayoutBug("Detected <img> element with empty src attribute.", webPage));
+                layoutBugs.add(createLayoutBug("Detected <img> element with empty src attribute.", webPage, saveScreenshot()));
             } else {
-                layoutBugs.add(createLayoutBug("Detected " + numImgElementsWithEmptySrcAttribute + " <img> elements with empty src attribute.", webPage));
+                layoutBugs.add(createLayoutBug("Detected " + numImgElementsWithEmptySrcAttribute + " <img> elements with empty src attribute.", webPage, saveScreenshot()));
             }
         }
         if (numImgElementsWithoutSrcAttribute > 0) {
             if (numImgElementsWithEmptySrcAttribute == 1) {
-                layoutBugs.add(createLayoutBug("Detected <img> without src attribute.", webPage));
+                layoutBugs.add(createLayoutBug("Detected <img> without src attribute.", webPage, saveScreenshot()));
             } else {
-                layoutBugs.add(createLayoutBug("Detected " + numImgElementsWithoutSrcAttribute + " <img> elements without src attribute.", webPage));
+                layoutBugs.add(createLayoutBug("Detected " + numImgElementsWithoutSrcAttribute + " <img> elements without src attribute.", webPage, saveScreenshot()));
             }
         }
     }
@@ -168,10 +178,10 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
                 try {
                     final String error = checkImageUrl(getCompleteUrlFor(imageUrl));
                     if (error.length() > 0) {
-                        layoutBugs.add(createLayoutBug("Detected <" + element.getTagName() + "> element with invalid image URL \"" + imageUrl + "\" in its style attribute - " + error, webPage));
+                        layoutBugs.add(createLayoutBug("Detected <" + element.getTagName() + "> element with invalid image URL \"" + imageUrl + "\" in its style attribute - " + error, webPage, saveScreenshot()));
                     }
                 } catch (MalformedURLException e) {
-                    layoutBugs.add(createLayoutBug("Detected <" + element.getTagName() + "> element with invalid image URL \"" + imageUrl + "\" in its style attribute - " + e.getMessage(), webPage));
+                    layoutBugs.add(createLayoutBug("Detected <" + element.getTagName() + "> element with invalid image URL \"" + imageUrl + "\" in its style attribute - " + e.getMessage(), webPage, saveScreenshot()));
                 }
             }
         }
@@ -187,10 +197,10 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
                 try {
                     final String error = checkImageUrl(getCompleteUrlFor(imageUrl));
                     if (error.length() > 0) {
-                        layoutBugs.add(createLayoutBug("Detected <style> element with invalid image URL \"" + imageUrl + "\" - " + error, webPage));
+                        layoutBugs.add(createLayoutBug("Detected <style> element with invalid image URL \"" + imageUrl + "\" - " + error, webPage, saveScreenshot()));
                     }
                 } catch (MalformedURLException e) {
-                    layoutBugs.add(createLayoutBug("Detected <style> element with invalid image URL \"" + imageUrl + "\" - " + e.getMessage(), webPage));
+                    layoutBugs.add(createLayoutBug("Detected <style> element with invalid image URL \"" + imageUrl + "\" - " + e.getMessage(), webPage, saveScreenshot()));
                 }
             }
         }
@@ -240,10 +250,10 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
                     try {
                         final String error = checkImageUrl(getCompleteUrlFor(imageUrl));
                         if (error.length() > 0) {
-                            layoutBugs.add(createLayoutBug("Detected invalid image URL \"" + imageUrl + "\" in " + pathToCssResource + " - " + error, webPage));
+                            layoutBugs.add(createLayoutBug("Detected invalid image URL \"" + imageUrl + "\" in " + pathToCssResource + " - " + error, webPage, saveScreenshot()));
                         }
                     } catch (MalformedURLException e) {
-                        layoutBugs.add(createLayoutBug("Detected invalid image URL \"" + imageUrl + "\" in " + pathToCssResource + " - " + e.getMessage(), webPage));
+                        layoutBugs.add(createLayoutBug("Detected invalid image URL \"" + imageUrl + "\" in " + pathToCssResource + " - " + e.getMessage(), webPage, saveScreenshot()));
                     }
                 }
             }
@@ -425,12 +435,12 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
         try {
             faviconUrl = getCompleteUrlFor(_faviconUrl);
         } catch (MalformedURLException e) {
-            layoutBugs.add(createLayoutBug("Detected invalid favicon URL \"" + _faviconUrl + "\" - " + e.getMessage(), webPage));
+            layoutBugs.add(createLayoutBug("Detected invalid favicon URL \"" + _faviconUrl + "\" - " + e.getMessage(), webPage, saveScreenshot()));
         }
         if (faviconUrl != null) {
             final String error = checkImageUrl(faviconUrl);
             if (error.length() > 0) {
-                layoutBugs.add(createLayoutBug("Detected invalid favicon URL \"" + _faviconUrl + "\" - " + error, webPage));
+                layoutBugs.add(createLayoutBug("Detected invalid favicon URL \"" + _faviconUrl + "\" - " + error, webPage, saveScreenshot()));
             }
         }
     }

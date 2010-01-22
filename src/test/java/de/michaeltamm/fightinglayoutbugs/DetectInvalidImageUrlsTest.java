@@ -25,7 +25,10 @@ import org.testng.annotations.Test;
 
 import java.util.Collection;
 
-public class DetectInvalidImageUrlsTest extends TestUsingFirefoxDriver {
+/**
+ * @author Michael Tamm
+ */
+public class DetectInvalidImageUrlsTest extends TestUsingSelenium {
 
     @Test
     public void testStripCommentsFrom() {
@@ -44,9 +47,9 @@ public class DetectInvalidImageUrlsTest extends TestUsingFirefoxDriver {
 
     @Test
     public void shouldFindInvalidImageUrls() throws Exception {
-        _driver.get(makeUrlAbsolute("/page_with_invalid_image_urls.html"));
+        WebPage testPage = getWebPageFor("/page_with_invalid_image_urls.html").usingFirefoxDriver();
         final LayoutBugDetector detector = new DetectInvalidImageUrls();
-        final Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(_driver);
+        final Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(testPage);
         for (LayoutBug bug : layoutBugs) {
             System.out.println(bug);
             System.out.println();
