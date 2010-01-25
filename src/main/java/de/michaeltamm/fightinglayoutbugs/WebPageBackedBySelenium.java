@@ -30,7 +30,7 @@ import org.openqa.selenium.internal.FindsByXPath;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,8 +38,6 @@ import java.util.List;
  * @author Sascha Schwarze
  */
 public class WebPageBackedBySelenium extends AbstractWebPage {
-
-    private static final Charset UTF8 = Charset.forName("UTF-8");
 
     private final Selenium _selenium;
 
@@ -86,8 +84,14 @@ public class WebPageBackedBySelenium extends AbstractWebPage {
     }
 
     protected byte[] takeScreenshotAsBytes() {
-        final String base64EncodedScreenshot = _selenium.captureEntirePageScreenshotToString("");
-        final byte[] base64EncodedBytes = base64EncodedScreenshot.getBytes(UTF8);
+        String base64EncodedScreenshot = _selenium.captureEntirePageScreenshotToString("");
+        byte[] base64EncodedBytes;
+        try {
+            base64EncodedBytes = base64EncodedScreenshot.getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            // Should never happen
+            throw new RuntimeException(e);
+        }
         return Base64.decodeBase64(base64EncodedBytes);
     }
 
@@ -108,7 +112,12 @@ public class WebPageBackedBySelenium extends AbstractWebPage {
         } finally {
             IOUtils.closeQuietly(buf);
         }
-        jquery = new String(buf.toByteArray(), UTF8);
+        try {
+            jquery = new String(buf.toByteArray(), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            // Should never happen
+            throw new RuntimeException(e);
+        }
         executeJavaScript(jquery);
     }
 
@@ -214,10 +223,6 @@ public class WebPageBackedBySelenium extends AbstractWebPage {
                 // SeleniumException thrown if attribute value is ""
                 return "";
             }
-        }
-
-        public String getElementName() {
-            throw new UnsupportedOperationException("Not implemented");
         }
 
         private String getLocator() {
