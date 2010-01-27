@@ -111,7 +111,7 @@ public abstract class AbstractWebPage implements WebPage {
 
     public boolean[][] getTextPixels() throws Exception {
         if (_textPixels == null) {
-            final TextDetector textDetector = new SimpleTextDetector();
+            final TextDetector textDetector = new AdvancedTextDetector();
             _textPixels = textDetector.detectTextPixelsIn(this);
         }
         return _textPixels;

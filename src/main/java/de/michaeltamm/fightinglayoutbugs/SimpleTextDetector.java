@@ -17,6 +17,12 @@
 package de.michaeltamm.fightinglayoutbugs;
 
 /**
+ * Detects text pixels by comparing screenshots after colorizing all text to black
+ * and then to white via JavaScript - might return an invalid result, if there is
+ * animation on the web page (like animated GIF images, a Flash movie, or JavaScript
+ * animation). You should use the {@link AdvancedTextDetector} if you have animation
+ * on your web page.
+ *
  * @author Michael Tamm
  */
 public class SimpleTextDetector implements TextDetector {
@@ -42,7 +48,6 @@ public class SimpleTextDetector implements TextDetector {
             for (int x = 0; x < w; ++x) {
                 for (int y = 0; y < h; ++y) {
                     result[x][y] = (pixels1[x][y] != pixels2[x][y]);
-                    // TODO: if pixels1[x][y] is brighter than pixels2[x][y] there is probably animation on the page, handle this
                 }
             }
             return result;

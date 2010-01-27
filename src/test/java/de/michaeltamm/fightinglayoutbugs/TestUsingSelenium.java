@@ -42,6 +42,7 @@ public class TestUsingSelenium {
             _pathToHtmlPageOrCompleteUrl = pathToHtmlPageOrCompleteUrl;
         }
 
+/*
         public WebPage usingChromeDriver() {
             if (webPageFactoryUsingChromeDriver == null) {
                 startWebserver();
@@ -49,7 +50,7 @@ public class TestUsingSelenium {
             }
             return webPageFactoryUsingChromeDriver.createWebPageFor(_pathToHtmlPageOrCompleteUrl);
         }
-
+*/
         public WebPage usingDefaultSelenium() {
             if (webPageFactoryUsingDefaultSelenium == null) {
                 startWebserver();

@@ -29,7 +29,7 @@ public class DetectTextWithTooLowContrastTest extends TestUsingSelenium {
 
     @Test
     public void shouldFindLayoutBugInEspiritNewsletterPage() throws Exception {
-        WebPage testPage = getWebPageFor("/ESPRIT_newsletter.html").usingChromeDriver();
+        WebPage testPage = getWebPageFor("/ESPRIT_newsletter.html").usingFirefoxDriver();
         final long startTime = System.currentTimeMillis();
         final LayoutBugDetector detector = new DetectTextWithTooLowContrast();
         detector.setScreenshotDir(new File("target"));
