@@ -66,6 +66,18 @@ public class DetectInvalidImageUrlsTest extends TestUsingSelenium {
         assertThat(layoutBugs, containsLayoutBug("Detected <img> element with empty src attribute."));
     }
 
+    @Test
+    public void shouldNotComplainAboutValidImageUrls() throws Exception {
+        WebPage testPage = getWebPageFor("/page_with_valid_image_urls.html").usingFirefoxDriver();
+        final LayoutBugDetector detector = new DetectInvalidImageUrls();
+        final Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(testPage);
+        for (LayoutBug bug : layoutBugs) {
+            System.out.println(bug);
+            System.out.println();
+        }
+        assertThat(layoutBugs.isEmpty());
+    }
+
     private Matcher<Collection<LayoutBug>> containsLayoutBug(final String descriptionSubstring) {
         return new TypeSafeMatcher<Collection<LayoutBug>>() {
             public boolean matchesSafely(Collection<LayoutBug> layoutBugs) {

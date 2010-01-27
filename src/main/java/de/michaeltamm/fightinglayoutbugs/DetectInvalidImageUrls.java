@@ -248,7 +248,7 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
                 }
                 for (String imageUrl : extractUrlsFrom(css.text).keySet()) {
                     try {
-                        final String error = checkImageUrl(getCompleteUrlFor(imageUrl));
+                        final String error = checkImageUrl(getCompleteUrlFor(cssUrl, imageUrl));
                         if (error.length() > 0) {
                             layoutBugs.add(createLayoutBug("Detected invalid image URL \"" + imageUrl + "\" in " + pathToCssResource + " - " + error, webPage, saveScreenshot()));
                         }
