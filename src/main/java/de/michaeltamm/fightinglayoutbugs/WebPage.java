@@ -206,6 +206,24 @@ public abstract class WebPage {
         return _verticalEdges;
     }
 
+    public void resizeBrowserWindowTo(Dimension newBrowserWindowSize) {
+        int currentBrowserWindowWidth = ((Number) executeJavaScript("return window.outerWidth")).intValue();
+        boolean callResize = (currentBrowserWindowWidth != newBrowserWindowSize.width);
+        if (!callResize) {
+            int currentBrowserWindowHeight = ((Number) executeJavaScript("return window.outerHeight")).intValue();
+            callResize = (currentBrowserWindowHeight != newBrowserWindowSize.height);
+        }
+        if (callResize) {
+            executeJavaScript("window.resizeTo(" + newBrowserWindowSize.width + ", " + newBrowserWindowSize.height + ")");
+            // Clear all cached screenshots and derived values ...
+            _screenshot = null;
+            _screenshotWithoutText = null;
+            _textPixels = null;
+            _horizontalEdges = null;
+            _verticalEdges = null;
+        }
+    }
+
     /**
      * Returns the URL of this web page.
      */
