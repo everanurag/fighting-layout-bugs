@@ -17,89 +17,49 @@
 package de.michaeltamm.fightinglayoutbugs;
 
 /**
+ * <p>Detects horizontal and vertical edges with a simple algorithm.</p>
+ * For horizontal edges:<ol>
+ *     <li>candidates = horizontal pixel sequences of the same or {@link #setSimilarColorsMaxRgbSqrDistance similar colors} with a certain {@link #setMinEdgeLength minimal length}</li>
+ *     <li>Discard all candidate pixels, which don't have a {@link #setEdgeMinRgbSqrDistance high contrast} to the line above or below</li>
+ *     <li>Discard all remaining pixel sequences, which don't have a certain {@link #setMinEdgeLength minimal length}
+ * </ol>
+ * For vertical edges:<ol>
+ *     <li>candidates = vertical pixel sequences of the same or {@link #setSimilarColorsMaxRgbSqrDistance similar colors} with a certain {@link #setMinEdgeLength minimal length}</li>
+ *     <li>Discard all candidate pixels, which don't have a {@link #setEdgeMinRgbSqrDistance high contrast} to the column at the left or at the right</li>
+ *     <li>Discard all remaining pixel sequences, which don't have a certain {@link #setMinEdgeLength minimal length}
+ * </ol>
+ *
  * @author Michael Tamm
  */
 public class SimpleEdgeDetector implements EdgeDetector {
 
-    private static final int SIMILAR_COLORS_MAX_RGB_SQR_DISTANCE = 30;
-    private static final int EDGE_MIN_RGB_SQR_DISTANCE = 900;
+    private int _minEdgeLength = 16;
+    private int _similarColorsMaxRgbSqrDistance = 30;
+    private int _edgeMinRgbSqrDistance = 900;
 
-    public boolean[][] detectVerticalEdgesIn(WebPage webPage, int minLength) throws Exception {
-        // Take screenshot ...
-        final int[][] pixels = webPage.getScreenshotWithoutText();
-        final int w = pixels.length;
-        final int h = pixels[0].length;
-        // Detect vertical pixel sequences of similar color ...
-        final boolean[][] candidates = new boolean[w][h];
-        for (int x = 0; x < w; ++x) {
-            int start = 0;
-            int c = pixels[x][0];
-            int r = (c & 0xFF0000) >> 16;
-            int g = (c & 0xFF00) >> 8;
-            int b = (c & 0xFF);
-            for (int y = 1; y <= h; ++y) {
-                if (y == h || sqrDistance(r, g, b, (c = pixels[x][y])) > SIMILAR_COLORS_MAX_RGB_SQR_DISTANCE) {
-                    if (y - start >= minLength) {
-                        // All pixels from pixels[x][start] to pixels[x][y - 1] have similar color ...
-                        for (int i = start; i < y; ++i) {
-                            candidates[x][i] = true;
-                        }
-                    }
-                    if (y < h) {
-                        start = y;
-                        r = (c & 0xFF0000) >> 16;
-                        g = (c & 0xFF00) >> 8;
-                        b = (c & 0xFF);
-                    }
-                } else {
-                    r = (c & 0xFF0000) >> 16;
-                    g = (c & 0xFF00) >> 8;
-                    b = (c & 0xFF);
-                }
-            }
-        }
-        final boolean[][] result = new boolean[w][h];
-        // Detect vertical edges ...
-        final int w1 = w - 1;
-        for (int x = 0; x < w; ++x) {
-            for (int y = 0; y < h; ++y) {
-                if (candidates[x][y]) {
-                    if (x > 0 && sqrDistance(pixels[x - 1][y], pixels[x][y]) > EDGE_MIN_RGB_SQR_DISTANCE) {
-                        result[x - 1][y] = true;
-                        result[x][y] = true;
-                    }
-                    if (x < w1 && sqrDistance(pixels[x][y], pixels[x + 1][y]) > EDGE_MIN_RGB_SQR_DISTANCE) {
-                        result[x][y] = true;
-                        result[x + 1][y] = true;
-                    }
-                }
-            }
-        }
-        // Ignore detected vertical edges which are not long enough ...
-        for (int x = 0; x < w; ++x) {
-            int y1 = 0;
-            do {
-                while (y1 < h && !result[x][y1]) {
-                    ++y1;
-                }
-                if (y1 < h) {
-                    int y2 = y1 + 1;
-                    while (y2 < h && result[x][y2]) {
-                        ++y2;
-                    }
-                    if (y2 - y1 < minLength) {
-                        for (int i = y1; i < y2; ++i) {
-                            result[x][i] = false;
-                        }
-                    }
-                    y1 = y2;
-                }
-            } while(y1 < h);
-        }
-        return result;
+    /**
+     * Sets the minimal length for detected edges in pixels, default is <code>16</code>.
+     */
+    public void setMinEdgeLength(int length) {
+        _minEdgeLength = length;
     }
 
-    public boolean[][] detectHorizontalEdgesIn(WebPage webPage, int minLength) throws Exception {
+    /**
+     * Sets the maximal {@link #getRgbSqrDistance distance} for two colors to be considered similar, default is 30.
+     */
+    public void setSimilarColorsMaxRgbSqrDistance(int rgbSqrDistance) {
+        _similarColorsMaxRgbSqrDistance = rgbSqrDistance;
+    }
+
+    /**
+     * Sets the minimal {@link #getRgbSqrDistance distance} for two colors to be considered of having such a high contrast,
+     * that they might belong to an edge, default is 900.
+     */
+    public void setEdgeMinRgbSqrDistance(int rgbSqrDistance) {
+        _edgeMinRgbSqrDistance = rgbSqrDistance;
+    }
+
+    public boolean[][] detectHorizontalEdgesIn(WebPage webPage) throws Exception {
         final int[][] pixels = webPage.getScreenshotWithoutText();
         final int w = pixels.length;
         final int h = pixels[0].length;
@@ -112,8 +72,8 @@ public class SimpleEdgeDetector implements EdgeDetector {
             int g = (c & 0xFF00) >> 8;
             int b = (c & 0xFF);
             for (int x = 1; x <= w; ++x) {
-                if (x == w || sqrDistance(r, g, b, (c = pixels[x][y])) > SIMILAR_COLORS_MAX_RGB_SQR_DISTANCE) {
-                    if (x - start >= minLength) {
+                if (x == w || getRgbSqrDistance(r, g, b, (c = pixels[x][y])) > _similarColorsMaxRgbSqrDistance) {
+                    if (x - start >= _minEdgeLength) {
                         // All pixels from pixels[start][y] to pixels[x - 1][y] have similar color ...
                         for (int i = start; i < x; ++i) {
                             candidates[i][y] = true;
@@ -138,11 +98,11 @@ public class SimpleEdgeDetector implements EdgeDetector {
         for (int y = 0; y < h; ++y) {
             for (int x = 0; x < w; ++x) {
                 if (candidates[x][y]) {
-                    if (y > 0 && sqrDistance(pixels[x][y - 1], pixels[x][y]) > EDGE_MIN_RGB_SQR_DISTANCE) {
+                    if (y > 0 && getRgbSqrDistance(pixels[x][y - 1], pixels[x][y]) > _edgeMinRgbSqrDistance) {
                         result[x][y - 1] = true;
                         result[x][y] = true;
                     }
-                    if (y < h1 && sqrDistance(pixels[x][y], pixels[x][y + 1]) > EDGE_MIN_RGB_SQR_DISTANCE) {
+                    if (y < h1 && getRgbSqrDistance(pixels[x][y], pixels[x][y + 1]) > _edgeMinRgbSqrDistance) {
                         result[x][y] = true;
                         result[x][y + 1] = true;
                     }
@@ -161,7 +121,7 @@ public class SimpleEdgeDetector implements EdgeDetector {
                     while (x2 < w && result[x2][y]) {
                         ++x2;
                     }
-                    if (x2 - x1 < minLength) {
+                    if (x2 - x1 < _minEdgeLength) {
                         for (int i = x1; i < x2; ++i) {
                             result[i][y] = false;
                         }
@@ -173,20 +133,102 @@ public class SimpleEdgeDetector implements EdgeDetector {
         return result;
     }
 
-    private static int sqrDistance(int rgb1, int rgb2) {
-        int r = (rgb1 & 0xFF0000) >> 16;
-        int g = (rgb1 & 0xFF00) >> 8;
-        int b = (rgb1 & 0xFF);
-        r -= (rgb2 & 0xFF0000) >> 16;
-        g -= (rgb2 & 0xFF00) >> 8;
-        b -= (rgb2 & 0xFF);
+    public boolean[][] detectVerticalEdgesIn(WebPage webPage) throws Exception {
+        // Take screenshot ...
+        final int[][] pixels = webPage.getScreenshotWithoutText();
+        final int w = pixels.length;
+        final int h = pixels[0].length;
+        // Detect vertical pixel sequences of similar color ...
+        final boolean[][] candidates = new boolean[w][h];
+        for (int x = 0; x < w; ++x) {
+            int start = 0;
+            int c = pixels[x][0];
+            int r = (c & 0xFF0000) >> 16;
+            int g = (c & 0xFF00) >> 8;
+            int b = (c & 0xFF);
+            for (int y = 1; y <= h; ++y) {
+                if (y == h || getRgbSqrDistance(r, g, b, (c = pixels[x][y])) > _similarColorsMaxRgbSqrDistance) {
+                    if (y - start >= _minEdgeLength) {
+                        // All pixels from pixels[x][start] to pixels[x][y - 1] have similar color ...
+                        for (int i = start; i < y; ++i) {
+                            candidates[x][i] = true;
+                        }
+                    }
+                    if (y < h) {
+                        start = y;
+                        r = (c & 0xFF0000) >> 16;
+                        g = (c & 0xFF00) >> 8;
+                        b = (c & 0xFF);
+                    }
+                } else {
+                    r = (c & 0xFF0000) >> 16;
+                    g = (c & 0xFF00) >> 8;
+                    b = (c & 0xFF);
+                }
+            }
+        }
+        final boolean[][] result = new boolean[w][h];
+        // Detect vertical edges ...
+        final int w1 = w - 1;
+        for (int x = 0; x < w; ++x) {
+            for (int y = 0; y < h; ++y) {
+                if (candidates[x][y]) {
+                    if (x > 0 && getRgbSqrDistance(pixels[x - 1][y], pixels[x][y]) > _edgeMinRgbSqrDistance) {
+                        result[x - 1][y] = true;
+                        result[x][y] = true;
+                    }
+                    if (x < w1 && getRgbSqrDistance(pixels[x][y], pixels[x + 1][y]) > _edgeMinRgbSqrDistance) {
+                        result[x][y] = true;
+                        result[x + 1][y] = true;
+                    }
+                }
+            }
+        }
+        // Ignore detected vertical edges which are not long enough ...
+        for (int x = 0; x < w; ++x) {
+            int y1 = 0;
+            do {
+                while (y1 < h && !result[x][y1]) {
+                    ++y1;
+                }
+                if (y1 < h) {
+                    int y2 = y1 + 1;
+                    while (y2 < h && result[x][y2]) {
+                        ++y2;
+                    }
+                    if (y2 - y1 < _minEdgeLength) {
+                        for (int i = y1; i < y2; ++i) {
+                            result[x][i] = false;
+                        }
+                    }
+                    y1 = y2;
+                }
+            } while(y1 < h);
+        }
+        return result;
+    }
+
+    /**
+     * Calculates the squared distance between the colors of two pixels in the RGB cube.
+     * The exact formula is: <code>dr * dr + dg * dg + db * db</code> whereby <code>dr</code>
+     * is the delta of red color component of the two given pixels (in the range 0 ... 255),
+     * <code>dg</code> the delta of the green color component and <code>db</code> the delta
+     * of the blue color component.
+     */
+    public static int getRgbSqrDistance(int pixel1, int pixel2) {
+        int r = (pixel1 & 0xFF0000) >> 16;
+        int g = (pixel1 & 0xFF00) >> 8;
+        int b = (pixel1 & 0xFF);
+        r -= (pixel2 & 0xFF0000) >> 16;
+        g -= (pixel2 & 0xFF00) >> 8;
+        b -= (pixel2 & 0xFF);
         return r * r + g * g + b * b;
     }
 
-    private static int sqrDistance(int r1, int g1, int b1, int rgb2) {
-        final int dr = r1 - ((rgb2 & 0xFF0000) >> 16);
-        final int dg = g1 - ((rgb2 & 0xFF00) >> 8);
-        final int db = b1 - ((rgb2 & 0xFF));
+    private static int getRgbSqrDistance(int r1, int g1, int b1, int pixel2) {
+        final int dr = r1 - ((pixel2 & 0xFF0000) >> 16);
+        final int dg = g1 - ((pixel2 & 0xFF00) >> 8);
+        final int db = b1 - ((pixel2 & 0xFF));
         return dr * dr + dg * dg + db * db;
     }
 

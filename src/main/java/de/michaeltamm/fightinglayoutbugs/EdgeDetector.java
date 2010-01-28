@@ -17,14 +17,15 @@
 package de.michaeltamm.fightinglayoutbugs;
 
 /**
- * Detects edges in a web page.
+ * Detects horizontal and vertical edges in a web page.
  *
  * @author michael.tamm
  * @version 1.0 24.08.2009
  */
 public interface EdgeDetector {
 
-    public boolean[][] detectVerticalEdgesIn(WebPage webPage, int minLength) throws Exception;
-    public boolean[][] detectHorizontalEdgesIn(WebPage webPage, int minLength) throws Exception; 
+    boolean[][] detectHorizontalEdgesIn(WebPage webPage) throws Exception;
+
+    boolean[][] detectVerticalEdgesIn(WebPage webPage) throws Exception;
 
 }

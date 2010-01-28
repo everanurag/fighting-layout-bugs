@@ -29,11 +29,11 @@ public class SimpleEdgeDetectorTest extends TestUsingSelenium {
         WebPage testPage = getWebPageFor("/Yahoo!_Profile_Updates.html").usingFirefoxDriver();
         testPage.executeJavaScript("window.resizeTo(1008, 706)");
         final EdgeDetector edgeDetector = new SimpleEdgeDetector();
-        final boolean[][] horizontalEdges = edgeDetector.detectHorizontalEdgesIn(testPage, 16);
+        final boolean[][] horizontalEdges = edgeDetector.detectHorizontalEdgesIn(testPage);
         // TODO: add assertion
         final int w = horizontalEdges.length;
         final int h = horizontalEdges[0].length;
-        final boolean[][] verticalEdges = edgeDetector.detectVerticalEdgesIn(testPage, 16);
+        final boolean[][] verticalEdges = edgeDetector.detectVerticalEdgesIn(testPage);
         assertThat(verticalEdges.length == w);
         assertThat(verticalEdges[0].length == h);
         // TODO: add assertion
