@@ -16,7 +16,6 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 
@@ -27,20 +26,16 @@ import java.io.IOException;
  */
 public class LayoutBug {
 
-    private static final int[] CIRCLE = new int[] { 2, 3, 4, 5, 5, 5, 5, 5, 4, 3, 2 };
-    private static final int RED = 0x00FF0000;
-    private static final int TRANSPARENT = 0xFF000000;
-
     private final String _description;
     private final String _url;
     private final String _html;
-    private File _screenshot;
+    private File _screenshotFile;
 
-    public LayoutBug(String description, WebPage webPage, File screenshot) {
+    public LayoutBug(String description, WebPage webPage, File screenshotFile) {
         _description = description;
         _url = webPage.getUrl();
         _html = webPage.getHtml();
-        _screenshot = screenshot;
+        _screenshotFile = screenshotFile;
     }
 
     /**
@@ -68,94 +63,47 @@ public class LayoutBug {
      * Returns a screenshot of this layout bug, might return <code>null</code>.
      */
     public File getScreenshot() {
-        return _screenshot;
+        return _screenshotFile;
     }
 
-    /**
-     * Marks the given buggy pixels in the screenshot of this layout bug
-     * by surrounding them with a thick red line.
-     */
-    public void markBuggyPixels(boolean[][] buggyPixels) throws IOException {
-        if (_screenshot != null) {
-            final int w = buggyPixels.length;
-            final int h = buggyPixels[0].length;
-            final int[][] pixels = ImageHelper.fileToPixels(_screenshot);
-            assert pixels.length == w;
-            assert pixels[0].length == h;
-            // 1.) Find buggy areas by drawing a circle with a radius of 5 pixels around each buggy pixel ...
-            final boolean[][] buggyAreas = new boolean[w][h];
-            for (int x = 0; x < w; ++x) {
-                for (int y = 0; y < h; ++y) {
-                    if (buggyPixels[x][y]) {
-                        for (int i = -5; i <= 5; ++i) {
-                            final int yy = y + i;
-                            if (y >= 0 && y < h) {
-                                final int n = CIRCLE[i + 5];
-                                for (int j = -n; j < n; ++j) {
-                                    final int xx = x + j;
-                                    if (xx >= 0 && xx < w) {
-                                        buggyAreas[xx][yy] = true;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            // 2.) Surround buggy areas with red lines ...
-            final int[][] redLines = new int[w][h];
-            for (int x = 0; x < w; ++x) {
-                for (int y = 0; y < h; ++y) {
-                    redLines[x][y] = TRANSPARENT;
-                }
-            }
-            final boolean[][] buggyAreasOutlines = ImageHelper.findOutlines(buggyAreas);
-            for (int x = 0; x < w; ++x) {
-                for (int y = 0; y < h; ++y) {
-                    if (buggyAreasOutlines[x][y]) {
-                        for (int i = -1; i <= 1; ++i) {
-                            final int xx = x + i;
-                            if (xx >= 0 && xx < w) {
-                                for (int j = -1; j <= 1; ++j) {
-                                    final int yy = y + j;
-                                    if (yy >= 0 && yy < h) {
-                                        redLines[xx][yy] = RED;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            // 3.) Blend red lines into screenshot ...
-            ImageHelper.blend(pixels, redLines);
+    public void markScreenshotUsing(Marker marker) {
+        if (_screenshotFile == null) {
+            throw new IllegalStateException("This LayoutBug has no screenshot.");
+        }
+        try {
+            int[][] pixels = ImageHelper.fileToPixels(_screenshotFile);
+            marker.mark(pixels);
             // Sometimes overwriting the existing screenshot file did not work
             // on my machine (Windows Vista 64 bit, Sun JDK 1.6.0_10 64 bit),
             // therefore I always create a new file here ...
-            final String name = _screenshot.getName();
+            final String name = _screenshotFile.getName();
             final String prefix = name.substring(0, name.indexOf('.') + 1);
-            final File newFile = File.createTempFile(prefix, ".png", _screenshot.getParentFile());
-            ImageIO.write(ImageHelper.pixelsToImage(pixels), "png", newFile);
+            final File newFile = File.createTempFile(prefix, ".png", _screenshotFile.getParentFile());
+            ImageHelper.pixelsToFile(pixels, newFile);
             try {
-                if (!_screenshot.delete()) {
-                    _screenshot.deleteOnExit();
+                if (!_screenshotFile.delete()) {
+                    _screenshotFile.deleteOnExit();
                 }
             } finally {
-                _screenshot = newFile;
+                _screenshotFile = newFile;
             }
+        } catch (Exception e) {
+            System.err.print("Could not mark screenshot: ");
+            e.printStackTrace(System.err);
         }
     }
 
     @Override
     public String toString() {
-        if (_screenshot == null) {
+        if (_screenshotFile == null) {
             return _description + "\n- URL: " + _url;
         } else {
             try {
-                return _description + "\n- URL: " + _url + "\n- Screenshot: " + _screenshot.getCanonicalPath();
+                return _description + "\n- URL: " + _url + "\n- Screenshot: " + _screenshotFile.getCanonicalPath();
             } catch (IOException ignored) {
-                return _description + "\n- URL: " + _url + "\n- Screenshot: " + _screenshot;
+                return _description + "\n- URL: " + _url + "\n- Screenshot: " + _screenshotFile;
             }
         }
     }
+
 }
