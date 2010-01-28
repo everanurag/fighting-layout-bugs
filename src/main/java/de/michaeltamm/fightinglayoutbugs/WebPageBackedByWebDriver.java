@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * @author Michael Tamm
  */
-public class WebPageBackedByWebDriver extends AbstractWebPage {
+public class WebPageBackedByWebDriver extends WebPage {
 
     private final WebDriver _driver;
 

@@ -37,7 +37,7 @@ import java.util.List;
 /**
  * @author Sascha Schwarze
  */
-public class WebPageBackedBySelenium extends AbstractWebPage {
+public class WebPageBackedBySelenium extends WebPage {
 
     private final Selenium _selenium;
 
