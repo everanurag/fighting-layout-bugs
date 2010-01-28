@@ -44,7 +44,7 @@ public class DetectTextWithTooLowContrast extends AbstractLayoutBugDetector {
                 }
             }
             if (foundBuggyPixel) {
-                final LayoutBug layoutBug = createLayoutBug("Detected text with too low contrast.", webPage, buggyPixels);
+                final LayoutBug layoutBug = createLayoutBug("Detected text with too low contrast.", webPage, new SurroundBuggyPixels(buggyPixels));
                 return singleton(layoutBug);
             } else {
                 return emptyList();

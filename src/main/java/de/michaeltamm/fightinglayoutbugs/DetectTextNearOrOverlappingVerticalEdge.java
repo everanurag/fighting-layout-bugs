@@ -45,7 +45,7 @@ public class DetectTextNearOrOverlappingVerticalEdge extends AbstractLayoutBugDe
                 }
             }
             if (foundBuggyPixel) {
-                final LayoutBug layoutBug = createLayoutBug("Detected text near or overlapping vertical edge.", webPage, buggyPixels);
+                final LayoutBug layoutBug = createLayoutBug("Detected text near or overlapping vertical edge.", webPage, new SurroundBuggyPixels(buggyPixels));
                 return singleton(layoutBug);
             } else {
                 return emptyList();

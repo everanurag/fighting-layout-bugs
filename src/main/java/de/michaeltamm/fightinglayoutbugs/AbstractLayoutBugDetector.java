@@ -41,12 +41,13 @@ public abstract class AbstractLayoutBugDetector implements LayoutBugDetector {
         return createLayoutBug(message, webPage, saveScreenshot, null);
     }
 
-    protected LayoutBug createLayoutBug(String message, WebPage webPage, boolean[][] buggyPixels) {
-        return createLayoutBug(message, webPage, true, buggyPixels);
+    protected LayoutBug createLayoutBug(String message, WebPage webPage, Marker marker) {
+        return createLayoutBug(message, webPage, true, marker);
     }
 
-    private LayoutBug createLayoutBug(String message, WebPage webPage, boolean saveScreenshot, boolean[][] buggyPixels) {
+    private LayoutBug createLayoutBug(String message, WebPage webPage, boolean saveScreenshot, Marker marker) {
         File screenshotFile = null;
+        boolean screenshotSaved = false;
         if (saveScreenshot && _screenshotDir != null) {
             final DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
             String prefix = getClass().getSimpleName();
@@ -56,17 +57,18 @@ public abstract class AbstractLayoutBugDetector implements LayoutBugDetector {
             try {
                 screenshotFile = File.createTempFile(prefix + "_" + df.format(new Date()) + ".", ".png", _screenshotDir);
                 webPage.saveScreenshotTo(screenshotFile);
+                screenshotSaved = true;
             } catch (Exception e) {
                 System.err.print("Could not save screenshot: ");
                 e.printStackTrace(System.err);
             }
         }
         final LayoutBug layoutBug = new LayoutBug(message, webPage, screenshotFile);
-        if (buggyPixels != null) {
+        if (screenshotSaved && marker != null) {
             try {
-                layoutBug.markBuggyPixels(buggyPixels);
+                layoutBug.markScreenshotUsing(marker);
             } catch (Exception e) {
-                System.err.print("Could not mark buggy pixels in screenshot: ");
+                System.err.print("Could not mark screenshot: ");
                 e.printStackTrace(System.err);
             }
         }
