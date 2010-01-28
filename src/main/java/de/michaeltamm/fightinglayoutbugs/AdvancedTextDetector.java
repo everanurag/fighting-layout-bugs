@@ -22,7 +22,7 @@ import static java.lang.Math.abs;
  * Detects text pixels by comparing several screenshots
  * of a web page whereby all text is either colored
  * black, dark gray, light gray, or white via JavaScript -
- * runs slower than the {@link SimpleTextDetector},
+ * runs significantly slower than the {@link SimpleTextDetector},
  * but is able to detect and ignore animation on the web page.
  *
  * @author Michael Tamm
@@ -30,6 +30,10 @@ import static java.lang.Math.abs;
 public class AdvancedTextDetector implements TextDetector {
 
     public boolean[][] detectTextPixelsIn(WebPage webPage) throws Exception {
+        int[][] screenshot = webPage.getScreenshot();
+        int w = screenshot.length;
+        int h = screenshot[0].length;
+        boolean[][] animatedPixels = new boolean[w][h];
         int[][] screenshotWithBlackText;
         int[][] screenshotWithDarkGrayText;
         int[][] screenshotWithLightGrayText;
@@ -45,15 +49,21 @@ public class AdvancedTextDetector implements TextDetector {
             screenshotWithLightGrayText = webPage.takeScreenshot();
             webPage.executeJavaScript("jQuery('*').css('color', '#FFFFFF');");
             screenshotWithWhiteText = webPage.takeScreenshot();
+            // Try to find animated pixels ...
+            webPage.executeJavaScript("jQuery('*').css('color', '#AAAAAA');");
+            update(animatedPixels).byComparing(screenshotWithLightGrayText, webPage.takeScreenshot());
+            webPage.executeJavaScript("jQuery('*').css('color', '#555555');");
+            update(animatedPixels).byComparing(screenshotWithDarkGrayText, webPage.takeScreenshot());
+            webPage.executeJavaScript("jQuery('*').css('color', '#000000');");
+            update(animatedPixels).byComparing(screenshotWithBlackText, webPage.takeScreenshot());
         } finally {
             webPage.restoreTextColors();
         }
-        int w = screenshotWithBlackText.length;
-        int h = screenshotWithBlackText[0].length;
+        update(animatedPixels).byComparing(screenshot, webPage.takeScreenshot());
         boolean[][] result = new boolean[w][h];
         for (int x = 0; x < w; ++x) {
             for (int y = 0; y < h; ++y) {
-                if (screenshotWithBlackText[x][y] != screenshotWithWhiteText[x][y]) {
+                if (!animatedPixels[x][y] && screenshotWithBlackText[x][y] != screenshotWithWhiteText[x][y]) {
                     Distance d1 = new Distance(screenshotWithBlackText[x][y], screenshotWithDarkGrayText[x][y]);
                     Distance d2 = new Distance(screenshotWithDarkGrayText[x][y], screenshotWithLightGrayText[x][y]);
                     if (d1.roughlyEquals(d2)) {
@@ -89,4 +99,29 @@ public class AdvancedTextDetector implements TextDetector {
             return (abs(this.dr - other.dr) <= 1) && (abs(this.dg - other.dg) <= 1) && (abs(this.db - other.db) <= 1);
         }
     }
+
+    private Updater update(boolean[][] animatedPixels) {
+        return new Updater(animatedPixels);
+    }
+
+    private static class Updater {
+        private final boolean[][] _animatedPixels;
+
+        private Updater(boolean[][] animatedPixels) {
+            _animatedPixels = animatedPixels;
+        }
+
+        private void byComparing(int[][] screenshot1, int[][] screenshot2) {
+            int w = _animatedPixels.length;
+            int h = _animatedPixels[0].length;
+            for (int x = 0; x < w; ++x) {
+                for (int y = 0; y < h; ++y) {
+                    if (screenshot1[x][y] != screenshot2[x][y]) {
+                        _animatedPixels[x][y] = true;
+                    }
+                }
+            }
+        }
+    }
+
 }
