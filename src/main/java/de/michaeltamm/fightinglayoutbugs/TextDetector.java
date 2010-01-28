@@ -23,6 +23,6 @@ package de.michaeltamm.fightinglayoutbugs;
  */
 public interface TextDetector {
 
-    public boolean[][] detectTextPixelsIn(WebPage webpage) throws Exception;
+    boolean[][] detectTextPixelsIn(WebPage webpage) throws Exception;
 
 }
