@@ -43,7 +43,7 @@ public class DetectNeedsHorizontalScrolling extends AbstractLayoutBugDetector {
         webPage.resizeBrowserWindowTo(_minimalSupportedScreenResolution);
         final int scrollMaxX = ((Number) webPage.executeJavaScript("return window.scrollMaxX")).intValue();
         if (scrollMaxX > 0) {
-            LayoutBug layoutBug = createLayoutBug("Needs horizontal scrolling.", webPage, new Marker() {
+            LayoutBug layoutBug = createLayoutBug("Detected horizontal scroll bar when browser window has size " + _minimalSupportedScreenResolution + ".", webPage, new Marker() {
                 public void mark(int[][] screenshot) {
                     int w = screenshot.length;
                     int h = screenshot[0].length;

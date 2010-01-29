@@ -27,4 +27,24 @@ class Point {
         this.x = x;
         this.y = y;
     }
+
+    @Override
+    public int hashCode() {
+        return (x << 16 | y);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof Point) {
+            Point other = (Point) o;
+            return (this.x == other.x && this.y == other.y);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return x + "," + y;
+    }
 }

@@ -27,4 +27,24 @@ public class Dimension {
         this.width = width;
         this.height = height;
     }
+
+    @Override
+    public int hashCode() {
+        return (width << 16 | height);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof Dimension) {
+            Dimension other = (Dimension) o;
+            return (this.width == other.width && this.height == other.height);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return width + " x " + height;
+    }
 }
