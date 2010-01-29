@@ -16,14 +16,12 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
- * Finds layout bugs in a web page by applying all available
- * layout bug detectors to it. These are currently:
+ * Finds layout bugs in a web page by executing a certain
+ * set of {@link LayoutBugDetector}s. By default the following
+ * detectors are enabled:
  * <ul>
  *     <li>{@link DetectNeedsHorizontalScrolling}</li>
  *     <li>{@link DetectInvalidImageUrls}</li>
@@ -36,19 +34,17 @@ import java.util.Map;
  */
 public class FightingLayoutBugs extends AbstractLayoutBugDetector {
 
-    private final Map<Class<? extends LayoutBugDetector>, LayoutBugDetector> _layoutBugDetectors;
-
     private TextDetector _textDetector;
     private EdgeDetector _edgeDetector;
+    private final List<LayoutBugDetector> _detectors = new ArrayList<LayoutBugDetector>();
 
     public FightingLayoutBugs() {
-        _layoutBugDetectors = new LinkedHashMap<Class<? extends LayoutBugDetector>, LayoutBugDetector>();
-        // The first detector should be DetectNeedsHorizontalScrolling, because it resizes the browser window ...  
-        _layoutBugDetectors.put(DetectNeedsHorizontalScrolling.class, new DetectNeedsHorizontalScrolling());
-        _layoutBugDetectors.put(DetectInvalidImageUrls.class, new DetectInvalidImageUrls());
-        _layoutBugDetectors.put(DetectTextNearOrOverlappingHorizontalEdge.class, new DetectTextNearOrOverlappingHorizontalEdge());
-        _layoutBugDetectors.put(DetectTextNearOrOverlappingVerticalEdge.class, new DetectTextNearOrOverlappingVerticalEdge());
-        _layoutBugDetectors.put(DetectTextWithTooLowContrast.class, new DetectTextWithTooLowContrast());
+        // The first detector should always be DetectNeedsHorizontalScrolling, because it resizes the browser window ...
+        enable(new DetectNeedsHorizontalScrolling());
+        enable(new DetectInvalidImageUrls());
+        enable(new DetectTextNearOrOverlappingHorizontalEdge());
+        enable(new DetectTextNearOrOverlappingVerticalEdge());
+        enable(new DetectTextWithTooLowContrast());
     }
 
     /**
@@ -66,13 +62,56 @@ public class FightingLayoutBugs extends AbstractLayoutBugDetector {
     }
 
     /**
+     * Adds the given detector to the set of detectors, which will be executed,
+     * when {@link #findLayoutBugsIn(WebPage) findLayoutBugsIn(...)} is called.
+     * If there is already a detector of the same class registered, it will be
+     * replaced by the given detector.
+     */
+    public void enable(LayoutBugDetector detector) {
+        if (detector == null) {
+            throw new IllegalArgumentException("Method parameter newDetector must not be null.");
+        }
+        disable(detector.getClass());
+        _detectors.add(detector);
+    }
+
+    /**
+     * Removes all detectors of the given class from the set of detectors, which will be executed,
+     * when {@link #findLayoutBugsIn(WebPage) findLayoutBugsIn(...)} is called.
+     */
+    public void disable(Class<? extends LayoutBugDetector> detectorClass) {
+        if (detectorClass == null) {
+            throw new IllegalArgumentException("Method parameter detectorClass must not be null.");
+        }
+        Iterator<LayoutBugDetector> i = _detectors.iterator();
+        while (i.hasNext()) {
+            LayoutBugDetector detector = i.next();
+            if (detector.getClass().isAssignableFrom(detectorClass) || detectorClass.isAssignableFrom(detector.getClass())) {
+                i.remove();
+            }
+        }
+    }
+
+    /**
      * Call this method to gain access to one of the {@link LayoutBugDetector}s
      * for calling setter methods on it.
      */
     public <D extends LayoutBugDetector> D configure(Class<D> detectorClass) {
-        return (D) _layoutBugDetectors.get(detectorClass);
+        if (detectorClass == null) {
+            throw new IllegalArgumentException("Method parameter detectorClass must not be  null.");
+        }
+        for (LayoutBugDetector detector : _detectors) {
+            if (detectorClass.isAssignableFrom(detector.getClass())) {
+                return (D) detector;
+            }
+        }
+        throw new IllegalArgumentException("There is no detector of class " + detectorClass.getName());
     }
 
+    /**
+     * Runs all registered {@link LayoutBugDetector}s. You might add new detectors before you call
+     * this method via {@link #enable} or remove unwanted detectors via {@link #disable}.
+     */
     public Collection<LayoutBug> findLayoutBugsIn(WebPage webPage) throws Exception {
         if (_textDetector != null) {
             webPage.setTextDetector(_textDetector);
@@ -81,8 +120,9 @@ public class FightingLayoutBugs extends AbstractLayoutBugDetector {
             webPage.setEdgeDetector(_edgeDetector);
         }
         final Collection<LayoutBug> result = new ArrayList<LayoutBug>();
-        for (LayoutBugDetector detector : _layoutBugDetectors.values()) {
+        for (LayoutBugDetector detector : _detectors) {
             detector.setScreenshotDir(_screenshotDir);
+            System.out.println("Running " + detector + " ...");
             result.addAll(detector.findLayoutBugsIn(webPage));
         }
         return result;
