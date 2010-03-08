@@ -38,13 +38,31 @@ public class FightingLayoutBugs extends AbstractLayoutBugDetector {
     private EdgeDetector _edgeDetector;
     private final List<LayoutBugDetector> _detectors = new ArrayList<LayoutBugDetector>();
 
+    /**
+     * Registers the following detectors:<ul>
+     *     <li>{@link DetectNeedsHorizontalScrolling}</li>
+     *     <li>{@link DetectInvalidImageUrls}</li>
+     *     <li>{@link DetectTextNearOrOverlappingHorizontalEdge}</li>
+     *     <li>{@link DetectTextNearOrOverlappingVerticalEdge}</li>
+     *     <li>{@link DetectTextWithTooLowContrast}</li>
+     * </ul>
+     */
     public FightingLayoutBugs() {
         // The first detector should always be DetectNeedsHorizontalScrolling, because it resizes the browser window ...
-        enable(new DetectNeedsHorizontalScrolling());
-        enable(new DetectInvalidImageUrls());
-        enable(new DetectTextNearOrOverlappingHorizontalEdge());
-        enable(new DetectTextNearOrOverlappingVerticalEdge());
-        enable(new DetectTextWithTooLowContrast());
+        this(
+            new DetectNeedsHorizontalScrolling(),
+            new DetectInvalidImageUrls(),
+            new DetectTextNearOrOverlappingHorizontalEdge(),
+            new DetectTextNearOrOverlappingVerticalEdge(),
+            new DetectTextWithTooLowContrast()
+        );
+    }
+
+    public FightingLayoutBugs(LayoutBugDetector... detectors) {
+        // The first detector should always be DetectNeedsHorizontalScrolling, because it resizes the browser window ...
+        for (LayoutBugDetector d : detectors) {
+            enable(d);
+        }
     }
 
     /**
@@ -102,6 +120,7 @@ public class FightingLayoutBugs extends AbstractLayoutBugDetector {
         }
         for (LayoutBugDetector detector : _detectors) {
             if (detectorClass.isAssignableFrom(detector.getClass())) {
+                // noinspection unchecked
                 return (D) detector;
             }
         }
@@ -109,16 +128,17 @@ public class FightingLayoutBugs extends AbstractLayoutBugDetector {
     }
 
     /**
-     * Runs all registered {@link LayoutBugDetector}s. You might add new detectors before you call
-     * this method via {@link #enable} or remove unwanted detectors via {@link #disable}.
+     * Runs all registered {@link LayoutBugDetector}s. Before you call this method, you might:<ul>
+     * <li>register new detectors via {@link #enable},</li>
+     * <li>remove unwanted detectors via {@link #disable},</li>
+     * <li>configure a registered detector via {@link #configure},</li>
+     * <li>configure the {@link TextDetector} to be used via {@link #setTextDetector},</li>
+     * <li>configure the {@link EdgeDetector} to be used via {@link #setEdgeDetector}.</li>
+     * </ul>
      */
     public Collection<LayoutBug> findLayoutBugsIn(WebPage webPage) throws Exception {
-        if (_textDetector != null) {
-            webPage.setTextDetector(_textDetector);
-        }
-        if (_edgeDetector != null) {
-            webPage.setEdgeDetector(_edgeDetector);
-        }
+        webPage.setTextDetector(_textDetector == null ? new AdvancedTextDetector() : _textDetector);
+        webPage.setEdgeDetector(_edgeDetector == null ? new SimpleEdgeDetector() : _edgeDetector);
         final Collection<LayoutBug> result = new ArrayList<LayoutBug>();
         for (LayoutBugDetector detector : _detectors) {
             detector.setScreenshotDir(_screenshotDir);

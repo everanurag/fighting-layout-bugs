@@ -16,6 +16,8 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
+import org.apache.commons.io.FileUtils;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
@@ -49,11 +51,19 @@ public class ImageHelper {
 
     public static void pixelsToFile(int[][] pixels, File pngFile) throws IOException {
         final BufferedImage image = pixelsToImage(pixels);
+        final File dir = pngFile.getParentFile();
+        if (dir != null && !dir.exists()) {
+            FileUtils.forceMkdir(dir);
+        }
         ImageIO.write(image, "png", pngFile);
     }
 
     public static void pixelsToFile(boolean[][] pixels, File pngFile) throws IOException {
         final BufferedImage image = pixelsToImage(pixels);
+        final File dir = pngFile.getParentFile();
+        if (dir != null && !dir.exists()) {
+            FileUtils.forceMkdir(dir);
+        }
         ImageIO.write(image, "png", pngFile);
     }
 

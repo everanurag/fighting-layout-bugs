@@ -58,12 +58,4 @@ public class WebPageBackedByWebDriver extends WebPage {
             throw new UnsupportedOperationException(_driver.getClass().getName() + " does not support taking screenshots.");
         }
     }
-
-    protected void injectJQuery() {
-        executeJavaScript(
-            "if (typeof jQuery == 'undefined') {\n" +
-            "    document.body.appendChild(document.createElement('script')).src = 'http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js';\n" +
-            "}"
-        );
-    }
 }

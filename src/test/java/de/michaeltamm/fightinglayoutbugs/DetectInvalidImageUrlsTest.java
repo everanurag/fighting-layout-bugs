@@ -52,7 +52,6 @@ public class DetectInvalidImageUrlsTest extends TestUsingSelenium {
         final Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(testPage);
         for (LayoutBug bug : layoutBugs) {
             System.out.println(bug);
-            System.out.println();
         }
         assertThat(layoutBugs, containsLayoutBug("/invalid/url/1.png"));
         assertThat(layoutBugs, containsLayoutBug("/invalid/url/2.png"));
@@ -73,7 +72,6 @@ public class DetectInvalidImageUrlsTest extends TestUsingSelenium {
         final Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(testPage);
         for (LayoutBug bug : layoutBugs) {
             System.out.println(bug);
-            System.out.println();
         }
         assertThat(layoutBugs.isEmpty());
     }

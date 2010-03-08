@@ -17,6 +17,7 @@
 package de.michaeltamm.fightinglayoutbugs;
 
 import com.thoughtworks.selenium.Selenium;
+import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.WebDriver;
 
 import java.io.File;
@@ -55,6 +56,9 @@ public abstract class AbstractLayoutBugDetector implements LayoutBugDetector {
                 prefix = prefix.substring("Detect".length());
             }
             try {
+                if (!_screenshotDir.exists()) {
+                    FileUtils.forceMkdir(_screenshotDir);
+                }
                 screenshotFile = File.createTempFile(prefix + "_" + df.format(new Date()) + ".", ".png", _screenshotDir);
                 webPage.saveScreenshotTo(screenshotFile);
                 screenshotSaved = true;
