@@ -17,11 +17,10 @@
 package de.michaeltamm.fightinglayoutbugs;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-import java.io.*;
+import java.io.File;
 import java.util.List;
 
 /**
@@ -244,47 +243,6 @@ public abstract class WebPage {
      */
     protected abstract byte[] takeScreenshotAsBytes();
 
-    protected void injectJQuery() {
-        try {
-            String jquery;
-            ByteArrayOutputStream buf = new ByteArrayOutputStream(57254);
-            try {
-                InputStream in = getClass().getResourceAsStream("jquery-1.3.2.min.js");
-                try {
-                    try {
-                        IOUtils.copy(in, buf);
-                    } catch (IOException e) {
-                        throw new RuntimeException("Could not read jquery-1.3.2.min.js", e);
-                    }
-                } finally {
-                    IOUtils.closeQuietly(in);
-                }
-            } finally {
-                IOUtils.closeQuietly(buf);
-            }
-            try {
-                jquery = new String(buf.toByteArray(), "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                // Should never happen
-                throw new RuntimeException(e);
-            }
-            executeJavaScript(jquery);
-        } catch (Exception e) {
-            e.printStackTrace(System.err);
-        }
-        // Check if jQuery was successfully injected ...
-        if (!executeJavaScript("return (jQuery ? jQuery.fn.jquery : '')").toString().startsWith("1.")) {
-            System.err.println("Could not inject jQuery directly, trying to inject it via appending a <script> tag ...");
-            // Try a fall back method for injecting jQuery ...
-            executeJavaScript(
-                "if (typeof jQuery == 'undefined') {\n" +
-                "    document.body.appendChild(document.createElement('script')).src = 'http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js';\n" +
-                "}"
-            );
-        }
-        if (!executeJavaScript("return jQuery.fn.jquery").toString().startsWith("1.")) {
-            throw new RuntimeException("Could not inject jQuery");
-        }
-    }
+    protected abstract void injectJQuery();
 
 }

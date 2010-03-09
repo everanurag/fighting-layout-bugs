@@ -19,6 +19,7 @@ package de.michaeltamm.fightinglayoutbugs;
 import com.thoughtworks.selenium.Selenium;
 import com.thoughtworks.selenium.SeleniumException;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.SearchContext;
 import org.openqa.selenium.WebElement;
@@ -26,6 +27,9 @@ import org.openqa.selenium.internal.FindsById;
 import org.openqa.selenium.internal.FindsByTagName;
 import org.openqa.selenium.internal.FindsByXPath;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -89,6 +93,36 @@ public class WebPageBackedBySelenium extends WebPage {
             throw new RuntimeException(e);
         }
         return Base64.decodeBase64(base64EncodedBytes);
+    }
+
+    protected void injectJQuery() {
+        String jquery;
+        ByteArrayOutputStream buf = new ByteArrayOutputStream(57254);
+        try {
+            InputStream in = getClass().getResourceAsStream("jquery-1.3.2.min.js");
+            try {
+                try {
+                    IOUtils.copy(in, buf);
+                } catch (IOException e) {
+                    throw new RuntimeException("Could not read jquery-1.3.2.min.js", e);
+                }
+            } finally {
+                IOUtils.closeQuietly(in);
+            }
+        } finally {
+            IOUtils.closeQuietly(buf);
+        }
+        try {
+            jquery = new String(buf.toByteArray(), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            // Should never happen
+            throw new RuntimeException(e);
+        }
+        executeJavaScript(jquery);
+        // Check if jQuery was successfully injected ...
+        if (!executeJavaScript("return jQuery.fn.jquery").toString().startsWith("1.")) {
+            throw new RuntimeException("Could not inject jQuery");
+        }
     }
 
     private class SeleniumSearchContext implements FindsById, FindsByTagName, FindsByXPath, SearchContext {
