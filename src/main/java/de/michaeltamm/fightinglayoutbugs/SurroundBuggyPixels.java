@@ -47,7 +47,7 @@ public class SurroundBuggyPixels implements Marker {
                 if (_buggyPixels[x][y]) {
                     for (int i = -5; i <= 5; ++i) {
                         final int yy = y + i;
-                        if (y >= 0 && y < h) {
+                        if (yy >= 0 && yy < h) {
                             final int n = CIRCLE[i + 5];
                             for (int j = -n; j < n; ++j) {
                                 final int xx = x + j;
