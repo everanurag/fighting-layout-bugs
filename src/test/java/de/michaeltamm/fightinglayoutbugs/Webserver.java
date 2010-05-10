@@ -16,13 +16,16 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.assertThat;
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.bio.SocketConnector;
+import org.mortbay.jetty.security.HashUserRealm;
+import org.mortbay.jetty.security.Password;
 import org.mortbay.jetty.webapp.WebAppContext;
 
 import java.io.File;
+
+import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.assertThat;
 
 /**
  * A simple HTTP server, which serves all files located under the <code>src/test/webapp</code> directory.
@@ -31,11 +34,20 @@ import java.io.File;
  */
 public class Webserver {
 
+    public static void main(String[] args) {
+        Webserver webserver = new Webserver();
+        webserver.start();
+    }
+
     private Server _server;
     private int _port;
 
     public Webserver() {
         _server = new Server();
+        HashUserRealm realm = new HashUserRealm("Fighting Layout Bugs Realm");
+        realm.put("admin", new Password("secret"));
+        realm.addUserToRole("admin", "admin");
+        _server.addUserRealm(realm);
         File webappDir = new File("src/test/webapp");
         File webXml = new File(webappDir, "WEB-INF/web.xml");
         assertThat(webXml.exists());

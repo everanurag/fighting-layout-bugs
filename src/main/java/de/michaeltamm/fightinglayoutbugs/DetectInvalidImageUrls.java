@@ -457,7 +457,12 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
             try {
                 _httpClient.executeMethod(getMethod);
                 if (getMethod.getStatusCode() >= 400) {
-                    error = "HTTP GET responded with: " + getMethod.getStatusCode() + " " + getMethod.getStatusText();
+                    if (getMethod.getStatusCode() == 401) {
+                        System.out.println("Ignoring HTTP status code 401 " + getMethod.getStatusText() + " for " + url);
+                        error = "";
+                    } else {
+                        error = "HTTP GET responded with: " + getMethod.getStatusCode() + " " + getMethod.getStatusText();
+                    }
                 } else {
                     final Header contentTypeHeader = getMethod.getResponseHeader("Content-Type");
                     if (contentTypeHeader == null) {
