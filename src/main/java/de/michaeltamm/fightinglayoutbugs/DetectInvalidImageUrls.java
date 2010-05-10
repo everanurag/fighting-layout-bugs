@@ -16,14 +16,12 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HeaderElement;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.NameValuePair;
+import com.thoughtworks.selenium.Selenium;
+import org.apache.commons.httpclient.*;
+import org.apache.commons.httpclient.Cookie;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.io.IOUtils;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -94,6 +92,8 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
         _documentCharset = (String) webPage.executeJavaScript("return document.characterSet");
         try {
             _httpClient = new HttpClient();
+            HttpState state = getHttpStateFor(webPage);
+            _httpClient.setState(state);
             _visitedCssUrls = new HashSet<URL>();
             _faviconUrl = "/favicon.ico";
             try {
@@ -116,6 +116,20 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
         } finally {
             _baseUrl = null;
         }
+    }
+
+    private HttpState getHttpStateFor(WebPage webPage) {
+        HttpState state = new HttpState();
+        if (webPage instanceof WebPageBackedByWebDriver) {
+            WebDriver driver = ((WebPageBackedByWebDriver) webPage).getDriver();
+            for (org.openqa.selenium.Cookie cookie : driver.manage().getCookies()) {
+                state.addCookie(new Cookie(cookie.getDomain(), cookie.getName(), cookie.getValue(), cookie.getPath(), cookie.getExpiry(), cookie.isSecure()));
+            }
+        } else {
+            Selenium selenium = ((WebPageBackedBySelenium) webPage).getSelenium();
+            // TODO: copy cookies from Selenium
+        }
+        return state;
     }
 
     boolean saveScreenshot() {

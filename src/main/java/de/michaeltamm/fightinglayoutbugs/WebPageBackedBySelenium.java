@@ -45,6 +45,10 @@ public class WebPageBackedBySelenium extends WebPage {
         _selenium = selenium;
     }
 
+    public Selenium getSelenium() {
+        return _selenium;
+    }
+
     public List<WebElement> findElements(By by) {
         return by.findElements(new SeleniumSearchContext());
     }

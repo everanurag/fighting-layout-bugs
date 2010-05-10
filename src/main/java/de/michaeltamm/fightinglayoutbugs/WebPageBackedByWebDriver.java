@@ -31,6 +31,10 @@ public class WebPageBackedByWebDriver extends WebPage {
         _driver = driver;
     }
 
+    public WebDriver getDriver() {
+        return _driver;
+    }
+
     public List<WebElement> findElements(By by) {
         return _driver.findElements(by);
     }
