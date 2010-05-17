@@ -16,7 +16,7 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.assertThat;
+import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.*;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -34,12 +34,26 @@ public class DetectTextWithTooLowContrastTest extends TestUsingSelenium {
         final LayoutBugDetector detector = new DetectTextWithTooLowContrast();
         detector.setScreenshotDir(new File("target"));
         final Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(testPage);
-        assertThat(layoutBugs.size() == 1);
+        for (LayoutBug bug : layoutBugs) {
+            System.out.println(bug);
+        }
+        assertThat(layoutBugs.size(), is(1));
         final LayoutBug layoutBug = layoutBugs.iterator().next();
         assertThat(layoutBug.getScreenshot(), HamcrestHelper.isNotNull());
-        System.out.println(layoutBug);
         assertThat(layoutBug.getScreenshot().isFile());
         assertThat(layoutBug.getScreenshot().lastModified() > startTime);
+    }
+
+    @Test
+    public void shouldNotFindBugsOnHardToReadPage() throws Exception {
+        WebPage testPage = getWebPageFor("/hard_to_read.html").usingFirefoxDriver();
+        final LayoutBugDetector detector = new DetectTextWithTooLowContrast();
+        detector.setScreenshotDir(new File("target"));
+        final Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(testPage);
+        for (LayoutBug bug : layoutBugs) {
+            System.out.println(bug);
+        }
+        assertThat(layoutBugs.isEmpty());
     }
 
 }
