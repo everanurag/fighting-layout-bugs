@@ -25,7 +25,14 @@ import static java.util.Collections.singleton;
  */
 public class DetectTextWithTooLowContrast extends AbstractLayoutBugDetector {
 
-    private static final int TOO_LOW_CONTRAST_MAX_DISTANCE = 40;
+    private double _minReadableContrast = 1.5;
+
+    /**
+     * Sets the minimal contrast considered to be readable, default is <code>1&#46;5</code>.
+     */
+    public void setMinReadableContrast(double minReadableContrast) {
+        _minReadableContrast = minReadableContrast;
+    }
 
     public Collection<LayoutBug> findLayoutBugsIn(WebPage webPage) throws Exception {
         final int[][] screenshot = webPage.getScreenshot();
@@ -172,21 +179,27 @@ public class DetectTextWithTooLowContrast extends AbstractLayoutBugDetector {
         return foundBuggyPixel;
     }
 
-    private static boolean tooLowContrast(int rgb1, int rgb2) {
-        final int r1 = (rgb1 & 0xFF0000) >> 16;
-        final int r2 = (rgb2 & 0xFF0000) >> 16;
-        if (Math.abs(r1 - r2) <= TOO_LOW_CONTRAST_MAX_DISTANCE) {
-            final int g1 = (rgb1 & 0xFF00) >> 8;
-            final int g2 = (rgb2 & 0xFF00) >> 8;
-            if (Math.abs(g1 - g2) <= TOO_LOW_CONTRAST_MAX_DISTANCE) {
-                final int b1 = (rgb1 & 0xFF);
-                final int b2 = (rgb2 & 0xFF);
-                if (Math.abs(b1 - b2) <= TOO_LOW_CONTRAST_MAX_DISTANCE) {
-                    return true;
-                }
-            }
-        }
-        return false;
+    private boolean tooLowContrast(int rgb1, int rgb2) {
+        return getContrast(rgb1, rgb2) < _minReadableContrast;
     }
 
+    /**
+     * Determines the contrast between the two given colors
+     * based on the <a href="http://www.w3.org/TR/WCAG20-TECHS/G17.html#G17-procedure">WCAG 2.0 formula</a>.
+     */
+    private static double getContrast(int rgb1, int rgb2) {
+        double l1 = getLuminance(rgb1);
+        double l2 = getLuminance(rgb2);
+        return ((l1 >= l2) ? (l1 + 0.05) / (l2 + 0.05) : (l2 + 0.05) / (l1 + 0.05));
+    }
+
+    private static double getLuminance(int rgb) {
+        double r = ((rgb & 0xFF0000) >> 16) / 255.0;
+        r = (r <= 0.03928 ? r / 12.92 : Math.pow((r + 0.055)/1.055, 2.4));
+        double g = ((rgb & 0xFF00) >> 8) / 255.0;
+        g = (g <= 0.03928 ? g / 12.92 : Math.pow((g + 0.055)/1.055, 2.4));
+        double b = (rgb & 0xFF) / 255.0;
+        b = (b <= 0.03928 ? b / 12.92 : Math.pow((b + 0.055)/1.055, 2.4));
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    }
 }
