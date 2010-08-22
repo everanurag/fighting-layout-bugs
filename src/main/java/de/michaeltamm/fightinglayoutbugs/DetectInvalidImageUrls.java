@@ -29,6 +29,7 @@ import java.io.UnsupportedEncodingException;
 import static java.lang.Character.isWhitespace;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -231,7 +232,7 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
             if ((rel != null && rel.contains("stylesheet")) || (type != null && type.startsWith("text/css"))) {
                 if (href != null) {
                     String charset = link.getAttribute("charset");
-                    if (charset == null) {
+                    if (!isValidCharset(charset)) {
                         charset = _documentCharset;
                     }
                     checkCssResource(href, href, _baseUrl, charset, webPage, layoutBugs);
@@ -244,6 +245,16 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
                 }
             }
         }
+    }
+
+    private boolean isValidCharset(String charset) {
+        boolean result = false;
+        if (charset != null && charset.length() > 0) {
+            try {
+                result = (Charset.forName(charset) != null);
+            } catch (Exception ignored) {}
+        }
+        return result;
     }
 
     private void checkCssResource(String pathToCssResource, String url, URL baseUrl, String fallBackCharset, WebPage webPage, List<LayoutBug> layoutBugs) {
@@ -402,11 +413,11 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
                         }
                     }
                     // 2. Check for BOM ...
-                    if (result.charset == null && out.hasUtf8Bom()) {
+                    if (!isValidCharset(result.charset) && out.hasUtf8Bom()) {
                         result.charset= "UTF-8";
                     }
                     // 3. Check for @charset rule ...
-                    if (result.charset == null) {
+                    if (!isValidCharset(result.charset)) {
                         String temp = out.toString("US-ASCII");
                         if (temp.startsWith("@charset \"")) {
                             int i = temp.indexOf("\";");
@@ -418,11 +429,11 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
                         }
                     }
                     // 4. Fall back to the externally specified charset parameter ...
-                    if (result.charset == null && result.text == null) {
+                    if (!isValidCharset(result.charset) && result.text == null) {
                         result.charset = externallySpecifiedCharset;
                     }
                     // 5. If the charset is not determined by now, assume UTF-8 ...
-                    if (result.charset == null && result.text == null) {
+                    if (!isValidCharset(result.charset) && result.text == null) {
                         result.charset = "UTF-8";
                     }
                     if (result.text == null) {
