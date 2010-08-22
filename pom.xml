@@ -10,7 +10,11 @@
 
     <name>Fighting Layout Bugs</name>
     <description>A library for automatic detection of layout bugs in web pages</description>
-    
+
+    <properties>
+        <selenium.version>2.0a4</selenium.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>commons-io</groupId>
@@ -25,7 +29,7 @@
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium</artifactId>
-            <version>2.0a4</version>
+            <version>${selenium.version}</version>
         </dependency>
         <!-- Test dependencies ... -->
         <dependency>
@@ -63,7 +67,7 @@
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-server</artifactId>
-            <version>2.0a1</version>
+            <version>${selenium.version}</version>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>
