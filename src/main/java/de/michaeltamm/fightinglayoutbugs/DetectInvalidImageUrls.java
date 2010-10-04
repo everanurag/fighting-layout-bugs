@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import static java.lang.Character.isWhitespace;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.*;
@@ -477,13 +478,20 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
     private String checkImageUrl(URL url) {
         String error = _checkedUrls.get(url);
         if (error == null) {
-            final GetMethod getMethod = new GetMethod(url.toExternalForm());
+            final GetMethod getMethod;
+            try {
+                getMethod = new GetMethod(url.toURI().toString());
+            } catch (URISyntaxException e) {
+                // TODO: how can we check the url?
+                System.out.println("Ignoring image URL " + url + " -- it can not be checked with Apache HttpClient.");
+                return "";
+            }
             getMethod.setFollowRedirects(true);
             try {
                 _httpClient.executeMethod(getMethod);
                 if (getMethod.getStatusCode() >= 400) {
                     if (getMethod.getStatusCode() == 401) {
-                        System.out.println("Ignoring HTTP status code 401 " + getMethod.getStatusText() + " for " + url);
+                        System.out.println("Ignoring HTTP response status code 401 (" + getMethod.getStatusText() + ") for image URL " + url);
                         error = "";
                     } else {
                         error = "HTTP GET responded with: " + getMethod.getStatusCode() + " " + getMethod.getStatusText();
