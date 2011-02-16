@@ -16,11 +16,9 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import org.openqa.selenium.WebDriverException;
+import org.openqa.selenium.browserlaunchers.locators.BrowserInstallation;
+import org.openqa.selenium.browserlaunchers.locators.Firefox2or3Locator;
 import org.openqa.selenium.firefox.internal.Executable;
-import org.openqa.selenium.server.browserlaunchers.BrowserInstallation;
-import org.openqa.selenium.server.browserlaunchers.locators.Firefox2Locator;
-import org.openqa.selenium.server.browserlaunchers.locators.Firefox3Locator;
 
 import java.io.File;
 
@@ -40,16 +38,14 @@ public class FirefoxHelper {
         try {
             Executable executable = new Executable(null);
             return executable.getFile();
-        } catch (WebDriverException ignored) {}
+        } catch (Exception ignored) {}
         // Let's see if Selenium can find it ...
-        BrowserInstallation bi = new Firefox3Locator().findBrowserLocation();
-        if (bi != null) {
-            return new File(bi.launcherFilePath());
-        }
-        bi = new Firefox2Locator().findBrowserLocation();
-        if (bi != null) {
-            return new File(bi.launcherFilePath());
-        }
+        try {
+            final BrowserInstallation bi = new Firefox2or3Locator().findBrowserLocationOrFail();
+            if (bi != null) {
+                return new File(bi.launcherFilePath());
+            }
+        } catch (Exception ignored) {}
         // Let's see if we can find it ...
         for (String path : FIREFOX_EXECUTABLE_PATH_CANDIDATES) {
             File firefoxExecutable = new File(path);

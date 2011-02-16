@@ -12,7 +12,7 @@
     <description>A library for automatic detection of layout bugs in web pages</description>
 
     <properties>
-        <selenium.version>2.0a4</selenium.version>
+        <selenium.version>2.0b2</selenium.version>
     </properties>
 
     <dependencies>
@@ -28,7 +28,7 @@
         </dependency>
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
-            <artifactId>selenium</artifactId>
+            <artifactId>selenium-api</artifactId>
             <version>${selenium.version}</version>
         </dependency>
         <!-- Test dependencies ... -->
@@ -66,8 +66,15 @@
         </dependency>
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-remote-control</artifactId>
+            <version>${selenium.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-server</artifactId>
             <version>${selenium.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>
