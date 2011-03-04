@@ -31,6 +31,7 @@ public class TestUsingSelenium {
     private static WebPageFactory webPageFactoryUsingChromeDriver;
     private static WebPageFactory webPageFactoryUsingDefaultSelenium;
     private static WebPageFactory webPageFactoryUsingFirefoxDriver;
+    private static WebPageFactory webPageFactoryUsingInternetExplorerDriver;
 
     /**
      * Helper class for fluent API - see {@link TestUsingSelenium#getWebPageFor}.
@@ -42,7 +43,6 @@ public class TestUsingSelenium {
             _pathToHtmlPageOrCompleteUrl = pathToHtmlPageOrCompleteUrl;
         }
 
-/*
         public WebPage usingChromeDriver() {
             if (webPageFactoryUsingChromeDriver == null) {
                 startWebserver();
@@ -50,7 +50,7 @@ public class TestUsingSelenium {
             }
             return webPageFactoryUsingChromeDriver.createWebPageFor(_pathToHtmlPageOrCompleteUrl);
         }
-*/
+
         public WebPage usingDefaultSelenium() {
             if (webPageFactoryUsingDefaultSelenium == null) {
                 startWebserver();
@@ -65,6 +65,14 @@ public class TestUsingSelenium {
                 webPageFactoryUsingFirefoxDriver = new WebPageFactoryUsingFirefoxDriver(getBaseUrl());
             }
             return webPageFactoryUsingFirefoxDriver.createWebPageFor(_pathToHtmlPageOrCompleteUrl);
+        }
+
+        public WebPage usingInternetExplorerDriver() {
+            if (webPageFactoryUsingInternetExplorerDriver == null) {
+                startWebserver();
+                webPageFactoryUsingInternetExplorerDriver = new WebPageFactoryUsingInternetExplorerDriver(getBaseUrl());
+            }
+            return webPageFactoryUsingInternetExplorerDriver.createWebPageFor(_pathToHtmlPageOrCompleteUrl);
         }
     }
 
@@ -115,6 +123,10 @@ public class TestUsingSelenium {
         if (webPageFactoryUsingFirefoxDriver != null) {
             webPageFactoryUsingFirefoxDriver.dispose();
             webPageFactoryUsingFirefoxDriver = null;
+        }
+        if (webPageFactoryUsingInternetExplorerDriver != null) {
+            webPageFactoryUsingInternetExplorerDriver.dispose();
+            webPageFactoryUsingInternetExplorerDriver = null;
         }
         stopWebserver();
     }
