@@ -41,7 +41,7 @@ public class DetectTextWithTooLowContrast extends AbstractLayoutBugDetector {
         public boolean foundBuggyPixels;
         public final boolean[][] buggyPixels;
 
-        private Analyzer(WebPage webPage) throws Exception {
+        private Analyzer(WebPage webPage) {
             screenshot = webPage.getScreenshot();
             w = screenshot.length;
             h = screenshot[0].length;
@@ -222,7 +222,7 @@ public class DetectTextWithTooLowContrast extends AbstractLayoutBugDetector {
         _minReadableContrast = minReadableContrast;
     }
 
-    public Collection<LayoutBug> findLayoutBugsIn(WebPage webPage) throws Exception {
+    public Collection<LayoutBug> findLayoutBugsIn(WebPage webPage) {
         Analyzer analyzer = new Analyzer(webPage);
         analyzer.run();
         if (analyzer.foundBuggyPixels) {

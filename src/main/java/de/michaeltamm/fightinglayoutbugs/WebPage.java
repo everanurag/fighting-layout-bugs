@@ -16,7 +16,6 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
@@ -70,7 +69,7 @@ public abstract class WebPage {
     /**
      * Returns a screenshot of this web page.
      */
-    public int[][] getScreenshot() throws Exception {
+    public int[][] getScreenshot() {
         if (_screenshot == null) {
             _screenshot = takeScreenshot();
         }
@@ -80,23 +79,19 @@ public abstract class WebPage {
     /**
      * Saves the {@link #getScreenshot() screenshot} of this web page to the given file in PNG format.
      */
-    public void saveScreenshotTo(File pngFile) throws Exception {
+    public void saveScreenshotTo(File pngFile) {
         if (_screenshot != null) {
             ImageHelper.pixelsToFile(_screenshot, pngFile);
         } else {
             byte[] bytes = takeScreenshotAsBytes();
-            final File dir = pngFile.getParentFile();
-            if (dir != null && !dir.exists()) {
-                FileUtils.forceMkdir(dir);
-            }
-            FileUtils.writeByteArrayToFile(pngFile, bytes);
+            FileHelper.bytesToFile(bytes, pngFile);
         }
     }
 
     /**
      * Takes a screenshot of what is currently displayed.
      */
-    public int[][] takeScreenshot() throws Exception {
+    public int[][] takeScreenshot() {
         byte[] bytes = takeScreenshotAsBytes();
         return ImageHelper.bytesToPixels(bytes);
     }
@@ -139,7 +134,7 @@ public abstract class WebPage {
     /**
      * Returns a screenshot of this web page where all text is transparent.
      */
-    public int[][] getScreenshotWithoutText() throws Exception {
+    public int[][] getScreenshotWithoutText() {
         if (_screenshotWithoutText == null) {
             backupTextColors();
             try {
@@ -155,7 +150,6 @@ public abstract class WebPage {
         return _screenshotWithoutText;
     }
 
-
     /**
      * Sets the detector for {@link #getTextPixels()}, default is the {@link AdvancedTextDetector}.
      */
@@ -166,7 +160,7 @@ public abstract class WebPage {
         _textDetector = textDetector;
     }
 
-    public boolean[][] getTextPixels() throws Exception {
+    public boolean[][] getTextPixels() {
         if (_textPixels == null) {
             if (_textDetector == null) {
                 _textDetector = new SimpleTextDetector();
@@ -190,7 +184,7 @@ public abstract class WebPage {
         _edgeDetector = edgeDetector;
     }
 
-    public boolean[][] getHorizontalEdges() throws Exception {
+    public boolean[][] getHorizontalEdges() {
         if (_horizontalEdges == null) {
             if (_edgeDetector == null) {
                 _edgeDetector = new SimpleEdgeDetector();
@@ -200,7 +194,7 @@ public abstract class WebPage {
         return _horizontalEdges;
     }
 
-    public boolean[][] getVerticalEdges() throws Exception {
+    public boolean[][] getVerticalEdges() {
         if (_verticalEdges == null) {
             if (_edgeDetector == null) {
                 _edgeDetector = new SimpleEdgeDetector();

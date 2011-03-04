@@ -79,12 +79,12 @@ public abstract class AbstractLayoutBugDetector implements LayoutBugDetector {
         return layoutBug;
     }
 
-    public final Collection<LayoutBug> findLayoutBugsIn(WebDriver driver) throws Exception {
+    public final Collection<LayoutBug> findLayoutBugsIn(WebDriver driver) {
         WebPage webPage = new WebPageBackedByWebDriver(driver);
         return findLayoutBugsIn(webPage);
     }
 
-    public final Collection<LayoutBug> findLayoutBugsIn(Selenium selenium) throws Exception {
+    public final Collection<LayoutBug> findLayoutBugsIn(Selenium selenium) {
         WebPage webPage = new WebPageBackedBySelenium(selenium);
         return findLayoutBugsIn(webPage);
     }

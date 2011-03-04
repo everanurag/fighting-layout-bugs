@@ -27,7 +27,7 @@ package de.michaeltamm.fightinglayoutbugs;
  */
 public class SimpleTextDetector implements TextDetector {
 
-    public boolean[][] detectTextPixelsIn(WebPage webPage) throws Exception {
+    public boolean[][] detectTextPixelsIn(WebPage webPage) {
         webPage.backupTextColors();
         try {
             webPage.injectJQueryIfNotPresent();

@@ -25,7 +25,7 @@ import static java.util.Collections.singleton;
  */
 public class DetectTextNearOrOverlappingVerticalEdge extends AbstractLayoutBugDetector {
 
-    public Collection<LayoutBug> findLayoutBugsIn(WebPage webPage) throws Exception {
+    public Collection<LayoutBug> findLayoutBugsIn(WebPage webPage) {
         final boolean[][] text = webPage.getTextPixels();
         final int w = text.length;
         final int h = text[0].length;

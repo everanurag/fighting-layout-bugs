@@ -38,19 +38,19 @@ public interface LayoutBugDetector {
      * If you want screenshots for the returned layout bugs,
      * you need to {@link #setScreenshotDir set the screenshot directory} first.
      */
-    Collection<LayoutBug> findLayoutBugsIn(Selenium selenium) throws Exception;
+    Collection<LayoutBug> findLayoutBugsIn(Selenium selenium);
 
     /**
      * Finds layout bugs in the web page currently displayed by the given driver.
      * If you want screenshots for the returned layout bugs,
      * you need to {@link #setScreenshotDir set the screenshot directory} first.
      */
-    Collection<LayoutBug> findLayoutBugsIn(WebDriver driver) throws Exception;
+    Collection<LayoutBug> findLayoutBugsIn(WebDriver driver);
 
     /**
      * Finds layout bugs in the given web page.
      * If you want screenshots for the returned layout bugs,
      * you need to {@link #setScreenshotDir set the screenshot directory} first.
      */
-    Collection<LayoutBug> findLayoutBugsIn(WebPage webPage) throws Exception;
+    Collection<LayoutBug> findLayoutBugsIn(WebPage webPage);
 }

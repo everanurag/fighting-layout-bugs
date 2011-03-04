@@ -23,13 +23,15 @@ import static java.lang.Math.abs;
  * of a web page whereby all text is either colored
  * black, dark gray, light gray, or white via JavaScript -
  * runs significantly slower than the {@link SimpleTextDetector},
- * but is able to detect and ignore animation on the web page.
+ * but is able to detect and ignore animation on the web page
+ * (e.g. a animated GIF image, a Flash movie or a JavaScript
+ * animation).
  *
  * @author Michael Tamm
  */
 public class AdvancedTextDetector implements TextDetector {
 
-    public boolean[][] detectTextPixelsIn(WebPage webPage) throws Exception {
+    public boolean[][] detectTextPixelsIn(WebPage webPage) {
         int[][] screenshot = webPage.getScreenshot();
         int w = screenshot.length;
         int h = screenshot[0].length;

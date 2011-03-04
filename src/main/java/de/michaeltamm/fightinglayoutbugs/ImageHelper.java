@@ -16,7 +16,7 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -29,42 +29,59 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
+import static de.michaeltamm.fightinglayoutbugs.FileHelper.createParentDirectoryIfNeeded;
+
 /**
  * @author Michael Tamm
  */
 public class ImageHelper {
 
-    public static int[][] fileToPixels(File imageFile) throws IOException {
-        final BufferedImage image = ImageIO.read(imageFile);
+    public static BufferedImage fileToImage(File imageFile) {
+        BufferedImage image;
+        try {
+            image = ImageIO.read(imageFile);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read image file: " + imageFile, e);
+        }
+        return image;
+    }
+
+    public static int[][] fileToPixels(File imageFile) {
+        final BufferedImage image;
+        image = fileToImage(imageFile);
         return imageToPixels(image);
     }
 
-    public static int[][] bytesToPixels(byte[] bytes) throws IOException {
+    public static int[][] bytesToPixels(byte[] bytes) {
         InputStream in = new ByteArrayInputStream(bytes);
         try {
             final BufferedImage image = ImageIO.read(in);
             return imageToPixels(image);
+        } catch (IOException e) {
+            throw new RuntimeException("Should never happen.", e);
         } finally {
-            in.close();
+            IOUtils.closeQuietly(in);
         }
     }
 
-    public static void pixelsToFile(int[][] pixels, File pngFile) throws IOException {
+    public static void pixelsToFile(int[][] pixels, File pngFile) {
         final BufferedImage image = pixelsToImage(pixels);
-        final File dir = pngFile.getParentFile();
-        if (dir != null && !dir.exists()) {
-            FileUtils.forceMkdir(dir);
-        }
-        ImageIO.write(image, "png", pngFile);
+        createParentDirectoryIfNeeded(pngFile);
+        imageToFile(image, pngFile);
     }
 
-    public static void pixelsToFile(boolean[][] pixels, File pngFile) throws IOException {
-        final BufferedImage image = pixelsToImage(pixels);
-        final File dir = pngFile.getParentFile();
-        if (dir != null && !dir.exists()) {
-            FileUtils.forceMkdir(dir);
+    public static void imageToFile(BufferedImage image, File pngFile) {
+        try {
+            ImageIO.write(image, "png", pngFile);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to write image to file: " + pngFile, e);
         }
-        ImageIO.write(image, "png", pngFile);
+    }
+
+    public static void pixelsToFile(boolean[][] pixels, File pngFile) {
+        final BufferedImage image = pixelsToImage(pixels);
+        createParentDirectoryIfNeeded(pngFile);
+        imageToFile(image, pngFile);
     }
 
     public static int[][] imageToPixels(BufferedImage image) {
@@ -260,7 +277,7 @@ public class ImageHelper {
         }
     }
 
-    private static void combineChannels(int[][] a, int[][] r, int[][] g, int[][] b, int[][] pixels) {
+    public static void combineChannels(int[][] a, int[][] r, int[][] g, int[][] b, int[][] pixels) {
         final int w = pixels.length;
         final int h = pixels[0].length;
         for (int x = 0; x < w; ++x) {
@@ -270,7 +287,7 @@ public class ImageHelper {
         }
     }
 
-    private static void combineChannels(int[][] r, int[][] g, int[][] b, int[][] pixels) {
+    public static void combineChannels(int[][] r, int[][] g, int[][] b, int[][] pixels) {
         final int w = pixels.length;
         final int h = pixels[0].length;
         for (int x = 0; x < w; ++x) {
@@ -284,7 +301,7 @@ public class ImageHelper {
      * If <code>pixels</code> has alpha channel, another <code>int[][]</code> array is allocated,
      * filled with the alpha values, and returned, otherwise <code>null</code> is returned.
      */
-    private static int[][] splitIntoChannels(int[][] pixels, int[][] r, int[][] g, int[][] b) {
+    public static int[][] splitIntoChannels(int[][] pixels, int[][] r, int[][] g, int[][] b) {
         int[][] a = null;
         final int w = pixels.length;
         final int h = pixels[0].length;
@@ -306,7 +323,7 @@ public class ImageHelper {
         return a;
     }
 
-    private static void applyConvolutionFilterToChannel(int[][] channel, float[][] kernel) {
+    public static void applyConvolutionFilterToChannel(int[][] channel, float[][] kernel) {
         final int w = channel.length;
         final int h = channel[0].length;
         final int kernelSize = kernel.length;

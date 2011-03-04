@@ -82,7 +82,7 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
     /** Initialized in by {@link #findLayoutBugsIn}, might be overwritten by {@link #checkLinkedCss}. */
     private String _faviconUrl;
 
-    public Collection<LayoutBug> findLayoutBugsIn(WebPage webPage) throws Exception {
+    public Collection<LayoutBug> findLayoutBugsIn(WebPage webPage) {
         // Determine base URL for completion of relative URLs ...
         final String url = webPage.getUrl();
         try {

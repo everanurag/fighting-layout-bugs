@@ -24,8 +24,8 @@ package de.michaeltamm.fightinglayoutbugs;
  */
 public interface EdgeDetector {
 
-    boolean[][] detectHorizontalEdgesIn(WebPage webPage) throws Exception;
+    boolean[][] detectHorizontalEdgesIn(WebPage webPage);
 
-    boolean[][] detectVerticalEdgesIn(WebPage webPage) throws Exception;
+    boolean[][] detectVerticalEdgesIn(WebPage webPage);
 
 }

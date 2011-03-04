@@ -39,7 +39,7 @@ public class DetectNeedsHorizontalScrolling extends AbstractLayoutBugDetector {
         _minimalSupportedScreenResolution = new Dimension(width, height);
     }
 
-    public Collection<LayoutBug> findLayoutBugsIn(WebPage webPage) throws Exception {
+    public Collection<LayoutBug> findLayoutBugsIn(WebPage webPage) {
         webPage.resizeBrowserWindowTo(_minimalSupportedScreenResolution);
         final int scrollMaxX = ((Number) webPage.executeJavaScript("return window.scrollMaxX")).intValue();
         if (scrollMaxX > 0) {

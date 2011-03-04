@@ -24,6 +24,69 @@ import java.util.*;
 public class StringHelper {
 
     /**
+     * Removes leading and trailing whitespaces from <code>s</code> and replaces
+     * all sequences of whitespaces inside <code>s</code> with a single space character.
+     */
+    public static String normalizeSpace(String s) {
+        final String result;
+        if (s == null) {
+            result = null;
+        } else {
+            final int n = s.length();
+            final StringBuilder sb = new StringBuilder(n);
+            boolean lastCharacterWasWhitespace = true;
+            for (int i = 0; i < n; ++i) {
+                final char c = s.charAt(i);
+                if (Character.isWhitespace(c)) {
+                    lastCharacterWasWhitespace = true;
+                } else {
+                    if (lastCharacterWasWhitespace && sb.length() > 0) {
+                        sb.append(' ');
+                    }
+                    sb.append(c);
+                    lastCharacterWasWhitespace = false;
+                }
+            }
+            result = sb.toString();
+        }
+        return result;
+    }
+
+    /**
+     * Returns <code>"1 " + noun</code>, if <code>amount == 1</code>,
+     * or <code>amount + " " + {@link #englishPluralOf englishPluralOf}(noun)</code> otherwise.
+     */
+    public static String amountString(long amount, String noun) {
+        return (amount == 1 ? "1 " + noun : amount + " " + englishPluralOf(noun));
+    }
+
+    public static String englishPluralOf(String noun) {
+        final String result;
+        if (noun.endsWith("is")) {
+            // E.g. "thesis" => "theses"
+            result = noun.substring(0, noun.length() - 2) + "es";
+        } else if (noun.endsWith("fe")) {
+            // E.g. "knife" => "knifes"
+            result = noun.substring(0, noun.length() - 2) + "ves";
+        } else if (noun.endsWith("ay") || noun.endsWith("ey") || noun.endsWith("iy") || noun.endsWith("oy") || noun.endsWith("uy")) {
+            // E.g. "key" => "keys"
+            result = noun + "s";
+        } else if (noun.endsWith("ch") || noun.endsWith("s") || noun.endsWith("sh") || noun.endsWith("x") || noun.endsWith("z")) {
+            // E.g. "box" => "boxes"
+            result = noun + "es";
+        } else if (noun.endsWith("y")) {
+            // E.g. "entry" => "entries"
+            result = noun.substring(0, noun.length() - 1) + "ies";
+        } else if (noun.endsWith("f")) {
+            // E.g. "self" => "selves"
+            result = noun.substring(0, noun.length() - 1) + "ves";
+        } else {
+            result = noun + "s";
+        }
+        return result;
+    }
+
+    /**
      * Converts the given object to a string useful for log messages
      * with special handling of {@link String}s, arrays, {@link Collection}s,
      * {@link Map}s, {@link Class}es and {@link Calendar}s.
@@ -38,8 +101,7 @@ public class StringHelper {
         if (o == null) {
             sb.append("null");
         } else if (o instanceof String) {
-            final String s  = (String) o;
-            sb.append('"').append(s.replace("\t", "\\t").replace("\r", "\\r").replace("\n", "\\n")).append('"');
+            stringAsString((String) o, sb);
         } else if (o.getClass().isArray()) {
             arrayAsString(o, sb);
         } else if (o instanceof Collection) {
@@ -52,6 +114,14 @@ public class StringHelper {
             sb.append(((Calendar) o).getTime());
         } else {
             sb.append(o);
+        }
+    }
+
+    private static void stringAsString(String s, StringBuilder sb) {
+        if (s == null) {
+            sb.append("null");
+        } else {
+            sb.append('"').append(s.replace("\\", "\\\\").replace("\f", "\\f").replace("\t", "\\t").replace("\r", "\\r").replace("\n", "\\n").replace("\0", "\\0")).append('"');
         }
     }
 

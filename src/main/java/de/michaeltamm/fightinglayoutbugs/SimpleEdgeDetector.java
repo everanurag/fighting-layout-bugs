@@ -59,7 +59,7 @@ public class SimpleEdgeDetector implements EdgeDetector {
         _edgeMinRgbSqrDistance = rgbSqrDistance;
     }
 
-    public boolean[][] detectHorizontalEdgesIn(WebPage webPage) throws Exception {
+    public boolean[][] detectHorizontalEdgesIn(WebPage webPage) {
         final int[][] pixels = webPage.getScreenshotWithoutText();
         final int w = pixels.length;
         final int h = pixels[0].length;
@@ -133,7 +133,7 @@ public class SimpleEdgeDetector implements EdgeDetector {
         return result;
     }
 
-    public boolean[][] detectVerticalEdgesIn(WebPage webPage) throws Exception {
+    public boolean[][] detectVerticalEdgesIn(WebPage webPage) {
         // Take screenshot ...
         final int[][] pixels = webPage.getScreenshotWithoutText();
         final int w = pixels.length;

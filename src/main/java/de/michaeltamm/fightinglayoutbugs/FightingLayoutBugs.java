@@ -136,7 +136,7 @@ public class FightingLayoutBugs extends AbstractLayoutBugDetector {
      * <li>configure the {@link EdgeDetector} to be used via {@link #setEdgeDetector}.</li>
      * </ul>
      */
-    public Collection<LayoutBug> findLayoutBugsIn(WebPage webPage) throws Exception {
+    public Collection<LayoutBug> findLayoutBugsIn(WebPage webPage) {
         webPage.setTextDetector(_textDetector == null ? new AdvancedTextDetector() : _textDetector);
         webPage.setEdgeDetector(_edgeDetector == null ? new SimpleEdgeDetector() : _edgeDetector);
         final Collection<LayoutBug> result = new ArrayList<LayoutBug>();
