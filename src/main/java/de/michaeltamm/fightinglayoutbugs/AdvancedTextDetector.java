@@ -36,32 +36,37 @@ public class AdvancedTextDetector implements TextDetector {
         int w = screenshot.length;
         int h = screenshot[0].length;
         boolean[][] animatedPixels = new boolean[w][h];
-        int[][] screenshotWithBlackText;
-        int[][] screenshotWithDarkGrayText;
-        int[][] screenshotWithLightGrayText;
-        int[][] screenshotWithWhiteText;
+        int[][] screenshotWithBlackText = null;
+        int[][] screenshotWithDarkGrayText = null;
+        int[][] screenshotWithLightGrayText = null;
+        int[][] screenshotWithWhiteText = null;
         webPage.injectJQueryIfNotPresent();
         webPage.backupTextColors();
         try {
-            webPage.executeJavaScript("jQuery('*').css('color', '#000000');");
-            screenshotWithBlackText = webPage.takeScreenshot();
-            webPage.executeJavaScript("jQuery('*').css('color', '#555555');");
-            screenshotWithDarkGrayText = webPage.takeScreenshot();
-            webPage.executeJavaScript("jQuery('*').css('color', '#AAAAAA');");
-            screenshotWithLightGrayText = webPage.takeScreenshot();
-            webPage.executeJavaScript("jQuery('*').css('color', '#FFFFFF');");
-            screenshotWithWhiteText = webPage.takeScreenshot();
+            long t0 = System.currentTimeMillis();
+            screenshotWithBlackText = takeScreenshotWithTextColor(webPage, "#000000");
+            Visualization.algorithmStepFinished("1.) Take first screenshot with all text colored black", screenshotWithBlackText);
+            waitAtLeastUntil(t0 + 250);
+            screenshotWithDarkGrayText = takeScreenshotWithTextColor(webPage, "#555555");
+            Visualization.algorithmStepFinished("2.) Take second screenshot with all text colored dark gray", screenshotWithDarkGrayText);
+            waitAtLeastUntil(t0 + 500);
+            screenshotWithLightGrayText = takeScreenshotWithTextColor(webPage, "#AAAAAA");
+            Visualization.algorithmStepFinished("3.) Take third screenshot with all text colored light gray", screenshotWithLightGrayText);
+            waitAtLeastUntil(t0 + 750);
+            screenshotWithWhiteText = takeScreenshotWithTextColor(webPage, "#FFFFFF");
+            Visualization.algorithmStepFinished("4.) Take fourth screenshot with all text colored white", screenshotWithWhiteText);
             // Try to find animated pixels ...
-            webPage.executeJavaScript("jQuery('*').css('color', '#AAAAAA');");
-            update(animatedPixels).byComparing(screenshotWithLightGrayText, webPage.takeScreenshot());
-            webPage.executeJavaScript("jQuery('*').css('color', '#555555');");
-            update(animatedPixels).byComparing(screenshotWithDarkGrayText, webPage.takeScreenshot());
-            webPage.executeJavaScript("jQuery('*').css('color', '#000000');");
-            update(animatedPixels).byComparing(screenshotWithBlackText, webPage.takeScreenshot());
+            update(animatedPixels).byComparing(screenshotWithLightGrayText, takeScreenshotWithTextColor(webPage, "#AAAAAA"));
+            Visualization.algorithmStepFinished("5.) Detect animated pixels by taking another screenshot with all text colored light gray and comparing it with the one previously taken with the same text color", animatedPixels);
+            update(animatedPixels).byComparing(screenshotWithDarkGrayText, takeScreenshotWithTextColor(webPage, "#555555"));
+            Visualization.algorithmStepFinished("6.) Update animated pixels by taking another screenshot with all text colored dark gray and comparing it with the one previously taken with the same text color", animatedPixels);
+            update(animatedPixels).byComparing(screenshotWithBlackText, takeScreenshotWithTextColor(webPage, "#000000"));
+            Visualization.algorithmStepFinished("7.) Update animated pixels by taking another screenshot with all text colored black and comparing it with the one previously taken with the same text color", animatedPixels);
         } finally {
             webPage.restoreTextColors();
         }
         update(animatedPixels).byComparing(screenshot, webPage.takeScreenshot());
+        Visualization.algorithmStepFinished("8.) Update animated pixels by taking another screenshot with text colored restored and comparing it with the first screenshot taken", animatedPixels);
         boolean[][] result = new boolean[w][h];
         for (int x = 0; x < w; ++x) {
             for (int y = 0; y < h; ++y) {
@@ -77,7 +82,49 @@ public class AdvancedTextDetector implements TextDetector {
                 }
             }
         }
+        Visualization.algorithmFinished("9.) Detect text pixels based on screenshot series with different text colors and ignoring animated pixels", result);
         return result;
+    }
+
+    private void waitAtLeastUntil(long t) {
+        long now = System.currentTimeMillis();
+        if (now < t) {
+            try {
+                Thread.sleep(t - now);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new RuntimeException("Got interrupted.", e);
+            }
+        }
+    }
+
+    private int[][] takeScreenshotWithTextColor(WebPage webPage, String textColor) {
+        webPage.executeJavaScript("jQuery('*').css('color', '" + textColor + "');");
+        return webPage.takeScreenshot();
+    }
+
+    private AnimatedPixelsUpdater update(boolean[][] animatedPixels) {
+        return new AnimatedPixelsUpdater(animatedPixels);
+    }
+
+    private static class AnimatedPixelsUpdater {
+        private final boolean[][] _animatedPixels;
+
+        private AnimatedPixelsUpdater(boolean[][] animatedPixels) {
+            _animatedPixels = animatedPixels;
+        }
+
+        private void byComparing(int[][] screenshot1, int[][] screenshot2) {
+            int w = _animatedPixels.length;
+            int h = _animatedPixels[0].length;
+            for (int x = 0; x < w; ++x) {
+                for (int y = 0; y < h; ++y) {
+                    if (screenshot1[x][y] != screenshot2[x][y]) {
+                        _animatedPixels[x][y] = true;
+                    }
+                }
+            }
+        }
     }
 
     private static class Distance {
@@ -101,29 +148,4 @@ public class AdvancedTextDetector implements TextDetector {
             return (abs(this.dr - other.dr) <= 1) && (abs(this.dg - other.dg) <= 1) && (abs(this.db - other.db) <= 1);
         }
     }
-
-    private Updater update(boolean[][] animatedPixels) {
-        return new Updater(animatedPixels);
-    }
-
-    private static class Updater {
-        private final boolean[][] _animatedPixels;
-
-        private Updater(boolean[][] animatedPixels) {
-            _animatedPixels = animatedPixels;
-        }
-
-        private void byComparing(int[][] screenshot1, int[][] screenshot2) {
-            int w = _animatedPixels.length;
-            int h = _animatedPixels[0].length;
-            for (int x = 0; x < w; ++x) {
-                for (int y = 0; y < h; ++y) {
-                    if (screenshot1[x][y] != screenshot2[x][y]) {
-                        _animatedPixels[x][y] = true;
-                    }
-                }
-            }
-        }
-    }
-
 }

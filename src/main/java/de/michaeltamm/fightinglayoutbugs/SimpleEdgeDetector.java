@@ -92,8 +92,9 @@ public class SimpleEdgeDetector implements EdgeDetector {
                 }
             }
         }
+        Visualization.algorithmStepFinished("1.) candidates = horizontal pixel sequences of similar color", candidates);
         final boolean[][] result = new boolean[w][h];
-        // Detect horizontal edges ...
+        // Detect horizontal edges by comparing candidates with pixel above and below ...
         final int h1 = h - 1;
         for (int y = 0; y < h; ++y) {
             for (int x = 0; x < w; ++x) {
@@ -109,6 +110,7 @@ public class SimpleEdgeDetector implements EdgeDetector {
                 }
             }
         }
+        Visualization.algorithmStepFinished("2.) Detect horizontal edges by comparing candidates with pixels above and below", result);
         // Ignore detected horizontal edges which are not long enough ...
         for (int y = 0; y < h; ++y) {
             int x1 = 0;
@@ -130,6 +132,7 @@ public class SimpleEdgeDetector implements EdgeDetector {
                 }
             } while(x1 < w);
         }
+        Visualization.algorithmFinished("3.) Ignore detected horizontal edges which are not long enough", result);
         return result;
     }
 
@@ -167,6 +170,7 @@ public class SimpleEdgeDetector implements EdgeDetector {
                 }
             }
         }
+        Visualization.algorithmStepFinished("1.) candidates = vertical pixel sequences of similar color", candidates);
         final boolean[][] result = new boolean[w][h];
         // Detect vertical edges ...
         final int w1 = w - 1;
@@ -184,6 +188,7 @@ public class SimpleEdgeDetector implements EdgeDetector {
                 }
             }
         }
+        Visualization.algorithmStepFinished("2.) Detect vertical edges by comparing candidates with pixels on left and right side", result);
         // Ignore detected vertical edges which are not long enough ...
         for (int x = 0; x < w; ++x) {
             int y1 = 0;
@@ -205,6 +210,7 @@ public class SimpleEdgeDetector implements EdgeDetector {
                 }
             } while(y1 < h);
         }
+        Visualization.algorithmFinished("3.) Ignore detected vertical edges which are not long enough", result);
         return result;
     }
 
@@ -231,5 +237,4 @@ public class SimpleEdgeDetector implements EdgeDetector {
         final int db = b1 - ((pixel2 & 0xFF));
         return dr * dr + dg * dg + db * db;
     }
-
 }

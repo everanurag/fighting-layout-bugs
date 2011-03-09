@@ -35,12 +35,14 @@ public class SimpleTextDetector implements TextDetector {
             webPage.executeJavaScript("jQuery('*').css('color', '#000000');");
             // Take first screenshot ...
             final int[][] pixels1 = webPage.takeScreenshot();
+            Visualization.algorithmStepFinished("1.) Take first screenshot with all text colored black", pixels1);
             final int w = pixels1.length;
             final int h = pixels1[0].length;
             // Colorize all text white ...
             webPage.executeJavaScript("jQuery('*').css('color', '#ffffff');");
             // Take second screenshot ...
             final int[][] pixels2 = webPage.takeScreenshot();
+            Visualization.algorithmStepFinished("2.) Take second screenshot with all text colored white", pixels2);
             assert pixels2.length == w;
             assert pixels2[0].length == h;
             // Detect text pixels ...
@@ -50,6 +52,7 @@ public class SimpleTextDetector implements TextDetector {
                     result[x][y] = (pixels1[x][y] != pixels2[x][y]);
                 }
             }
+            Visualization.algorithmFinished("3.) Determine text pixels by comparing the last two screenshots", result);
             return result;
         } finally {
             webPage.restoreTextColors();
