@@ -23,31 +23,31 @@ import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.*;
 /**
  * @author Michael Tamm
  */
-public class AdvancedTextDetectorTest extends TestUsingSelenium {
+public class AnimationAwareTextDetectorTest extends TestUsingSelenium {
 
     @Test
     public void shouldBehaveLikeSimpleTextDetectorWhenThereAreNoAnimations() throws Exception {
         // We can not test with ChromeDriver yet, because it compresses screenshots :( ...
         WebPage testPage = getWebPageFor("/Yahoo!_Profile_Updates.html").usingFirefoxDriver();
         boolean[][] expected = new SimpleTextDetector().detectTextPixelsIn(testPage);
-        boolean[][] actual = new AdvancedTextDetector().detectTextPixelsIn(testPage);
+        boolean[][] actual = new AnimationAwareTextDetector().detectTextPixelsIn(testPage);
         assertThat(actual, is(expected));
         // Test with DefaultSelenium ...
         testPage = getWebPageFor("/Microsoft_Newsletter.html").usingDefaultSelenium();
         expected = new SimpleTextDetector().detectTextPixelsIn(testPage);
-        actual = new AdvancedTextDetector().detectTextPixelsIn(testPage);
+        actual = new AnimationAwareTextDetector().detectTextPixelsIn(testPage);
         assertThat(actual, is(expected));
         // Test with FirefoxDriver ...
         testPage = getWebPageFor("/ESPRIT_newsletter.html").usingFirefoxDriver();
         expected = new SimpleTextDetector().detectTextPixelsIn(testPage);
-        actual = new AdvancedTextDetector().detectTextPixelsIn(testPage);
+        actual = new AnimationAwareTextDetector().detectTextPixelsIn(testPage);
         assertThat(actual, is(expected));
     }
 
     @Test
     public void shouldIgnoreAnimations() throws Exception {
         WebPage testPage = getWebPageFor("/page_with_animated_gif.html").usingFirefoxDriver();
-        final TextDetector detector = new AdvancedTextDetector();
+        final TextDetector detector = new AnimationAwareTextDetector();
         final boolean[][] textPixels = detector.detectTextPixelsIn(testPage);
         for (boolean[] column : textPixels) {
             for (boolean isTextPixel : column) {

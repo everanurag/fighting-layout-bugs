@@ -137,11 +137,11 @@ public class FightingLayoutBugs extends AbstractLayoutBugDetector {
      * </ul>
      */
     public Collection<LayoutBug> findLayoutBugsIn(WebPage webPage) {
-        webPage.setTextDetector(_textDetector == null ? new AdvancedTextDetector() : _textDetector);
+        webPage.setTextDetector(_textDetector == null ? new AnimationAwareTextDetector() : _textDetector);
         webPage.setEdgeDetector(_edgeDetector == null ? new SimpleEdgeDetector() : _edgeDetector);
         final Collection<LayoutBug> result = new ArrayList<LayoutBug>();
         for (LayoutBugDetector detector : _detectors) {
-            detector.setScreenshotDir(_screenshotDir);
+            detector.setScreenshotDir(screenshotDir);
             System.out.println("Running " + detector + " ...");
             result.addAll(detector.findLayoutBugsIn(webPage));
         }

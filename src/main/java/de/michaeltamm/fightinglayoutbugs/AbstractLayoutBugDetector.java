@@ -32,10 +32,10 @@ import java.util.Date;
 public abstract class AbstractLayoutBugDetector implements LayoutBugDetector {
 
     /** The directory where screenshots of erroneous pages will be saved. */
-    File _screenshotDir;
+    protected File screenshotDir;
 
     public void setScreenshotDir(File screenshotDir) {
-        _screenshotDir = screenshotDir;
+        this.screenshotDir = screenshotDir;
     }
 
     protected LayoutBug createLayoutBug(String message, WebPage webPage, boolean saveScreenshot) {
@@ -49,18 +49,19 @@ public abstract class AbstractLayoutBugDetector implements LayoutBugDetector {
     private LayoutBug createLayoutBug(String message, WebPage webPage, boolean saveScreenshot, Marker marker) {
         File screenshotFile = null;
         boolean screenshotSaved = false;
-        if (saveScreenshot && _screenshotDir != null) {
+        if (saveScreenshot && screenshotDir != null) {
             final DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
             String prefix = getClass().getSimpleName();
             if (prefix.startsWith("Detect")) {
                 prefix = prefix.substring("Detect".length());
             }
             try {
-                if (!_screenshotDir.exists()) {
-                    FileUtils.forceMkdir(_screenshotDir);
+                if (!screenshotDir.exists()) {
+                    FileUtils.forceMkdir(screenshotDir);
                 }
-                screenshotFile = File.createTempFile(prefix + "_" + df.format(new Date()) + ".", ".png", _screenshotDir);
-                webPage.saveScreenshotTo(screenshotFile);
+                screenshotFile = File.createTempFile(prefix + "_" + df.format(new Date()) + ".", ".png", screenshotDir);
+                Screenshot screenshot = webPage.getScreenshot();
+                ImageHelper.pixelsToPngFile(screenshot.pixels, screenshotFile);
                 screenshotSaved = true;
             } catch (Exception e) {
                 System.err.print("Could not save screenshot: ");

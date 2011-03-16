@@ -19,7 +19,6 @@ package de.michaeltamm.fightinglayoutbugs;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Visualization {
 
@@ -36,7 +35,7 @@ public class Visualization {
         }
     }
 
-    public static synchronized void unregisterListener(Listener listener) {
+    public static void unregisterListener(Listener listener) {
         synchronized (Visualization.class) {
             Iterator<Listener> i = LISTENERS.iterator();
             while (i.hasNext()) {
@@ -72,4 +71,6 @@ public class Visualization {
             listener.algorithmFinished(stepDescription, result);
         }
     }
+
+    private Visualization() {}
 }

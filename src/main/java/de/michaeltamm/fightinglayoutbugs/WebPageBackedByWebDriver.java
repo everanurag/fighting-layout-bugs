@@ -39,7 +39,7 @@ public class WebPageBackedByWebDriver extends WebPage {
         return _driver.findElements(by);
     }
 
-    public Object executeJavaScript(String javaScript, Object...  arguments) {
+    protected Object executeJavaScript(String javaScript, Object...  arguments) {
         if (_driver instanceof JavascriptExecutor) {
             return ((JavascriptExecutor) _driver).executeScript(javaScript, arguments);
         } else {
@@ -55,7 +55,7 @@ public class WebPageBackedByWebDriver extends WebPage {
         return _driver.getPageSource();
     }
 
-    protected byte[] takeScreenshotAsBytes() {
+    protected byte[] takeScreenshotAsPng() {
         if (_driver instanceof TakesScreenshot) {
             return ((TakesScreenshot) _driver).getScreenshotAs(OutputType.BYTES);
         } else {

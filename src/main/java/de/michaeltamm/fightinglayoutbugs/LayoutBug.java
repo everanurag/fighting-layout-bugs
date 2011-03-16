@@ -79,7 +79,7 @@ public class LayoutBug {
             final String name = _screenshotFile.getName();
             final String prefix = name.substring(0, name.indexOf('.') + 1);
             final File newFile = File.createTempFile(prefix, ".png", _screenshotFile.getParentFile());
-            ImageHelper.pixelsToFile(pixels, newFile);
+            ImageHelper.pixelsToPngFile(pixels, newFile);
             try {
                 if (!_screenshotFile.delete()) {
                     _screenshotFile.deleteOnExit();

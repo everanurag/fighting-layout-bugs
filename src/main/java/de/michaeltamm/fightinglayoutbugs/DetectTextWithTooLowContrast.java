@@ -42,7 +42,7 @@ public class DetectTextWithTooLowContrast extends AbstractLayoutBugDetector {
         public final boolean[][] buggyPixels;
 
         private Analyzer(WebPage webPage) {
-            screenshot = webPage.getScreenshot();
+            screenshot = webPage.getScreenshot().pixels;
             w = screenshot.length;
             h = screenshot[0].length;
             text = webPage.getTextPixels();

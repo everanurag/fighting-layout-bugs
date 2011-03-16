@@ -16,6 +16,8 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
+import static de.michaeltamm.fightinglayoutbugs.Screenshot.withNoText;
+
 /**
  * <p>Detects horizontal and vertical edges with a simple algorithm.</p>
  * For horizontal edges:<ol>
@@ -60,7 +62,7 @@ public class SimpleEdgeDetector implements EdgeDetector {
     }
 
     public boolean[][] detectHorizontalEdgesIn(WebPage webPage) {
-        final int[][] pixels = webPage.getScreenshotWithoutText();
+        final int[][] pixels = webPage.getScreenshot(withNoText()).pixels;
         final int w = pixels.length;
         final int h = pixels[0].length;
         // Detect horizontal pixel sequences of similar color ...
@@ -138,7 +140,7 @@ public class SimpleEdgeDetector implements EdgeDetector {
 
     public boolean[][] detectVerticalEdgesIn(WebPage webPage) {
         // Take screenshot ...
-        final int[][] pixels = webPage.getScreenshotWithoutText();
+        final int[][] pixels = webPage.getScreenshot(withNoText()).pixels;
         final int w = pixels.length;
         final int h = pixels[0].length;
         // Detect vertical pixel sequences of similar color ...

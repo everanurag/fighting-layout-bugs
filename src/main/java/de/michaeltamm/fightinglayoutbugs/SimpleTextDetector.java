@@ -16,46 +16,29 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
+import static de.michaeltamm.fightinglayoutbugs.Screenshot.withAllTextColored;
+
 /**
  * Detects text pixels by comparing screenshots after colorizing all text to black
- * and then to white via JavaScript - might return an invalid result, if there is
- * animation on the web page (like animated GIF images, a Flash movie, or JavaScript
- * animation). You should use the {@link AdvancedTextDetector} if you have animation
- * on your web page.
+ * and then to white via JavaScript.
+ * Might return too many text pixels if there is animation on the web page
+ * (like animated GIF images, Flash movies, or JavaScript  * animation). You should use the {@link AnimationAwareTextDetector} if you have
+ * animation on your web page.
  *
  * @author Michael Tamm
  */
 public class SimpleTextDetector implements TextDetector {
 
     public boolean[][] detectTextPixelsIn(WebPage webPage) {
-        webPage.backupTextColors();
-        try {
-            webPage.injectJQueryIfNotPresent();
-            // Colorize all text black ...
-            webPage.executeJavaScript("jQuery('*').css('color', '#000000');");
-            // Take first screenshot ...
-            final int[][] pixels1 = webPage.takeScreenshot();
-            Visualization.algorithmStepFinished("1.) Take first screenshot with all text colored black", pixels1);
-            final int w = pixels1.length;
-            final int h = pixels1[0].length;
-            // Colorize all text white ...
-            webPage.executeJavaScript("jQuery('*').css('color', '#ffffff');");
-            // Take second screenshot ...
-            final int[][] pixels2 = webPage.takeScreenshot();
-            Visualization.algorithmStepFinished("2.) Take second screenshot with all text colored white", pixels2);
-            assert pixels2.length == w;
-            assert pixels2[0].length == h;
-            // Detect text pixels ...
-            final boolean[][] result = new boolean[w][h];
-            for (int x = 0; x < w; ++x) {
-                for (int y = 0; y < h; ++y) {
-                    result[x][y] = (pixels1[x][y] != pixels2[x][y]);
-                }
-            }
-            Visualization.algorithmFinished("3.) Determine text pixels by comparing the last two screenshots", result);
-            return result;
-        } finally {
-            webPage.restoreTextColors();
-        }
+        // 1.) Take first screenshot with all text colored black ...
+        Screenshot screenshotWithAllTextColoredBlack = webPage.getScreenshot(withAllTextColored("#000000"));
+        Visualization.algorithmStepFinished("1.) Take first screenshot with all text colored black.", screenshotWithAllTextColoredBlack);
+        // 2.) Take second screenshot with all text colored white ...
+        Screenshot screenshotWithAllTextColoredWhite = webPage.getScreenshot(withAllTextColored("#ffffff"));
+        Visualization.algorithmStepFinished("2.) Take second screenshot with all text colored white.", screenshotWithAllTextColoredWhite);
+        // 3.) Determine text pixels by comparing the last two screenshots ...
+        boolean[][] textPixels = new CompareScreenshots(screenshotWithAllTextColoredBlack, screenshotWithAllTextColoredWhite).differentPixels;
+        Visualization.algorithmFinished("3.) Determine text pixels by comparing the last two screenshots.", textPixels);
+        return textPixels;
     }
 }

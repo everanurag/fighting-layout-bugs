@@ -53,7 +53,7 @@ public class WebPageBackedBySelenium extends WebPage {
         return by.findElements(new SeleniumSearchContext());
     }
 
-    public Object executeJavaScript(String javaScript, Object...  arguments) {
+    protected Object executeJavaScript(String javaScript, Object...  arguments) {
         String eval = "";
 
         // We have to create an arguments array and make it visible in the application scope
@@ -87,7 +87,7 @@ public class WebPageBackedBySelenium extends WebPage {
         return _selenium.getHtmlSource();
     }
 
-    protected byte[] takeScreenshotAsBytes() {
+    protected byte[] takeScreenshotAsPng() {
         String base64EncodedScreenshot = _selenium.captureEntirePageScreenshotToString("");
         byte[] base64EncodedBytes;
         try {
@@ -133,14 +133,14 @@ public class WebPageBackedBySelenium extends WebPage {
 
         public WebElement findElement(By by) {
             String toString = by.toString();
-            if(toString.startsWith("By.xpath")) {
-                return this.findElementByXPath(toString.substring(10));
-            } else if(toString.startsWith("By.id")) {
-                return this.findElementById(toString.substring(7));
-            } else if(toString.startsWith("By.tagName")) {
-                return this.findElementByXPath("//" + toString.substring(12));
+            if (toString.startsWith("By.xpath")) {
+                return findElementByXPath(toString.substring(10));
+            } else if (toString.startsWith("By.id")) {
+                return findElementById(toString.substring(7));
+            } else if (toString.startsWith("By.tagName")) {
+                return findElementByXPath("//" + toString.substring(12));
             } else {
-                throw new UnsupportedOperationException("Not implemented (" + by.toString() + ")");
+                throw new UnsupportedOperationException("Not implemented (" + toString + ")");
             }
         }
 
@@ -158,16 +158,16 @@ public class WebPageBackedBySelenium extends WebPage {
 
         public List<WebElement> findElements(By by) {
             String toString = by.toString();
-            if(toString.startsWith("By.xpath")) {
-                return this.findElementsByXPath(toString.substring(10));
-            } else if(toString.startsWith("By.id")) {
+            if (toString.startsWith("By.xpath")) {
+                return findElementsByXPath(toString.substring(10));
+            } else if (toString.startsWith("By.id")) {
                 List<WebElement> elements = new ArrayList<WebElement>(1);
-                elements.add(this.findElementById(toString.substring(7)));
+                elements.add(findElementById(toString.substring(7)));
                 return elements;
-            } else if(toString.startsWith("By.tagName")) {
-                return this.findElementsByXPath("//" + toString.substring(12));
+            } else if (toString.startsWith("By.tagName")) {
+                return findElementsByXPath("//" + toString.substring(12));
             } else {
-                throw new UnsupportedOperationException("Not implemented (" + by.toString() + ")");
+                throw new UnsupportedOperationException("Not implemented (" + toString + ")");
             }
         }
 
@@ -200,8 +200,8 @@ public class WebPageBackedBySelenium extends WebPage {
     }
 
     private class SeleniumWebElement implements WebElement {
-        private String locator = null;
-        private Selenium selenium = null;
+        private final Selenium selenium;
+        private final String locator;
 
         private SeleniumWebElement(Selenium selenium, String locator) {
             this.selenium = selenium;
@@ -238,7 +238,7 @@ public class WebPageBackedBySelenium extends WebPage {
         }
 
         public String getTagName() {
-            return selenium.getEval("selenium.browserbot.findElement(\"" + this.getLocator().replaceAll("\"", "\\\\\"") + "\").tagName;");
+            return selenium.getEval("selenium.browserbot.findElement(\"" + getLocator().replaceAll("\"", "\\\\\"") + "\").tagName;");
         }
 
         public String getText() {

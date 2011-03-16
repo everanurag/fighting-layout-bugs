@@ -52,8 +52,8 @@ public class ImageHelper {
         return imageToPixels(image);
     }
 
-    public static int[][] bytesToPixels(byte[] bytes) {
-        InputStream in = new ByteArrayInputStream(bytes);
+    public static int[][] pngToPixels(byte[] png) {
+        InputStream in = new ByteArrayInputStream(png);
         try {
             final BufferedImage image = ImageIO.read(in);
             return imageToPixels(image);
@@ -64,13 +64,13 @@ public class ImageHelper {
         }
     }
 
-    public static void pixelsToFile(int[][] pixels, File pngFile) {
+    public static void pixelsToPngFile(int[][] pixels, File pngFile) {
         final BufferedImage image = pixelsToImage(pixels);
         createParentDirectoryIfNeeded(pngFile);
-        imageToFile(image, pngFile);
+        imageToPngFile(image, pngFile);
     }
 
-    public static void imageToFile(BufferedImage image, File pngFile) {
+    public static void imageToPngFile(BufferedImage image, File pngFile) {
         try {
             ImageIO.write(image, "png", pngFile);
         } catch (IOException e) {
@@ -78,10 +78,10 @@ public class ImageHelper {
         }
     }
 
-    public static void pixelsToFile(boolean[][] pixels, File pngFile) {
+    public static void pixelsToPngFile(boolean[][] pixels, File pngFile) {
         final BufferedImage image = pixelsToImage(pixels);
         createParentDirectoryIfNeeded(pngFile);
-        imageToFile(image, pngFile);
+        imageToPngFile(image, pngFile);
     }
 
     public static int[][] imageToPixels(BufferedImage image) {
