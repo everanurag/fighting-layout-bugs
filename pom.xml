@@ -89,11 +89,4 @@
         </plugins>
     </build>
 
-    <repositories>
-        <repository>
-            <id>selenium-repository</id>
-            <url>http://selenium.googlecode.com/svn/repository/</url>
-        </repository>
-    </repositories>
-
 </project>
