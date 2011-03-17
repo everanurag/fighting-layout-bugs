@@ -17,6 +17,8 @@
 package de.michaeltamm.fightinglayoutbugs;
 
 import java.util.*;
+
+import static de.michaeltamm.fightinglayoutbugs.ImageHelper.getContrast;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 
@@ -231,25 +233,5 @@ public class DetectTextWithTooLowContrast extends AbstractLayoutBugDetector {
         } else {
             return emptyList();
         }
-    }
-
-    /**
-     * Determines the contrast between the two given colors
-     * based on the <a href="http://www.w3.org/TR/WCAG20-TECHS/G17.html#G17-procedure">WCAG 2.0 formula</a>.
-     */
-    private static double getContrast(int rgb1, int rgb2) {
-        double l1 = getLuminance(rgb1);
-        double l2 = getLuminance(rgb2);
-        return ((l1 >= l2) ? (l1 + 0.05) / (l2 + 0.05) : (l2 + 0.05) / (l1 + 0.05));
-    }
-
-    private static double getLuminance(int rgb) {
-        double r = ((rgb & 0xFF0000) >> 16) / 255.0;
-        r = (r <= 0.03928 ? r / 12.92 : Math.pow((r + 0.055)/1.055, 2.4));
-        double g = ((rgb & 0xFF00) >> 8) / 255.0;
-        g = (g <= 0.03928 ? g / 12.92 : Math.pow((g + 0.055)/1.055, 2.4));
-        double b = (rgb & 0xFF) / 255.0;
-        b = (b <= 0.03928 ? b / 12.92 : Math.pow((b + 0.055)/1.055, 2.4));
-        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
     }
 }

@@ -513,5 +513,30 @@ public class ImageHelper {
         return outlines;
     }
 
+    /**
+     * Determines the contrast between the two given pixels based on the
+     * <a href="http://www.w3.org/TR/WCAG20-TECHS/G17.html#G17-procedure">WCAG 2.0 formula</a>.
+     */
+    public static double getContrast(int rgb1, int rgb2) {
+        double l1 = getLuminance(rgb1);
+        double l2 = getLuminance(rgb2);
+        return ((l1 >= l2) ? (l1 + 0.05) / (l2 + 0.05) : (l2 + 0.05) / (l1 + 0.05));
+    }
+
+    private static final double[] PRE_CALCULATED_LUMINANCE_TABLE = new double[256];
+    static {
+        for (int i = 0; i < 256; ++i) {
+            final double x = i / 255.0;
+            PRE_CALCULATED_LUMINANCE_TABLE[i] = (x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4));
+        }
+    }
+
+    private static double getLuminance(int rgb) {
+        double r = PRE_CALCULATED_LUMINANCE_TABLE[(rgb & 0xFF0000) >> 16];
+        double g = PRE_CALCULATED_LUMINANCE_TABLE[(rgb & 0xFF00) >> 8];
+        double b = PRE_CALCULATED_LUMINANCE_TABLE[(rgb & 0xFF)];
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    }
+
     protected ImageHelper() {}
 }
