@@ -191,5 +191,5 @@ public class StringHelper {
         sb.append('}');
     }
 
-    private StringHelper() {}
+    protected StringHelper() {}
 }

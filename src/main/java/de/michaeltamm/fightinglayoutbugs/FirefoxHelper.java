@@ -27,7 +27,7 @@ import java.io.File;
  */
 public class FirefoxHelper {
 
-    private final static String[] FIREFOX_EXECUTABLE_PATH_CANDIDATES = {
+    private static final String[] FIREFOX_EXECUTABLE_PATH_CANDIDATES = {
         "C:\\Program Files (x86)\\Mozilla\\Firefox3\\firefox.exe",
         "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
         "/usr/bin/firefox"
@@ -57,5 +57,5 @@ public class FirefoxHelper {
         throw new RuntimeException("Could not find Firefox executable.");
     }
 
-    private FirefoxHelper() {}
+    protected FirefoxHelper() {}
 }

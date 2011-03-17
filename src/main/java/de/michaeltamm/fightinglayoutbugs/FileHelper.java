@@ -52,5 +52,5 @@ public class FileHelper {
 
     }
 
-    private FileHelper() {}
+    protected FileHelper() {}
 }

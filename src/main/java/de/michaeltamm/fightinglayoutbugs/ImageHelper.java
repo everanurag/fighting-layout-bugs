@@ -513,5 +513,5 @@ public class ImageHelper {
         return outlines;
     }
 
-    private ImageHelper() {}
+    protected ImageHelper() {}
 }
