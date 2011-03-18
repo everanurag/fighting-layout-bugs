@@ -21,7 +21,6 @@ import org.apache.commons.io.FileUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.hamcrest.StringDescription;
 import org.hamcrest.collection.IsCollectionContaining;
 import org.hamcrest.collection.IsIn;
 import org.hamcrest.collection.IsMapContaining;
@@ -165,19 +164,13 @@ public class HamcrestHelper {
 
     public static void assertThat(boolean shouldBeTrue) {
         if (!shouldBeTrue) {
-            throw new AssertionError(getAssertionMessage());
+            fail();
         }
     }
 
     public static <T> void assertThat(T actual, Matcher<T> matcher) {
         if (!matcher.matches(actual)) {
-            final Description description = new StringDescription();
-            description.appendText(getAssertionMessage())
-                .appendText("\nExpected: ")
-                .appendDescriptionOf(matcher)
-                .appendText("\n     got: ")
-                .appendValue(actual);
-            throw new AssertionError(description.toString());
+            fail();
         }
     }
 
@@ -529,42 +522,35 @@ public class HamcrestHelper {
         return not(blank());
     }
 
-    private static String getAssertionMessage() {
-        String message = "";
-        // Try to extract assertion from the source file, from which assertThat has been called ...
-        final StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+    private static void fail() {
+        String assertionErrorMessage = "";
+        // Try to extract assertion error message from the source file, from which assertThat has been called ...
+        final StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         int i = 0;
-        while (!"assertThat".equals(stack[i].getMethodName())) {
+        while (!"assertThat".equals(stackTrace[i].getMethodName())) {
             ++i;
         }
         ++i;
-        final File javaFile = findSourceFileFor(stack[i]);
+        final File javaFile = findSourceFileFor(stackTrace[i]);
         if (javaFile != null) {
-            final int lineNumber = stack[i].getLineNumber();
+            final int lineNumber = stackTrace[i].getLineNumber();
             try {
                 @SuppressWarnings({"unchecked"})
                 final List<String> lines = (List<String>) FileUtils.readLines(javaFile, "UTF-8");
-                final String line = lines.get(lineNumber - 1);
-                message = line.trim();
-                if (message.startsWith("assertThat(")) {
-                    message = message.substring("assertThat(".length());
-                } else {
-                    // noinspection ThrowCaughtLocally
-                    throw new IOException(
-                        "Line " + lineNumber + " of " + javaFile.getPath() + " (" + asString(line) + ") does not start with \"assertThat(\"."
-                    );
+                final String line = lines.get(lineNumber - 1).trim();
+                if (line.startsWith("assertThat(")) {
+                    assertionErrorMessage = line.substring("assertThat(".length());
+                    if (assertionErrorMessage.endsWith(");")) {
+                        assertionErrorMessage = assertionErrorMessage.substring(0, assertionErrorMessage.length() - ");".length());
+                    } else {
+                        assertionErrorMessage += " ...";
+                    }
                 }
-                if (message.endsWith(");")) {
-                    message = message.substring(0, message.length() - ");".length());
-                } else {
-                    message += " ...";
-                }
-            } catch (IOException e) {
-                System.err.print("Could not read line " + lineNumber + " from " + javaFile.getPath() + " because: ");
-                e.printStackTrace(System.err);
-            }
+            } catch (IOException ignored) {}
         }
-        return message;
+        AssertionError e = new AssertionError(assertionErrorMessage);
+        e.setStackTrace(Arrays.copyOfRange(stackTrace, i, stackTrace.length));
+        throw e;
     }
 
     private static File findSourceFileFor(StackTraceElement stackTraceElement) {
