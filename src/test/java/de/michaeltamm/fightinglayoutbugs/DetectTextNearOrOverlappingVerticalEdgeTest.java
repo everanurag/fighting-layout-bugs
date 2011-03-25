@@ -33,7 +33,6 @@ public class DetectTextNearOrOverlappingVerticalEdgeTest extends TestUsingSeleni
         testPage.executeJavaScript("window.resizeTo(1008, 706)");
         final long startTime = System.currentTimeMillis();
         final LayoutBugDetector detector = new DetectTextNearOrOverlappingVerticalEdge();
-        detector.setScreenshotDir(new File("target"));
         final Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(testPage);
         assertThat(layoutBugs.size() == 1);
         final LayoutBug layoutBug = layoutBugs.iterator().next();
@@ -48,7 +47,6 @@ public class DetectTextNearOrOverlappingVerticalEdgeTest extends TestUsingSeleni
         WebPage testPage = getWebPageFor("/Microsoft_Newsletter.html").usingFirefoxDriver();
         final long startTime = System.currentTimeMillis();
         final LayoutBugDetector detector = new DetectTextNearOrOverlappingVerticalEdge();
-        detector.setScreenshotDir(new File("target"));
         final Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(testPage);
         assertThat(layoutBugs.size() == 1);
         final LayoutBug layoutBug = layoutBugs.iterator().next();

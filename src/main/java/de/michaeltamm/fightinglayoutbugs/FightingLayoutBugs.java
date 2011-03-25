@@ -142,7 +142,7 @@ public class FightingLayoutBugs extends AbstractLayoutBugDetector {
         final Collection<LayoutBug> result = new ArrayList<LayoutBug>();
         for (LayoutBugDetector detector : _detectors) {
             detector.setScreenshotDir(screenshotDir);
-            System.out.println("Running " + detector + " ...");
+            System.out.println("Running " + detector.getClass().getSimpleName() + " ...");
             result.addAll(detector.findLayoutBugsIn(webPage));
         }
         return result;

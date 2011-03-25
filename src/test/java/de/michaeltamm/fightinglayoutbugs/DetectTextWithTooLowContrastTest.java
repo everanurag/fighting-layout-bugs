@@ -32,7 +32,6 @@ public class DetectTextWithTooLowContrastTest extends TestUsingSelenium {
         WebPage testPage = getWebPageFor("/ESPRIT_newsletter.html").usingFirefoxDriver();
         final long startTime = System.currentTimeMillis();
         final LayoutBugDetector detector = new DetectTextWithTooLowContrast();
-        detector.setScreenshotDir(new File("target"));
         final Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(testPage);
         for (LayoutBug bug : layoutBugs) {
             System.out.println(bug);
@@ -48,7 +47,6 @@ public class DetectTextWithTooLowContrastTest extends TestUsingSelenium {
     public void shouldNotFindBugsOnHardToReadPage() throws Exception {
         WebPage testPage = getWebPageFor("/hard_to_read.html").usingFirefoxDriver();
         final LayoutBugDetector detector = new DetectTextWithTooLowContrast();
-        detector.setScreenshotDir(new File("target"));
         final Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(testPage);
         for (LayoutBug bug : layoutBugs) {
             System.out.println(bug);

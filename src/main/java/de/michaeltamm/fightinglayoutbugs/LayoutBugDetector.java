@@ -28,29 +28,28 @@ import java.util.Collection;
 public interface LayoutBugDetector {
 
     /**
-     * Call this method before you call {@link #findLayoutBugsIn} if you
-     * want to have screenshots of the detected layout bugs.
+     * Call this method before you call {@code findLayoutBugsIn} if you
+     * want to specify where screenshots of detected layout bugs should
+     * be stored.
+     *
+     * @param screenshotDir if {@code null}, no screenshots will be stored
      */
     void setScreenshotDir(File screenshotDir);
 
     /**
-     * Finds layout bugs in the web page currently displayed by the given selenium.
-     * If you want screenshots for the returned layout bugs,
-     * you need to {@link #setScreenshotDir set the screenshot directory} first.
+     * Finds layout bugs in the web page currently displayed in the browser
+     * controlled by the given {@link Selenium}.
      */
     Collection<LayoutBug> findLayoutBugsIn(Selenium selenium);
 
     /**
-     * Finds layout bugs in the web page currently displayed by the given driver.
-     * If you want screenshots for the returned layout bugs,
-     * you need to {@link #setScreenshotDir set the screenshot directory} first.
+     * Finds layout bugs in the web page currently displayed in the browser
+     * controlled by the given {@link WebDriver}.
      */
     Collection<LayoutBug> findLayoutBugsIn(WebDriver driver);
 
     /**
      * Finds layout bugs in the given web page.
-     * If you want screenshots for the returned layout bugs,
-     * you need to {@link #setScreenshotDir set the screenshot directory} first.
      */
     Collection<LayoutBug> findLayoutBugsIn(WebPage webPage);
 }
