@@ -32,17 +32,17 @@ import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.assertThat;
  *
  * @author Michael Tamm
  */
-public class Webserver {
+public class TestWebServer {
 
     public static void main(String[] args) {
-        Webserver webserver = new Webserver();
-        webserver.start();
+        TestWebServer testWebServer = new TestWebServer();
+        testWebServer.start();
     }
 
-    private Server _server;
+    private final Server _server;
     private int _port;
 
-    public Webserver() {
+    public TestWebServer() {
         _server = new Server();
         HashUserRealm realm = new HashUserRealm("Fighting Layout Bugs Realm");
         realm.put("admin", new Password("secret"));

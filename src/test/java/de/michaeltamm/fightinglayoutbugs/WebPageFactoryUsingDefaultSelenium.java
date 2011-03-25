@@ -28,8 +28,7 @@ public class WebPageFactoryUsingDefaultSelenium extends WebPageFactory {
     private final SeleniumServer _seleniumServer;
     private final DefaultSelenium _defaultSelenium;
 
-    public WebPageFactoryUsingDefaultSelenium(String webserverBaseUrl) {
-        super(webserverBaseUrl);
+    public WebPageFactoryUsingDefaultSelenium() {
         System.out.println("Creating SeleniumServer ...");
         RemoteControlConfiguration config = new RemoteControlConfiguration();
         int port = SocketHelper.findFreePort();
@@ -45,7 +44,7 @@ public class WebPageFactoryUsingDefaultSelenium extends WebPageFactory {
             throw new RuntimeException("Could not start SeleniumServer.", e);
         }
         System.out.println("Creating DefaultSelenium ...");
-        _defaultSelenium = new DefaultSelenium("localhost", port, "*firefox", webserverBaseUrl);
+        _defaultSelenium = new DefaultSelenium("localhost", port, "*firefox", TestUsingSelenium.getBaseUrlForTestWebServer().toString());
         String options = "executablePath=" + FirefoxHelper.findFirefoxExecutable().getAbsolutePath();
         _defaultSelenium.start(options);
     }
@@ -65,4 +64,5 @@ public class WebPageFactoryUsingDefaultSelenium extends WebPageFactory {
             _seleniumServer.stop();
         }
     }
+
 }

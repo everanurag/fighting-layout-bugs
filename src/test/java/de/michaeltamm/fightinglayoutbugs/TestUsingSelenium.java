@@ -18,61 +18,67 @@ package de.michaeltamm.fightinglayoutbugs;
 
 import org.testng.annotations.AfterSuite;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 /**
  * Base class for tests using <a href="http://selenium.googlecode.com">Selenium</a>,
- * which also takes care of starting and stopping a {@link Webserver} to serve the HTML pages
- * located under the <code>src/test/webapp</code> directory.
+ * which also takes care of starting and stopping a {@link TestWebServer} to serve
+ * the HTML pages located under the <code>src/test/webapp</code> directory.
  *
  * @author Michael Tamm
  */
 public class TestUsingSelenium {
 
-    private static Webserver webserver;
-    private static WebPageFactory webPageFactoryUsingChromeDriver;
-    private static WebPageFactory webPageFactoryUsingDefaultSelenium;
-    private static WebPageFactory webPageFactoryUsingFirefoxDriver;
-    private static WebPageFactory webPageFactoryUsingInternetExplorerDriver;
+    private static TestWebServer testWebServer;
+    private static WebPageFactory webPageFactory;
+
+    @AfterSuite
+    public void tearDown() {
+        disposeWebPageFactoryIfNeeded();
+        stopWebserverIfNeeded();
+    }
 
     /**
      * Helper class for fluent API - see {@link TestUsingSelenium#getWebPageFor}.
      */
-    protected static class SpecifyDriver {
+    protected static class GetWebPage {
         private final String _pathToHtmlPageOrCompleteUrl;
 
-        private SpecifyDriver(String pathToHtmlPageOrCompleteUrl) {
+        private GetWebPage(String pathToHtmlPageOrCompleteUrl) {
             _pathToHtmlPageOrCompleteUrl = pathToHtmlPageOrCompleteUrl;
         }
 
         public WebPage usingChromeDriver() {
-            if (webPageFactoryUsingChromeDriver == null) {
-                startWebserver();
-                webPageFactoryUsingChromeDriver = new WebPageFactoryUsingChromeDriver(getBaseUrl());
+            if (!(webPageFactory instanceof WebPageFactoryUsingChromeDriver)) {
+                disposeWebPageFactoryIfNeeded();
+                webPageFactory = new WebPageFactoryUsingChromeDriver();
             }
-            return webPageFactoryUsingChromeDriver.createWebPageFor(_pathToHtmlPageOrCompleteUrl);
+            return webPageFactory.createWebPageFor(_pathToHtmlPageOrCompleteUrl);
         }
 
         public WebPage usingDefaultSelenium() {
-            if (webPageFactoryUsingDefaultSelenium == null) {
-                startWebserver();
-                webPageFactoryUsingDefaultSelenium = new WebPageFactoryUsingDefaultSelenium(getBaseUrl());
+            if (!(webPageFactory instanceof WebPageFactoryUsingDefaultSelenium)) {
+                disposeWebPageFactoryIfNeeded();
+                webPageFactory = new WebPageFactoryUsingDefaultSelenium();
             }
-            return webPageFactoryUsingDefaultSelenium.createWebPageFor(_pathToHtmlPageOrCompleteUrl);
+            return webPageFactory.createWebPageFor(_pathToHtmlPageOrCompleteUrl);
         }
 
         public WebPage usingFirefoxDriver() {
-            if (webPageFactoryUsingFirefoxDriver == null) {
-                startWebserver();
-                webPageFactoryUsingFirefoxDriver = new WebPageFactoryUsingFirefoxDriver(getBaseUrl());
+            if (!(webPageFactory instanceof WebPageFactoryUsingFirefoxDriver)) {
+                disposeWebPageFactoryIfNeeded();
+                webPageFactory = new WebPageFactoryUsingFirefoxDriver();
             }
-            return webPageFactoryUsingFirefoxDriver.createWebPageFor(_pathToHtmlPageOrCompleteUrl);
+            return webPageFactory.createWebPageFor(_pathToHtmlPageOrCompleteUrl);
         }
 
         public WebPage usingInternetExplorerDriver() {
-            if (webPageFactoryUsingInternetExplorerDriver == null) {
-                startWebserver();
-                webPageFactoryUsingInternetExplorerDriver = new WebPageFactoryUsingInternetExplorerDriver(getBaseUrl());
+            if (!(webPageFactory instanceof WebPageFactoryUsingInternetExplorerDriver)) {
+                disposeWebPageFactoryIfNeeded();
+                webPageFactory = new WebPageFactoryUsingInternetExplorerDriver();
             }
-            return webPageFactoryUsingInternetExplorerDriver.createWebPageFor(_pathToHtmlPageOrCompleteUrl);
+            return webPageFactory.createWebPageFor(_pathToHtmlPageOrCompleteUrl);
         }
     }
 
@@ -83,52 +89,51 @@ public class TestUsingSelenium {
      * getWebPageFor("...").usingDefaultSelenium();</pre>
      * or <pre>
      * getWebPageFor("...").usingFirefoxDriver();</pre>
+     * or <pre>
+     * getWebPageFor("...").usingInternetExplorer();</pre>
      *
      * @param pathToHtmlPageOrCompleteUrl either the path to a HTML page relative to the <code>src/test/webapp</code> directory or a complete URL
      */
-    protected SpecifyDriver getWebPageFor(String pathToHtmlPageOrCompleteUrl) {
-        return new SpecifyDriver(pathToHtmlPageOrCompleteUrl);
+    protected GetWebPage getWebPageFor(String pathToHtmlPageOrCompleteUrl) {
+        return new GetWebPage(pathToHtmlPageOrCompleteUrl);
     }
 
-    private static void startWebserver() {
-        if (webserver == null) {
-            System.out.println("Starting Webserver ...");
-            webserver = new Webserver();
-            webserver.start();
-        }
-    }
-
-    private static void stopWebserver() {
-        if (webserver != null) {
-            System.out.println("Stopping Webserver ...");
-            webserver.stop();
-            webserver = null;
+    static URL getBaseUrlForTestWebServer() {
+        startWebserverIfNeeded();
+        try {
+            return new URL("http://localhost:" + testWebServer.getPort() + "/");
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Should never happen.", e);
         }
     }
 
-    private static String getBaseUrl() {
-        return "http://localhost:" + webserver.getPort() + "/";
+
+    private static void startWebserverIfNeeded() {
+        if (testWebServer == null) {
+            System.out.println("Starting TestWebServer ...");
+            testWebServer = new TestWebServer();
+            testWebServer.start();
+        }
     }
 
-    @AfterSuite
-    public void tearDown() {
-        if (webPageFactoryUsingChromeDriver != null) {
-            webPageFactoryUsingChromeDriver.dispose();
-            webPageFactoryUsingChromeDriver = null;
+    private static void disposeWebPageFactoryIfNeeded() {
+        if (webPageFactory != null) {
+            try {
+                webPageFactory.dispose();
+            } finally {
+                webPageFactory = null;
+            }
         }
-        if (webPageFactoryUsingDefaultSelenium != null) {
-            webPageFactoryUsingDefaultSelenium.dispose();
-            webPageFactoryUsingDefaultSelenium = null;
-        }
-        if (webPageFactoryUsingFirefoxDriver != null) {
-            webPageFactoryUsingFirefoxDriver.dispose();
-            webPageFactoryUsingFirefoxDriver = null;
-        }
-        if (webPageFactoryUsingInternetExplorerDriver != null) {
-            webPageFactoryUsingInternetExplorerDriver.dispose();
-            webPageFactoryUsingInternetExplorerDriver = null;
-        }
-        stopWebserver();
     }
 
+    private static void stopWebserverIfNeeded() {
+        if (testWebServer != null) {
+            try {
+                System.out.println("Stopping TestWebServer ...");
+                testWebServer.stop();
+            } finally {
+                testWebServer = null;
+            }
+        }
+    }
 }

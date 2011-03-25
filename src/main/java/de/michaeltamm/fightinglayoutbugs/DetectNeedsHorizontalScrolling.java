@@ -40,25 +40,42 @@ public class DetectNeedsHorizontalScrolling extends AbstractLayoutBugDetector {
     }
 
     public Collection<LayoutBug> findLayoutBugsIn(WebPage webPage) {
-        webPage.resizeBrowserWindowTo(_minimalSupportedScreenResolution);
-        final int scrollMaxX = ((Number) webPage.executeJavaScript("return window.scrollMaxX")).intValue();
-        if (scrollMaxX > 0) {
+        try {
+            webPage.resizeBrowserWindowTo(_minimalSupportedScreenResolution);
+        } catch (Exception e) {
+            System.err.println("Skipping " + getClass().getSimpleName() + " -- " + e.getMessage());
+            return emptyList();
+        }
+        final int scrollMaxX = ((Number) webPage.executeJavaScript("if (typeof window.scrollMaxX != 'undefined') { return window.scrollMaxX; } else { var x = (document.documentElement ? document.documentElement : document.body); return x.scrollWidth - x.clientWidth; }")).intValue();
+        if (scrollMaxX == 0) {
+            return emptyList();
+        } else {
+            final int scrollWidth = ((Number) webPage.executeJavaScript("var x = (document.documentElement ? document.documentElement : document.body); return x.scrollWidth;")).intValue();
+            final int scrollHeight = ((Number) webPage.executeJavaScript("var x = (document.documentElement ? document.documentElement : document.body); return x.scrollHeight;")).intValue();
             LayoutBug layoutBug = createLayoutBug("Detected horizontal scroll bar when browser window has size " + _minimalSupportedScreenResolution + ".", webPage, new Marker() {
                 public void mark(int[][] screenshot) {
                     int w = screenshot.length;
                     int h = screenshot[0].length;
-                    int maxWidth = w - scrollMaxX;
-                    for (int x = maxWidth; x < w; ++x) {
-                        for (int y = (x - maxWidth) % 2; y < h; y += 2) {
-                            screenshot[x][y] = 0xFF0000;
+                    if (w != scrollWidth || h != scrollHeight) {
+                        // the screenshot dimension are not the dimensions of the entire web page,
+                        // the screenshot probably contains the horizontal scroll bar, mark it ...
+                        for (int y = h - 20; y < h; ++y) {
+                            for (int x = y % 2; x < w - 20; x += 2) {
+                                screenshot[x][y] = 0xFF0000;
+                            }
+                        }
+                    } else {
+                        // mark all pixels at the right side, which are responsible for the horizontal scroll bar ...
+                        int maxWidth = w - scrollMaxX;
+                        for (int x = maxWidth; x < w; ++x) {
+                            for (int y = (x - maxWidth) % 2; y < h; y += 2) {
+                                screenshot[x][y] = 0xFF0000;
+                            }
                         }
                     }
-
                 }
             });
             return singleton(layoutBug);
-        } else {
-            return emptyList();
         }
     }
 }

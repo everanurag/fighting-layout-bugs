@@ -77,6 +77,14 @@ public abstract class WebPage {
         Number currentBrowserWindowWidth = (Number) executeJavaScript("return window.outerWidth");
         if (currentBrowserWindowWidth == null || currentBrowserWindowWidth.intValue() != newBrowserWindowSize.width || ((Number) executeJavaScript("return window.outerHeight")).intValue() != newBrowserWindowSize.height) {
             executeJavaScript("window.resizeTo(" + newBrowserWindowSize.width + ", " + newBrowserWindowSize.height + ")");
+            if (currentBrowserWindowWidth != null) {
+                // Check if resizing succeeded ...
+                int browserWindowWidth = ((Number) executeJavaScript("return window.outerWidth")).intValue();
+                int browserWindowHeight = ((Number) executeJavaScript("return window.outerHeight")).intValue();
+                if (browserWindowWidth != newBrowserWindowSize.width || browserWindowHeight != newBrowserWindowSize.height) {
+                    throw new RuntimeException("Failed to resize browser window. If you are using Chrome, see http://code.google.com/p/chromium/issues/detail?id=2091");
+                }
+            }
             // Clear all cached screenshots and derived values ...
             _screenshots.clear();
             _textPixels = null;

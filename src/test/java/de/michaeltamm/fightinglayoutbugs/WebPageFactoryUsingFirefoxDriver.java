@@ -16,6 +16,7 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxBinary;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
@@ -24,25 +25,16 @@ import java.io.File;
 /**
  * @author Michael Tamm
  */
-public class WebPageFactoryUsingFirefoxDriver extends WebPageFactory {
+public class WebPageFactoryUsingFirefoxDriver extends WebPageFactoryUsingWebDriver {
 
-    private final FirefoxDriver _driver;
-
-    public WebPageFactoryUsingFirefoxDriver(String webserverBaseUrl) {
-        super(webserverBaseUrl);
+    private static WebDriver createFirefoxDriver() {
         System.out.println("Creating FirefoxDriver ...");
         File firefoxExecutable = FirefoxHelper.findFirefoxExecutable();
-        _driver = new FirefoxDriver(new FirefoxBinary(firefoxExecutable), null);
+        return new FirefoxDriver(new FirefoxBinary(firefoxExecutable), null);
     }
 
-    public WebPage createWebPageFor(String pathToHtmlPageOrCompleteUrl) {
-        String absoluteUrl = makeAbsolute(pathToHtmlPageOrCompleteUrl);
-        _driver.get(absoluteUrl);
-        return new WebPageBackedByWebDriver(_driver);
+    public WebPageFactoryUsingFirefoxDriver() {
+        super(createFirefoxDriver());
     }
 
-    public void dispose() {
-        System.out.println("Destroying FirefoxDriver ...");
-        _driver.quit();
-    }
 }

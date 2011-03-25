@@ -17,20 +17,27 @@
 package de.michaeltamm.fightinglayoutbugs;
 
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.ie.InternetExplorerDriver;
 
 /**
  * @author Michael Tamm
  */
-public class WebPageFactoryUsingInternetExplorerDriver extends WebPageFactoryUsingWebDriver {
+public abstract class WebPageFactoryUsingWebDriver extends WebPageFactory {
 
-    private static WebDriver createInternetExplorerDriver() {
-        System.out.println("Creating InternetExplorerDriver ...");
-        return new InternetExplorerDriver();
+    private final WebDriver _driver;
+
+    protected WebPageFactoryUsingWebDriver(WebDriver driver) {
+        _driver = driver;
     }
 
-    public WebPageFactoryUsingInternetExplorerDriver() {
-        super(createInternetExplorerDriver());
+    public WebPage createWebPageFor(String pathToHtmlPageOrCompleteUrl) {
+        String absoluteUrl = makeAbsolute(pathToHtmlPageOrCompleteUrl);
+        _driver.get(absoluteUrl);
+        return new WebPageBackedByWebDriver(_driver);
+    }
+
+    public void dispose() {
+        System.out.println("Destroying " + _driver.getClass().getSimpleName() + " ...");
+        _driver.quit();
     }
 
 }

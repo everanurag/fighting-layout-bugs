@@ -26,16 +26,6 @@ import java.net.URL;
  */
 public abstract class WebPageFactory {
 
-    private final URL _webserverBaseUrl;
-
-    protected WebPageFactory(String webserverBaseUrl) {
-        try {
-            _webserverBaseUrl = new URL(webserverBaseUrl);
-        } catch (MalformedURLException e) {
-            throw new IllegalArgumentException("Invalid webserverBaseUrl: " + asString(webserverBaseUrl), e);
-        }
-    }
-
     /**
      * @param pathToHtmlPageOrCompleteUrl either the path to a HTML page relative to the <code>src/test/webapp</code> directory or a complete URL
      */
@@ -51,14 +41,11 @@ public abstract class WebPageFactory {
         if (isAbsolute(pathToHtmlPageOrCompleteUrl)) {
             absoluteUrl = pathToHtmlPageOrCompleteUrl;
         } else {
-            if (pathToHtmlPageOrCompleteUrl == null) {
-                absoluteUrl = _webserverBaseUrl.toString();
-            } else {
-                try {
-                    absoluteUrl = new URL(_webserverBaseUrl, pathToHtmlPageOrCompleteUrl).toString();
-                } catch (MalformedURLException e) {
-                    throw new IllegalArgumentException("Invalid URL: " + asString(pathToHtmlPageOrCompleteUrl));
-                }
+            final URL baseUrl = TestUsingSelenium.getBaseUrlForTestWebServer();
+            try {
+                absoluteUrl = new URL(baseUrl, pathToHtmlPageOrCompleteUrl).toString();
+            } catch (MalformedURLException ignored) {
+                throw new IllegalArgumentException("Invalid URL: " + asString(pathToHtmlPageOrCompleteUrl));
             }
         }
         return absoluteUrl;

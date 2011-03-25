@@ -16,29 +16,21 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 
 /**
  * @author Michael Tamm
  */
-public class WebPageFactoryUsingChromeDriver extends WebPageFactory {
+public class WebPageFactoryUsingChromeDriver extends WebPageFactoryUsingWebDriver {
 
-    private final ChromeDriver _driver;
-
-    public WebPageFactoryUsingChromeDriver(String webserverBaseUrl) {
-        super(webserverBaseUrl);
+    private static WebDriver createChromeDriver() {
         System.out.println("Creating ChromeDriver ...");
-        _driver = new ChromeDriver();
+        return new ChromeDriver();
     }
 
-    public WebPage createWebPageFor(String pathToHtmlPageOrCompleteUrl) {
-        String absoluteUrl = makeAbsolute(pathToHtmlPageOrCompleteUrl);
-        _driver.get(absoluteUrl);
-        return new WebPageBackedByWebDriver(_driver);
+    public WebPageFactoryUsingChromeDriver() {
+        super(createChromeDriver());
     }
 
-    public void dispose() {
-        System.out.println("Destroying ChromeDriver ...");
-        _driver.quit();
-    }
 }
