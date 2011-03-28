@@ -16,6 +16,9 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Marks buggy pixels in the screenshot by
  * surrounding them with thick red lines.
@@ -67,10 +70,12 @@ public class SurroundBuggyPixels implements Marker {
                 redLines[x][y] = TRANSPARENT;
             }
         }
+        List<Point> outlinePoints = new ArrayList<Point>();
         final boolean[][] buggyAreasOutlines = ImageHelper.findOutlines(buggyAreas);
         for (int x = 0; x < w; ++x) {
             for (int y = 0; y < h; ++y) {
                 if (buggyAreasOutlines[x][y]) {
+                    outlinePoints.add(new Point(x, y));
                     for (int i = -1; i <= 1; ++i) {
                         final int xx = x + i;
                         if (xx >= 0 && xx < w) {
@@ -87,5 +92,43 @@ public class SurroundBuggyPixels implements Marker {
         }
         // 3.) Blend red lines into screenshot ...
         ImageHelper.blend(screenshot, redLines);
+        // 4.) Fade out non-buggy areas ...
+        final int n = 50;
+        final int[] a = new int[n];
+        for (int i = 1; i < n; ++i) {
+            double x = (i * Math.PI) / n;
+            a[i] = (int) Math.round((1 + Math.cos(x)) * 63.5) + 128;
+        }
+        final int[][] fadeOutMask = new int[w][h];
+        for (int x = 0; x < w; ++x) {
+            for (int y = 0; y < h; ++y) {
+                fadeOutMask[x][y] = buggyAreas[x][y] ? 0xFFFFFFFF : 0x80FFFFFF;
+            }
+        }
+        for (int i = 1; i < n; ++i) {
+            int m = (a[i] << 24) | 0xFFFFFF;
+            final List<Point> newOutlinePoints = new ArrayList<Point>(outlinePoints.size() * 2);
+            for (Point outlinePoint : outlinePoints) {
+                int x = outlinePoint.x;
+                int y = outlinePoint.y;
+                for (int j = -1; j <= 1; ++j) {
+                    final int xx = x + j;
+                    if (xx >= 0 && xx < w) {
+                        for (int k = -1; k <= 1; ++k) {
+                            final int yy = y + k;
+                            if (yy >= 0 && yy < h) {
+                                if (!buggyAreas[xx][yy]) {
+                                    fadeOutMask[xx][yy] = m;
+                                    buggyAreas[xx][yy] = true;
+                                    newOutlinePoints.add(new Point(xx, yy));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            outlinePoints = newOutlinePoints;
+        }
+        ImageHelper.blend(screenshot, fadeOutMask);
     }
 }
