@@ -59,23 +59,94 @@ public class DetectNeedsHorizontalScrolling extends AbstractLayoutBugDetector {
                     if (w != scrollWidth || h != scrollHeight) {
                         // the screenshot dimension are not the dimensions of the entire web page,
                         // the screenshot probably contains the horizontal scroll bar, mark it ...
-                        for (int y = h - 20; y < h; ++y) {
-                            for (int x = y % 2; x < w - 20; x += 2) {
-                                screenshot[x][y] = 0xFF0000;
-                            }
-                        }
+                        markHorizontalScrollBar(screenshot);
                     } else {
-                        // mark all pixels at the right side, which are responsible for the horizontal scroll bar ...
-                        int maxWidth = w - scrollMaxX;
-                        for (int x = maxWidth; x < w; ++x) {
-                            for (int y = (x - maxWidth) % 2; y < h; y += 2) {
-                                screenshot[x][y] = 0xFF0000;
-                            }
-                        }
+                        // mark all pixels at the right side, which are responsible
+                        // for the horizontal scroll bar ...
+                        markPixelsAtRightSide(screenshot, scrollMaxX);
                     }
                 }
             });
             return singleton(layoutBug);
         }
+    }
+
+    private void markHorizontalScrollBar(int[][] screenshot) {
+        int w = screenshot.length;
+        int h = screenshot[0].length;
+        // Mark horizontal scroll bar ...
+        for (int y = h - 20; y < h; ++y) {
+            for (int x = y % 2; x < w - 20; x += 2) {
+                screenshot[x][y] = 0xFF0000;
+            }
+        }
+        // Fade out irrelevant pixels ...
+        int n = 50;
+        int[][] fadeOutMask = new int[w][h];
+        int y = 0;
+        while (y < h - (n + 20)) {
+            for (int x = 0; x < w; ++x) {
+                fadeOutMask[x][y] = 0x80FFFFFF;
+            }
+            ++y;
+        }
+        int[] a = new int[n];
+        for (int i = 0; i < n; ++i) {
+            a[i] = 128 + (int) Math.round((1 - Math.cos((i * Math.PI) / n)) * 63.5);
+        }
+        while (y < h - 20) {
+            int m = (a[y - (h - (n + 20))] << 24) | 0xFFFFFF;
+            for (int x = 0; x < w; ++x) {
+                fadeOutMask[x][y] = m;
+            }
+            ++y;
+        }
+        while (y < h) {
+            for (int x = 0; x < w; ++x) {
+                fadeOutMask[x][y] = 0xFFFFFFFF;
+            }
+            ++y;
+        }
+        ImageHelper.blend(screenshot, fadeOutMask);
+    }
+
+    private void markPixelsAtRightSide(int[][] screenshot, int scrollMaxX) {
+        int w = screenshot.length;
+        int h = screenshot[0].length;
+        // Mark pixels at right side ...
+        int maxWidth = w - scrollMaxX;
+        for (int x = maxWidth; x < w; ++x) {
+            for (int y = (x - maxWidth) % 2; y < h; y += 2) {
+                screenshot[x][y] = 0xFF0000;
+            }
+        }
+        // Fade out irrelevant pixels ...
+        int n = 50;
+        int[][] fadeOutMask = new int[w][h];
+        int x = 0;
+        while (x < w - (n + scrollMaxX)) {
+            for (int y = 0; y < h; ++y) {
+                fadeOutMask[x][y] = 0x80FFFFFF;
+            }
+            ++x;
+        }
+        int[] a = new int[n];
+        for (int i = 0; i < n; ++i) {
+            a[i] = 128 + (int) Math.round((1 - Math.cos((i * Math.PI) / n)) * 63.5);
+        }
+        while (x < w - scrollMaxX) {
+            int m = (a[x - (w - (n + scrollMaxX))] << 24) | 0xFFFFFF;
+            for (int y = 0; y < h; ++y) {
+                fadeOutMask[x][y] = m;
+            }
+            ++x;
+        }
+        while (x < w) {
+            for (int y = 0; y < h; ++y) {
+                fadeOutMask[x][y] = 0xFFFFFFFF;
+            }
+            ++x;
+        }
+        ImageHelper.blend(screenshot, fadeOutMask);
     }
 }
