@@ -17,10 +17,15 @@
 package de.michaeltamm.fightinglayoutbugs;
 
 import de.michaeltamm.fightinglayoutbugs.Screenshot.Condition;
+import org.apache.commons.io.IOUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 import javax.annotation.Nonnull;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -219,8 +224,6 @@ public abstract class WebPage {
      */
     protected abstract byte[] takeScreenshotAsPng();
 
-    protected abstract void injectJQuery();
-
     void colorAllText(@Nonnull String color) {
         if (!color.equals(_currentTextColor)) {
             if (!_textColorsBackedUp) {
@@ -245,8 +248,40 @@ public abstract class WebPage {
 
     private void injectJQueryIfNotPresent() {
         if (!_jqueryInjected) {
-            injectJQuery();
+            // Check if jQuery is present ...
+            if ("undefined".equals(executeJavaScript("return typeof jQuery"))) {
+                String jquery = readResource("jquery-1.5.1.min.js");
+                executeJavaScript(jquery);
+                // Check if jQuery was successfully injected ...
+                if (!"1.5.1".equals(executeJavaScript("return jQuery.fn.jquery"))) {
+                    throw new RuntimeException("Failed to inject jQuery.");
+                }
+            }
             _jqueryInjected = true;
+        }
+    }
+
+    protected String readResource(String resourceFileName) {
+        ByteArrayOutputStream buf = new ByteArrayOutputStream();
+        try {
+            InputStream in = getClass().getResourceAsStream(resourceFileName);
+            try {
+                try {
+                    IOUtils.copy(in, buf);
+                } catch (IOException e) {
+                    throw new RuntimeException("Could not read " + resourceFileName, e);
+                }
+            } finally {
+                IOUtils.closeQuietly(in);
+            }
+        } finally {
+            IOUtils.closeQuietly(buf);
+        }
+        try {
+            return new String(buf.toByteArray(), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            // Should never happen
+            throw new RuntimeException(e);
         }
     }
 
