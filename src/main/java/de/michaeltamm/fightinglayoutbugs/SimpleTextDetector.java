@@ -38,7 +38,7 @@ public class SimpleTextDetector implements TextDetector {
         Visualization.algorithmStepFinished("2.) Take second screenshot with all text colored white.", screenshotWithAllTextColoredWhite);
         // 3.) Determine text pixels by comparing the last two screenshots ...
         boolean[][] textPixels = new CompareScreenshots(screenshotWithAllTextColoredBlack, screenshotWithAllTextColoredWhite).differentPixels;
-        Visualization.algorithmFinished("3.) Determine text pixels by comparing the last two screenshots.", textPixels);
+        Visualization.algorithmFinished("3.) Done: Determine text pixels by comparing the last two screenshots.", textPixels);
         return textPixels;
     }
 }

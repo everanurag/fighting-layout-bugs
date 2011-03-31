@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents a web page. This class was created to improve
@@ -169,6 +170,11 @@ public abstract class WebPage {
         return takeScreenshot();
     }
 
+    /**
+     * Returns a two dimensional array <tt>a</tt>, whereby <tt>a[x][y]</tt> is <tt>true</tt>
+     * if the pixel with the coordinates x,y in a {@link #getScreenshot screenshot} of this web page
+     * belongs to displayed text, otherwise <tt>a[x][y]</tt> is <tt>false</tt>.
+     */
     public boolean[][] getTextPixels() {
         if (_textPixels == null) {
             if (_textDetector == null) {
@@ -179,6 +185,47 @@ public abstract class WebPage {
         return _textPixels;
     }
 
+    /**
+     * Returns a two dimensional array <tt>a</tt>, whereby <tt>a[x][y]</tt> is <tt>true</tt>
+     * if the pixel with the coordinates x,y in a {@link #getScreenshot screenshot} of this web page
+     * belongs to an embedded object like a Flash movie, otherwise <tt>a[x][y]</tt> is <tt>false</tt>.
+     */
+    public boolean[][] getFlashMoviePixels() {
+        injectJQueryIfNotPresent();
+        @SuppressWarnings("unchecked") List<Map<String, Number>>
+        flashMovies = (List<Map<String, Number>>) executeJavaScript("return (function() { var a = new Array(); jQuery('embed').each(function(i, e) {var j = jQuery(e); var o = j.offset(); a.push({ top: o.top, left: o.left, width: j.width(), height: j.height() }); }); return a; })()");
+        if (flashMovies.isEmpty()) {
+            boolean[][] flashMoviePixels = new boolean[1][1];
+            flashMoviePixels[0][0] = false;
+            return flashMoviePixels;
+        } else {
+            int w = 1;
+            int h = 1;
+            for (Map<String, Number> flashMovie : flashMovies) {
+                h = Math.max(h, flashMovie.get("top").intValue() + flashMovie.get("height").intValue());
+                w = Math.max(w, flashMovie.get("left").intValue() + flashMovie.get("width").intValue());
+            }
+            boolean[][] flashMoviePixels = new boolean[w][h];
+            for (Map<String, Number> flashMovie : flashMovies) {
+                int y1 = flashMovie.get("top").intValue();
+                int y2 = y1 + flashMovie.get("height").intValue();
+                int x1 = flashMovie.get("left").intValue();
+                int x2 = x1 + flashMovie.get("width").intValue();
+                for (int x = x1; x < x2; ++x) {
+                    for (int y = y1; y < y2; ++y) {
+                        flashMoviePixels[x][y] = true;
+                    }
+                }
+            }
+            return flashMoviePixels;
+        }
+    }
+
+    /**
+     * Returns a two dimensional array <tt>a</tt>, whereby <tt>a[x][y]</tt> is <tt>true</tt>
+     * if the pixel with the coordinates x,y in a {@link #getScreenshot screenshot} of this web page
+     * belongs to a horizontal edge, otherwise <tt>a[x][y]</tt> is <tt>false</tt>.
+     */
     public boolean[][] getHorizontalEdges() {
         if (_horizontalEdges == null) {
             if (_edgeDetector == null) {
@@ -189,6 +236,11 @@ public abstract class WebPage {
         return _horizontalEdges;
     }
 
+    /**
+     * Returns a two dimensional array <tt>a</tt>, whereby <tt>a[x][y]</tt> is <tt>true</tt>
+     * if the pixel with the coordinates x,y in a {@link #getScreenshot screenshot} of this web page
+     * belongs to a vertical edge, otherwise <tt>a[x][y]</tt> is <tt>false</tt>.
+     */
     public boolean[][] getVerticalEdges() {
         if (_verticalEdges == null) {
             if (_edgeDetector == null) {

@@ -133,7 +133,7 @@ public class SimpleEdgeDetector implements EdgeDetector {
                 }
             } while(x1 < w);
         }
-        Visualization.algorithmFinished("2.) Find horizontal pixels sequences in candidates of similar color with minimal " + amountString(_minHorizontalEdgeLength, "pixel") + " length.", horizontalEdges);
+        Visualization.algorithmFinished("2.) Done: Find horizontal pixels sequences in candidates of similar color with minimal " + amountString(_minHorizontalEdgeLength, "pixel") + " length.", horizontalEdges);
         return horizontalEdges;
     }
 
@@ -180,7 +180,7 @@ public class SimpleEdgeDetector implements EdgeDetector {
                 }
             } while(y1 < h);
         }
-        Visualization.algorithmFinished("2.) Find vertical pixels sequences in candidates of similar color and with minimal " + amountString(_minVerticalEdgeLength, "pixel") + " length.", verticalEdges);
+        Visualization.algorithmFinished("2.) Done: Find vertical pixels sequences in candidates of similar color and with minimal " + amountString(_minVerticalEdgeLength, "pixel") + " length.", verticalEdges);
         return verticalEdges;
     }
 

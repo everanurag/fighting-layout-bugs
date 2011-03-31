@@ -522,6 +522,29 @@ public class HamcrestHelper {
         return not(blank());
     }
 
+    /**
+     * Returns a {@link List} containing the given <code>objects</code>.
+     */
+    public static <T> List<T> asList(T... items) {
+        return Arrays.asList(items);
+    }
+
+    /**
+     * Returns a {@link Map} with the mappings <code>keysAndValues[0] => keysAndValues[1],
+     * keysAndValues[2] => keysAndValues[3], ...</code>.
+     */
+    public static <K, V> Map<K, V> asMap(Object... keysAndValues) {
+        final Map<K, V> result = new LinkedHashMap<K, V>();
+        final int n = keysAndValues.length;
+        if (n % 2 == 1) {
+            throw new IllegalArgumentException("You must provide an even number of arguments.");
+        }
+        for (int i = 0; i < n; i += 2) {
+            result.put((K) keysAndValues[i], (V) keysAndValues[i + 1]);
+        }
+        return result;
+    }
+
     private static void fail() {
         String assertionErrorMessage = "";
         // Try to extract assertion error message from the source file, from which assertThat has been called ...

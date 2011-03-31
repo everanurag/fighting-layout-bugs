@@ -33,31 +33,53 @@ public class AnimationAwareTextDetector implements TextDetector {
         // 1.) Take initial screenshot of web page ...
         Screenshot screenshot1 = webPage.getScreenshot();
         Visualization.algorithmStepFinished("1.) Take initial screenshot of web page.", screenshot1);
-        // 2.) Take screenshot with all text colored black ...
+        // 2.) Detect Flash movies ...
+        boolean[][] flashMoviePixels = webPage.getFlashMoviePixels();
+        Visualization.algorithmStepFinished("2.) Detect Flash movies.", flashMoviePixels);
+        // 3.) Take screenshot with all text colored black ...
         Screenshot screenshotWithAllTextColoredBlack = webPage.getScreenshot(withAllTextColored("#000000"));
-        Visualization.algorithmStepFinished("2.) Take screenshot with all text colored black.", screenshotWithAllTextColoredBlack);
-        // 3.) Take another screenshot with all text colored white ...
+        Visualization.algorithmStepFinished("3.) Take screenshot with all text colored black.", screenshotWithAllTextColoredBlack);
+        // 4.) Take another screenshot with all text colored white ...
         Screenshot screenshotWithAllTextColoredWhite = webPage.getScreenshot(withAllTextColored("#ffffff"));
-        Visualization.algorithmStepFinished("3.) Take another screenshot with all text colored white.", screenshotWithAllTextColoredWhite);
-        // 4.) Determine potential text pixels by comparing the last two screenshots.
+        Visualization.algorithmStepFinished("4.) Take another screenshot with all text colored white.", screenshotWithAllTextColoredWhite);
+        // 5.) Determine potential text pixels by comparing the last two screenshots (ignoring Flash movies) ...
         boolean[][] textPixels = new CompareScreenshots(screenshotWithAllTextColoredBlack, screenshotWithAllTextColoredWhite).differentPixels;
-        Visualization.algorithmStepFinished("4.) Determine potential text pixels by comparing the last two screenshots.", textPixels);
-        // 5.) Take another screenshot of the web page (with text colors restored) ...
+        int w = Math.min(flashMoviePixels.length, textPixels.length);
+        int h = Math.min(flashMoviePixels[0].length, textPixels[0].length);
+        for (int x = 0; x < w; ++x) {
+            for (int y = 0; y < h; ++y) {
+                if (flashMoviePixels[x][y]) {
+                    textPixels[x][y] = false;
+                }
+            }
+        }
+        Visualization.algorithmStepFinished("5.) Determine potential text pixels by comparing the last two screenshots (ignoring Flash movies).", textPixels);
+        // 6.) Take another screenshot of the web page (with text colors restored) ...
         Screenshot screenshot2 = webPage.getScreenshot(takenAtLeast(500, MILLISECONDS).laterThan(screenshot1));
-        Visualization.algorithmStepFinished("5.) Take another screenshot of the web page (with text colors restored) ...", screenshot2);
-        // ... and compare it with the initial screenshot to find animated pixels ...
-        CompareScreenshots diff = new CompareScreenshots(screenshot1, screenshot2);
-        Visualization.algorithmStepFinished("5.) ... and compare it with the initial screenshot to find animated pixels ...", diff);
+        Visualization.algorithmStepFinished("6.) Take another screenshot of the web page (with text colors restored) ...", screenshot2);
+        // ... and compare it with the initial screenshot (ignoring Flash movies) to find animated pixels ...
+        CompareScreenshots diff = new CompareScreenshots(screenshot1, screenshot2).ignore(flashMoviePixels);
+        Visualization.algorithmStepFinished("6.) ... and compare it with the initial screenshot (ignoring Flash movies) to find animated pixels.", diff);
         if (diff.noDifferencesFound) {
             // No animated pixels found, return the potential text pixels ...
-            Visualization.algorithmFinished("6.) No animated pixels detected.", textPixels);
+            Visualization.algorithmFinished("7.) Done: No more animated pixels detected.", textPixels);
         } else {
             // Found animated pixels ...
             boolean[][] animatedPixels = diff.differentPixels;
-            int w = diff.width;
-            int h = diff.height;
+            // Consider all pixels, which belong to a Flash movie, as animated ...
+            w = Math.min(flashMoviePixels.length, diff.width);
+            h = Math.min(flashMoviePixels[0].length, diff.height);
+            for (int x = 0; x < w; ++x) {
+                for (int y = 0; y < h; ++y) {
+                    if (flashMoviePixels[x][y]) {
+                        animatedPixels[x][y] = true;
+                    }
+                }
+            }
+            w = diff.width;
+            h = diff.height;
             boolean moreAnimatedPixelsFound;
-            // 6.) Take a series of screenshots to determine all animated pixels ...
+            // 7.) Take a series of screenshots to determine all animated pixels ...
             do {
                 moreAnimatedPixelsFound = false;
                 screenshot1 = screenshot2;
@@ -73,8 +95,8 @@ public class AnimationAwareTextDetector implements TextDetector {
                     }
                 }
             } while (moreAnimatedPixelsFound);
-            Visualization.algorithmStepFinished("6.) Take a series of screenshots to determine all animated pixels.", animatedPixels);
-            // 7.) Ignore all animated pixels ...
+            Visualization.algorithmStepFinished("7.) Take a series of screenshots to determine all animated pixels.", animatedPixels);
+            // 8.) Ignore all animated pixels ...
             for (int x = 0; x < w; ++x) {
                 for (int y = 0; y < h; ++y) {
                     if (animatedPixels[x][y]) {
@@ -82,7 +104,7 @@ public class AnimationAwareTextDetector implements TextDetector {
                     }
                 }
             }
-            Visualization.algorithmFinished("7.) Ignore all animated pixels.", textPixels);
+            Visualization.algorithmFinished("8.) Done: Ignore all found animated pixels.", textPixels);
         }
         return textPixels;
     }

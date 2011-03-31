@@ -30,12 +30,16 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static de.michaeltamm.fightinglayoutbugs.StringHelper.asString;
+
 /**
  * @author Sascha Schwarze
  */
 public class WebPageBackedBySelenium extends WebPage {
 
     private final Selenium _selenium;
+
+    private boolean _jsonInjected;
 
     public WebPageBackedBySelenium(Selenium selenium) {
         _selenium = selenium;
@@ -49,29 +53,42 @@ public class WebPageBackedBySelenium extends WebPage {
         return by.findElements(new SeleniumSearchContext());
     }
 
-    protected Object executeJavaScript(String javaScript, Object...  arguments) {
-        String eval = "";
-
-        // We have to create an arguments array and make it visible in the application scope
-        if(arguments.length != 0) {
-            eval = "var arguments = new Array();\nselenium.browserbot.getCurrentWindow().arguments=arguments;\n";
-        }
-
-        for(int i = 0; i < arguments.length; i ++) {
-            Object argument = arguments[i];
-            if(argument instanceof SeleniumWebElement) {
-                String locator = ((SeleniumWebElement)argument).getLocator().replaceAll("\"", "\\\\\"");
-                eval += "arguments[" + i + "] = selenium.browserbot.findElement(\"" + locator + "\");\n";
-            } else {
-                throw new IllegalArgumentException("The argument with the index " + i + " (" + argument + ") has an unsupported class (" + argument.getClass() + ").");
+    protected Object executeJavaScript(String javaScript, Object... arguments) {
+        StringBuilder sb = new StringBuilder();
+        if (arguments.length > 0) {
+            // We have to create an arguments array and make it visible in the current window ...
+            sb.append("var arguments = new Array();\n");
+            sb.append("selenium.browserbot.getCurrentWindow().arguments = arguments;\n");
+            for (int i = 0; i < arguments.length; ++i) {
+                Object argument = arguments[i];
+                if (argument instanceof SeleniumWebElement) {
+                    String locator = ((SeleniumWebElement) argument).getLocator().replaceAll("\"", "\\\\\"");
+                    sb.append("arguments[").append(i).append("] = selenium.browserbot.findElement(\"").append(locator).append("\");\n");
+                } else {
+                    throw new IllegalArgumentException("The argument with the index " + i + " (" + asString(argument) + ") has an unsupported class (" + argument.getClass() + ").");
+                }
             }
         }
+        if (javaScript.startsWith("return")) {
+            injectJsonIfNeeded();
+            javaScript = "JSON.stringify(" + javaScript.substring("return".length()) + ")";
+        }
+        sb.append("with (selenium.browserbot.getCurrentWindow()) { ").append(javaScript).append(" }");
+        String resultAsJsonString = _selenium.getEval(sb.toString());
+        Object result = JsonHelper.parse(resultAsJsonString);
+        return result;
+    }
 
-        if(javaScript.startsWith("return")) {
-            return _selenium.getEval(eval + "with (selenium.browserbot.getCurrentWindow()) {" + javaScript.substring(6) + "}");
-        } else {
-            _selenium.getEval(eval + "with (selenium.browserbot.getCurrentWindow()) {" + javaScript + "}");
-            return null;
+    private void injectJsonIfNeeded() {
+        if (!_jsonInjected) {
+            if (!_selenium.getEval("window.JSON").startsWith("[object")) {
+                String json2 = readResource("json2.js");
+                executeJavaScript(json2);
+                if (!_selenium.getEval("window.JSON").startsWith("[object")) {
+                    throw new RuntimeException("Failed to inject JSON.");
+                }
+            }
+            _jsonInjected = true;
         }
     }
 
@@ -224,11 +241,11 @@ public class WebPageBackedBySelenium extends WebPage {
         }
 
         public void sendKeys(CharSequence... keysToSend) {
-            throw new UnsupportedOperationException("Not implemented");
+            throw new UnsupportedOperationException("Not implemented.");
         }
 
         public void setSelected() {
-            throw new UnsupportedOperationException("Not implemented");
+            throw new UnsupportedOperationException("Not implemented.");
         }
 
         public void submit() {
@@ -244,6 +261,5 @@ public class WebPageBackedBySelenium extends WebPage {
                 return true;
             }
         }
-
     }
 }

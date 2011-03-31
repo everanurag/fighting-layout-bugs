@@ -20,10 +20,12 @@ package de.michaeltamm.fightinglayoutbugs;
  * @author Michael Tamm
  */
 public class CompareScreenshots {
+
     public final int width;
     public final int height;
     public final boolean[][] differentPixels;
-    public final boolean noDifferencesFound;
+
+    public boolean noDifferencesFound;
 
     public CompareScreenshots(Screenshot screenshot1, Screenshot screenshot2) {
         if (!screenshot1.dimension.equals(screenshot2.dimension)) {
@@ -44,5 +46,43 @@ public class CompareScreenshots {
             }
         }
         noDifferencesFound = !foundDifferentPixels;
+    }
+
+    /**
+     * Updates and returns this {@code CompareScreenshots} object.
+     */
+    public CompareScreenshots ignore(boolean[][] pixelsToIgnore) {
+        int w = Math.min(width, pixelsToIgnore.length);
+        int h = Math.min(height, pixelsToIgnore[0].length);
+        boolean foundDifferentPixels = false;
+        int x = 0;
+        while (x < w) {
+            int y = 0;
+            while (y < h) {
+                if (pixelsToIgnore[x][y]) {
+                    differentPixels[x][y] = false;
+                } else if (differentPixels[x][y]) {
+                    foundDifferentPixels = true;
+                }
+                ++y;
+            }
+            while (!foundDifferentPixels && y < height) {
+                if (differentPixels[x][y]) {
+                    foundDifferentPixels = true;
+                }
+                ++y;
+            }
+            ++x;
+        }
+        while (!foundDifferentPixels && x < width) {
+            for (int y = 0; y < height; ++y) {
+                if (differentPixels[x][y]) {
+                    foundDifferentPixels = true;
+                }
+            }
+            ++x;
+        }
+        noDifferencesFound = !foundDifferentPixels;
+        return this;
     }
 }
