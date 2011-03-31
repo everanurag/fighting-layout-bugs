@@ -16,6 +16,8 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
+import org.apache.commons.lang.StringUtils;
+
 import javax.annotation.Nonnull;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -31,21 +33,36 @@ public class Screenshot {
         void satisfyFor(WebPage webPage);
     }
 
-    public static Condition withAllTextColored(@Nonnull final String color) {
+    private static class WithAllTextColoredCondition implements Condition {
+        private final String color;
+
+        private WithAllTextColoredCondition(String color) {
+            this.color = color;
+        }
+
+        public boolean isSatisfiedBy(Screenshot screenshot) {
+            return color.equals(screenshot.textColor);
+        }
+
+        public boolean satisfyWillModifyWebPage() {
+            return true;
+        }
+
+        public void satisfyFor(WebPage webPage) {
+            webPage.colorAllText(color);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return (o instanceof WithAllTextColoredCondition) && StringUtils.equals(color, ((WithAllTextColoredCondition) o).color);
+        }
+    }
+
+    public static Condition withAllTextColored(@Nonnull String color) {
         if (color == null) {
             throw new IllegalArgumentException("Method parameter color must not be null.");
         }
-        return new Condition() {
-            public boolean isSatisfiedBy(Screenshot screenshot) {
-                return color.equals(screenshot.textColor);
-            }
-            public boolean satisfyWillModifyWebPage() {
-                return true;
-            }
-            public void satisfyFor(WebPage webPage) {
-                webPage.colorAllText(color);
-            }
-        };
+        return new WithAllTextColoredCondition(color);
     }
 
     public static Condition withNoText() {
