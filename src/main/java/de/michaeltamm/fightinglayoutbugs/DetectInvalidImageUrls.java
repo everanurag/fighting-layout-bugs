@@ -205,7 +205,7 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
 
     private void checkStyleElements(WebPage webPage, List<LayoutBug> layoutBugs) {
         for (WebElement styleElement : webPage.findElements(By.tagName("style"))) {
-            final String css = (String) webPage.executeJavaScript("return arguments[0].textContent", styleElement);
+            final String css = (String) webPage.executeJavaScript("return arguments[0].innerHTML", styleElement);
             for (String importUrl : getImportUrlsFrom(css)) {
                 checkCssResource(importUrl + " (imported in <style> element)", importUrl, _baseUrl, _documentCharset, webPage, layoutBugs);
             }
