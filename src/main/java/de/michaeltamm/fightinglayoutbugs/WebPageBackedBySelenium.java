@@ -33,7 +33,7 @@ import java.util.List;
 import static de.michaeltamm.fightinglayoutbugs.StringHelper.asString;
 
 /**
- * @author Sascha Schwarze
+ * @author Sascha Schwarze, Michael Tamm
  */
 public class WebPageBackedBySelenium extends WebPage {
 
@@ -70,8 +70,11 @@ public class WebPageBackedBySelenium extends WebPage {
             }
         }
         if (javaScript.startsWith("return")) {
+            // Selenium.getEval(...) always returns a String, therefore we convert the return value into a JSON string first.
+            // If the Prototype JavaScript framework is present just calling JSON.stringify(...) for an array leads to an
+            // invalid JSON string, therefore we use Array.prototype.toJSON(...) if present ...
             injectJsonIfNeeded();
-            javaScript = "JSON.stringify(" + javaScript.substring("return".length()) + ")";
+            javaScript = "var result = " + javaScript.substring("return".length()).trim() + "; result instanceof Array && Array.prototype.toJSON ? result.toJSON() : JSON.stringify(result)";
         }
         sb.append("with (selenium.browserbot.getCurrentWindow()) { ").append(javaScript).append(" }");
         String resultAsJsonString = _selenium.getEval(sb.toString());
