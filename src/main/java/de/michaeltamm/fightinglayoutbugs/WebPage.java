@@ -280,10 +280,10 @@ public abstract class WebPage {
         if (!color.equals(_currentTextColor)) {
             if (!_textColorsBackedUp) {
                 injectJQueryIfNotPresent();
-                executeJavaScript("jQuery('*').each(function() { var j = jQuery(this); j.attr('flb_color_backup', j.css('color')); });");
+                executeJavaScript("jQuery('*').each(function() { var j = jQuery(this); j.attr('flb_color_backup', j.css('color')); }).size();"); // ... the trailing ".size()" will reduce the size of the response
                 _textColorsBackedUp = true;
             }
-            executeJavaScript("jQuery('*').css('color', '" + color + "');");
+            executeJavaScript("jQuery('*').css('color', '" + color + "').size();"); // ... the trailing ".size()" will reduce the size of the response
             _currentTextColor = color;
         }
     }
@@ -293,7 +293,7 @@ public abstract class WebPage {
             if (!_textColorsBackedUp) {
                 throw new IllegalStateException("text colors have not been backed up.");
             }
-            executeJavaScript("jQuery('*').each(function() { var j = jQuery(this); j.css('color', j.attr('flb_color_backup')); });");
+            executeJavaScript("jQuery('*').each(function() { var j = jQuery(this); j.css('color', j.attr('flb_color_backup')); }).size();"); // ... the trailing ".size()" will reduce the size of the response
             _currentTextColor = null;
         }
     }
