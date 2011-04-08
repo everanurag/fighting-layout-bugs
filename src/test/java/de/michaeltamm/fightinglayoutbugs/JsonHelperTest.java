@@ -47,6 +47,8 @@ public class JsonHelperTest {
     public void testString() {
         assertThat(JsonHelper.parse("\"foo\""), both(isInstanceOf(String.class)).and(isEqualTo("foo")));
         assertThat(JsonHelper.parse("\"\\\"\""), both(isInstanceOf(String.class)).and(isEqualTo("\"")));
+        assertThat(JsonHelper.parse("\"foo\\nbar\""), both(isInstanceOf(String.class)).and(isEqualTo("foo\nbar")));
+        assertThat(JsonHelper.parse("\"foo\\u000abar\""), both(isInstanceOf(String.class)).and(isEqualTo("foo\nbar")));
     }
 
     @Test
