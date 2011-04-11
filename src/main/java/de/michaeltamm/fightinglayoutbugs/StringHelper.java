@@ -24,6 +24,13 @@ import java.util.*;
 public class StringHelper {
 
     /**
+     * Null-safe string comparison.
+     */
+    public static boolean equals(String s1, String s2) {
+        return (s1 == null ? s2 == null : s1.equals(s2));
+    }
+
+    /**
      * Removes leading and trailing whitespaces from <code>s</code> and replaces
      * all sequences of whitespaces inside <code>s</code> with a single space character.
      */

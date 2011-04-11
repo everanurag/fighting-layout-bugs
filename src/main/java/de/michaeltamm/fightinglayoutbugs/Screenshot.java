@@ -16,8 +16,6 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import org.apache.commons.lang.StringUtils;
-
 import javax.annotation.Nonnull;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -54,7 +52,7 @@ public class Screenshot {
 
         @Override
         public boolean equals(Object o) {
-            return (o instanceof WithAllTextColoredCondition) && StringUtils.equals(color, ((WithAllTextColoredCondition) o).color);
+            return (o instanceof WithAllTextColoredCondition) && StringHelper.equals(color, ((WithAllTextColoredCondition) o).color);
         }
     }
 
