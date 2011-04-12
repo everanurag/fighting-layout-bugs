@@ -16,28 +16,19 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import org.openqa.selenium.WebDriver;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+import org.junit.runners.Suite.SuiteClasses;
 
 /**
  * @author Michael Tamm
  */
-public abstract class WebPageFactoryUsingWebDriver extends WebPageFactory {
-
-    private final WebDriver _driver;
-
-    protected WebPageFactoryUsingWebDriver(WebDriver driver) {
-        _driver = driver;
-    }
-
-    public WebPage createWebPageFor(String pathToHtmlPageOrCompleteUrl) {
-        String absoluteUrl = makeAbsolute(pathToHtmlPageOrCompleteUrl);
-        _driver.get(absoluteUrl);
-        return new WebPageBackedByWebDriver(_driver);
-    }
-
-    public void dispose() {
-        System.out.println("Destroying " + _driver.getClass().getSimpleName() + " ...");
-        _driver.quit();
-    }
-
-}
+@RunWith(Suite.class)
+@SuiteClasses({
+    AllUnitTests.class,
+    AllTestsUsingFirefoxDriver.class,
+    AllTestsUsingInternetExplorerDriver.class,
+    AllTestsUsingDefaultSeleniumWithFirefox.class,
+    AllTestsUsingChromeDriver.class
+})
+public class AllTests {}

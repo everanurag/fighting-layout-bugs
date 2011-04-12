@@ -16,7 +16,7 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import org.testng.annotations.Test;
+import org.junit.Test;
 
 /**
  * @author Michael Tamm
@@ -25,7 +25,7 @@ public class SimpleTextDetectorTest extends TestUsingSelenium {
 
     @Test
     public void shouldDetectTextPixelsInYahooProfileUpdatesPage() throws Exception {
-        WebPage testPage = getWebPageFor("/Yahoo!_Profile_Updates.html").usingFirefoxDriver();
+        WebPage testPage = getWebPageFor("/Yahoo!_Profile_Updates.html");
         testPage.executeJavaScript("window.resizeTo(1008, 706)");
         final TextDetector detector = new SimpleTextDetector();
         final boolean[][] textPixels = detector.detectTextPixelsIn(testPage);

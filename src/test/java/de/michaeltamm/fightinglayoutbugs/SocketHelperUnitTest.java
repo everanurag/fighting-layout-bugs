@@ -16,21 +16,19 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
+import org.junit.Test;
+
+import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.assertThat;
+import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.is;
 
 /**
  * @author Michael Tamm
  */
-public class WebPageFactoryUsingChromeDriver extends WebPageFactoryUsingWebDriver {
+public class SocketHelperUnitTest {
 
-    private static WebDriver createChromeDriver() {
-        System.out.println("Creating ChromeDriver ...");
-        return new ChromeDriver();
+    @Test
+    public void test() {
+        int freePort = SocketHelper.findFreePort();
+        assertThat(SocketHelper.isBound(freePort), is(false));
     }
-
-    public WebPageFactoryUsingChromeDriver() {
-        super(createChromeDriver());
-    }
-
 }

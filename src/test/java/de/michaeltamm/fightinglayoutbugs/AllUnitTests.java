@@ -16,21 +16,14 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.ie.InternetExplorerDriver;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
-/**
- * @author Michael Tamm
- */
-public class WebPageFactoryUsingInternetExplorerDriver extends WebPageFactoryUsingWebDriver {
-
-    private static WebDriver createInternetExplorerDriver() {
-        System.out.println("Creating InternetExplorerDriver ...");
-        return new InternetExplorerDriver();
-    }
-
-    public WebPageFactoryUsingInternetExplorerDriver() {
-        super(createInternetExplorerDriver());
-    }
-
-}
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+    HamcrestHelperUnitTest.class,
+    JsonHelperUnitTest.class,
+    SocketHelperUnitTest.class,
+    Utf8BomAwareByteArrayOutputStreamUnitTest.class
+})
+public class AllUnitTests {}

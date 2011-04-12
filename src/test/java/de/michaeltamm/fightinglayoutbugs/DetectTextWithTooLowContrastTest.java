@@ -16,11 +16,12 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.*;
-import org.testng.annotations.Test;
+import org.junit.Test;
 
-import java.io.File;
 import java.util.Collection;
+
+import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.assertThat;
+import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.is;
 
 /**
  * @author Michael Tamm
@@ -29,7 +30,7 @@ public class DetectTextWithTooLowContrastTest extends TestUsingSelenium {
 
     @Test
     public void shouldFindLayoutBugInEspiritNewsletterPage() throws Exception {
-        WebPage testPage = getWebPageFor("/ESPRIT_newsletter.html").usingFirefoxDriver();
+        WebPage testPage = getWebPageFor("/ESPRIT_newsletter.html");
         final long startTime = System.currentTimeMillis();
         final LayoutBugDetector detector = new DetectTextWithTooLowContrast();
         final Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(testPage);
@@ -45,7 +46,7 @@ public class DetectTextWithTooLowContrastTest extends TestUsingSelenium {
 
     @Test
     public void shouldNotFindBugsOnHardToReadPage() throws Exception {
-        WebPage testPage = getWebPageFor("/hard_to_read.html").usingFirefoxDriver();
+        WebPage testPage = getWebPageFor("/hard_to_read.html");
         final LayoutBugDetector detector = new DetectTextWithTooLowContrast();
         final Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(testPage);
         for (LayoutBug bug : layoutBugs) {

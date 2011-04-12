@@ -16,25 +16,23 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.firefox.FirefoxBinary;
-import org.openqa.selenium.firefox.FirefoxDriver;
-
-import java.io.File;
-
 /**
- * @author Michael Tamm
- */
-public class WebPageFactoryUsingFirefoxDriver extends WebPageFactoryUsingWebDriver {
+* Helper class for {@link TestHelper#waitFor}.
+*
+* @author Michael Tamm
+*/
+public abstract class RunnableAssert {
 
-    private static WebDriver createFirefoxDriver() {
-        System.out.println("Creating FirefoxDriver ...");
-        File firefoxExecutable = FirefoxHelper.findFirefoxExecutable();
-        return new FirefoxDriver(new FirefoxBinary(firefoxExecutable), null);
+    private final String _description;
+
+    public RunnableAssert(String description) {
+        _description = description;
     }
 
-    public WebPageFactoryUsingFirefoxDriver() {
-        super(createFirefoxDriver());
-    }
+    public abstract void run() throws Exception;
 
+    @Override
+    public String toString() {
+        return _description;
+    }
 }

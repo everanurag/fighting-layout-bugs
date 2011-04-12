@@ -16,32 +16,43 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import static de.michaeltamm.fightinglayoutbugs.StringHelper.asString;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.hamcrest.collection.IsCollectionContaining;
-import org.hamcrest.collection.IsIn;
-import org.hamcrest.collection.IsMapContaining;
+import org.hamcrest.SelfDescribing;
 import org.hamcrest.core.*;
-import org.hamcrest.number.IsCloseTo;
-import org.hamcrest.number.OrderingComparisons;
-import org.hamcrest.text.StringEndsWith;
-import org.hamcrest.text.StringStartsWith;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.lang.reflect.Array;
 import java.util.*;
+
+import static de.michaeltamm.fightinglayoutbugs.StringHelper.asString;
+import static de.michaeltamm.fightinglayoutbugs.TestHelper.asSet;
 
 /**
  * Helper class for easy use of <a href="http://code.google.com/p/hamcrest/">hamcrest</a>.
  *
  * @author Michael Tamm
  */
-@SuppressWarnings({"NonBooleanMethodNameMayNotStartWithQuestion", "ClassWithTooManyMethods"})
 public class HamcrestHelper {
+
+    public static void assertThat(boolean shouldBeTrue) {
+        if (!shouldBeTrue) {
+            fail();
+        }
+    }
+
+    public static <T> void assertThat(T actual, Matcher<T> matcher) {
+        if (!matcher.matches(actual)) {
+            fail();
+        }
+    }
 
     public static class AndMatcher<T> extends BaseMatcher<T> {
 
@@ -79,6 +90,10 @@ public class HamcrestHelper {
         }
     }
 
+    public static <T> AndMatcher<T> both(Matcher<T> matcher) {
+        return new AndMatcher<T>(matcher);
+    }
+
     public static class OrMatcher<T> extends BaseMatcher<T> {
 
         private final List<Matcher<? extends T>> _matchers;
@@ -90,7 +105,7 @@ public class HamcrestHelper {
 
         @SuppressWarnings({"ReturnOfThis"})
         public OrMatcher<T> or(T value) {
-            _matchers.add(is(value));
+            _matchers.add(isEqualTo(value));
             return this;
         }
 
@@ -121,6 +136,14 @@ public class HamcrestHelper {
         }
     }
 
+    public static <T> OrMatcher<T> either(Matcher<T> matcher) {
+        return new OrMatcher<T>(matcher);
+    }
+
+    public static <T> OrMatcher<T> isEither(T value) {
+        return new OrMatcher<T>(isEqualTo(value));
+    }
+
     public static class NorMatcher<T> extends BaseMatcher<T> {
 
         private final List<Matcher<? extends T>> _matchers;
@@ -132,7 +155,7 @@ public class HamcrestHelper {
 
         @SuppressWarnings({"ReturnOfThis"})
         public NorMatcher<T> nor(T value) {
-            _matchers.add(is(value));
+            _matchers.add(isEqualTo(value));
             return this;
         }
 
@@ -162,168 +185,133 @@ public class HamcrestHelper {
         }
     }
 
-    public static void assertThat(boolean shouldBeTrue) {
-        if (!shouldBeTrue) {
-            fail();
-        }
-    }
-
-    public static <T> void assertThat(T actual, Matcher<T> matcher) {
-        if (!matcher.matches(actual)) {
-            fail();
-        }
+    public static <T> NorMatcher<T> neither(Matcher<T> matcher) {
+        return new NorMatcher<T>(matcher);
     }
 
     /**
-     * <p>Decorates another Matcher, retaining the behavior
-     * but allowing tests to be slightly more expressive.</p>
-     * <p>eg. <code>assertThat(cheese, is(equalTo(smelly)));</code><br />
-     * vs <code>assertThat(cheese, equalTo(smelly));</code></p>
+     * Handles {@code null}, numbers, collections, and arrays.
      */
-    public static <T> Matcher<T> is(Matcher<T> matcher) {
-        return Is.is(matcher);
-    }
-
-    /**
-     * Same as {@link #equalTo}, but slightly more readable.
-     */
-    public static <T> Matcher<T> is(T expected) {
-        return IsEqual.equalTo(expected);
-    }
-
-    /**
-     * Inverts the rule.
-     */
-    public static <T> Matcher<T> not(Matcher<T> matcher) {
-        return IsNot.not(matcher);
-    }
-
-    /**
-     * <p>This is a shortcut to the frequently used <code>not(equalTo(x))</code>.</p>
-     * <p>eg. assertThat(cheese, is(not(smelly)));<br />
-     * vs assertThat(cheese, is(not(equalTo(smelly))));</p>
-     */
-    public static <T> Matcher<T> not(T value) {
-        return IsNot.not(value);
-    }
-
-    /**
-     * Inverts the rule.
-     */
-    public static <T> Matcher<T> isNot(Matcher<T> matcher) {
-        return IsNot.not(matcher);
-    }
-
-    /**
-     * <p>This is a shortcut to the frequently used <code>not(equalTo(x))</code>.</p>
-     * <p>eg. assertThat(cheese, is(not(smelly)));<br />
-     * vs assertThat(cheese, is(not(equalTo(smelly))));</p>
-     */
-    public static <T> Matcher<T> isNot(T value) {
-        return IsNot.not(value);
+    public static Matcher<Object> is(final Object expected, final Object... moreExpectedValues) {
+        return new BaseMatcher<Object>() {
+            @Override
+            public boolean matches(Object o) {
+                boolean matches;
+                if (o == null) {
+                    matches = (moreExpectedValues.length == 0 && expected == null);
+                } else if (o instanceof Number) {
+                    if (moreExpectedValues.length > 0) {
+                        matches = false;
+                    } else {
+                        if (expected instanceof Number) {
+                            if (expected instanceof Long && o instanceof Integer) {
+                                matches = (((Long) expected) == ((Integer) o).longValue());
+                            } else if (expected instanceof Integer && o instanceof Long) {
+                                matches = (((Integer) expected).longValue() == ((Long) o));
+                            } else {
+                                matches = o.equals(expected);
+                            }
+                        } else {
+                            matches = false;
+                        }
+                    }
+                } else if (o instanceof Collection) {
+                    if (moreExpectedValues.length > 0) {
+                        if (o instanceof Set) {
+                            Set<?> expectedSet = Sets.union(asSet(expected), asSet(moreExpectedValues));
+                            matches = expectedSet.equals(o);
+                        } else if (o instanceof List) {
+                            List<?> expectedList = Lists.asList(expected, moreExpectedValues);
+                            matches = expectedList.equals(o);
+                        } else {
+                            throw new RuntimeException("Don't know how to match a " + o.getClass().getName() + " instance.");
+                        }
+                    } else if (expected == null) {
+                        throw new RuntimeException("Ambigious matcher: Use either isNull() or isEqualTo(Collections.singleton(null))");
+                    } else if (expected instanceof Collection) {
+                        matches = expected.equals(o);
+                    } else {
+                        matches = (((Collection) o).size() == 1 && expected.equals(((Collection) o).iterator().next()));
+                    }
+                } else if (o.getClass().isArray()) {
+                    final Object expectedArray;
+                    if (moreExpectedValues.length > 0) {
+                        final Object[] a = new Object[moreExpectedValues.length + 1];
+                        a[0] = expected;
+                        System.arraycopy(moreExpectedValues, 0, a, 1, moreExpectedValues.length);
+                        expectedArray = a;
+                    } else if (expected != null && !expected.getClass().isArray()) {
+                        expectedArray = new Object[]{ expected };
+                    } else {
+                        expectedArray = expected;
+                    }
+                    matches = new IsEqual<Object>(expectedArray).matches(o);
+                } else {
+                    matches = (moreExpectedValues.length == 0 && o.equals(expected));
+                }
+                return matches;
+            }
+            @Override
+            public void describeTo(Description description) {
+                if (moreExpectedValues.length == 0) {
+                    if (expected instanceof SelfDescribing) {
+                        ((SelfDescribing) expected).describeTo(description);
+                    } else {
+                        description.appendText(StringHelper.asString(expected));
+                    }
+                } else {
+                    final List<Object> temp = new ArrayList<Object>(moreExpectedValues.length + 1);
+                    temp.add(expected);
+                    temp.addAll(Arrays.asList(moreExpectedValues));
+                    description.appendText(Joiner.on(", ").join(temp));
+                }
+            }
+        };
     }
 
     /**
      * Is the value equal to another value, as tested by the
-     * {@link Object#equals} method (with special handling for arrays)?
-     */
-    public static <T> Matcher<T> equalTo(T operand) {
-        return IsEqual.equalTo(operand);
-    }
-
-    /**
-     * Is the value equal to another value, as tested by the
-     * {@link Object#equals} method (with special handling for arrays)?
+     * {@link Object#equals(Object)} method with special handling for arrays.
      */
     public static <T> Matcher<T> isEqualTo(T operand) {
         return IsEqual.equalTo(operand);
     }
 
     /**
-     * Is the value an instance of a particular type?
+     * Is the value an instance of a particular class?
      */
-    public static Matcher<Object> instanceOf(Class<?> type) {
-        return IsInstanceOf.instanceOf(type);
+    public static Matcher<Object> isInstanceOf(Class<?> clazz) {
+        return IsInstanceOf.instanceOf(clazz);
     }
 
     /**
-     * Is the value an instance of a particular type?
-     */
-    public static Matcher<Object> isInstanceOf(Class<?> type) {
-        return IsInstanceOf.instanceOf(type);
-    }
-
-    /**
-     * Evaluates to true only if matched value is the same instance as the given object.
-     */
-    public static <T> Matcher<T> sameInstanceAs(T object) {
-        return IsSame.sameInstance(object);
-    }
-
-    /**
-     * Evaluates to true only if matched value is the same instance as the given object.
+     * Evaluates to {@code true} only if the matched value is the same instance as the given object.
      */
     public static <T> Matcher<T> isSameInstanceAs(T object) {
         return IsSame.sameInstance(object);
     }
 
     /**
-     * This matcher always evaluates to true.
+     * Matches if the matched value is {@code null}.
      */
-    public static <T> Matcher<T> anything() {
-        return IsAnything.anything();
-    }
-
-    /**
-     * This matcher always evaluates to true.
-     *
-     * @param description A meaningful string used when describing itself.
-     */
-    public static <T> Matcher<T> anything(String description) {
-        return IsAnything.anything(description);
-    }
-
-    /**
-     * This matcher always evaluates to true. With type inference.
-     */
-    public static <T> Matcher<T> any(Class<T> type) {
-        return IsAnything.any(type);
-    }
-
-    /**
-     * Matches if matched value is null.
-     */
-    public static <T> Matcher<T> isNull() {
+    public static Matcher<Object> isNull() {
         return IsNull.nullValue();
     }
 
     /**
-     * Matches if matched value is null. With type inference.
+     * Matches if the matched value is not {@code null}.
      */
-    public static <T> Matcher<T> isNull(Class<T> type) {
-        return IsNull.nullValue(type);
-    }
-
-    /**
-     * Matches if matched value is not null.
-     */
-    public static <T> Matcher<T> isNotNull() {
+    public static Matcher<Object> isNotNull() {
         return IsNull.notNullValue();
     }
 
     /**
-     * Matches if matched value is not null. With type inference.
+     * This matcher always evaluates to {@code true}, use it like this:<pre>
+     *     assertThat(foo(), doesNotThrowAnException());
+     * </pre>
      */
-    public static <T> Matcher<T> isNotNull(Class<T> type) {
-        return IsNull.notNullValue(type);
-    }
-
-    /**
-     * <p>This matcher always evaluates to true.</p>
-     * <p>Use like this: <code>assertThat(foo(), doesNotThrowAnException());</code></p>
-     */
-    public static <T> Matcher<T> doesNotThrowAnException() {
-        return new BaseMatcher<T>() {
+    public static Matcher<Object> doesNotThrowAnException() {
+        return new BaseMatcher<Object>() {
             public boolean matches(Object item) {
                 return true;
             }
@@ -333,115 +321,15 @@ public class HamcrestHelper {
         };
     }
 
-    public static <T> Matcher<T> oneOf(T... elements) {
-        return IsIn.isOneOf(elements);
-    }
-
-    public static <T> Matcher<T> isOneOf(T... elements) {
-        return IsIn.isOneOf(elements);
-    }
-
-    public static <T> AndMatcher<T> both(Matcher<T> matcher) {
-        return new AndMatcher<T>(matcher);
-    }
-
-    public static <T> OrMatcher<T> either(Matcher<T> matcher) {
-        return new OrMatcher<T>(matcher);
-    }
-
-    public static <T> OrMatcher<T> either(T value) {
-        return new OrMatcher<T>(is(value));
-    }
-
-    public static <T> NorMatcher<T> neither(Matcher<T> matcher) {
-        return new NorMatcher<T>(matcher);
-    }
-
-    public static <T> Matcher<Iterable<T>> containsItem(T element) {
-        return IsCollectionContaining.hasItem(element);
-    }
-
-    public static <T> Matcher<Iterable<T>> containsItem(Matcher<? extends T> elementMatcher) {
-        return IsCollectionContaining.hasItem(elementMatcher);
-    }
-
-    public static <K, V> Matcher<Map<K, V>> containsEntry(K key, V value) {
-        return IsMapContaining.hasEntry(key, value);
-    }
-
-    public static <K, V> Matcher<Map<K, V>> containsEntry(Matcher<K> keyMatcher, Matcher<V> valueMatcher) {
-        return IsMapContaining.hasEntry(keyMatcher, valueMatcher);
-    }
-
-    public static <K, V> Matcher<Map<K, V>> containsKey(K key) {
-        return IsMapContaining.hasKey(key);
-    }
-
-    public static <K, V> Matcher<Map<K, V>> containsKey(Matcher<K> keyMatcher) {
-        return IsMapContaining.hasKey(keyMatcher);
-    }
-
-    public static <K, V> Matcher<Map<K, V>> containsValue(Matcher<V> valueMatcher) {
-        return IsMapContaining.hasValue(valueMatcher);
-    }
-
-    public static <K, V> Matcher<Map<K, V>> containsValue(V value) {
-        return IsMapContaining.hasValue(value);
-    }
-
-    public static Matcher<Double> closeTo(double operand, double error) {
-        return IsCloseTo.closeTo(operand, error);
-    }
-
-    public static Matcher<Double> isCloseTo(double operand, double error) {
-        return IsCloseTo.closeTo(operand, error);
-    }
-
-    public static <T extends Comparable<T>> Matcher<T> greaterThan(T value) {
-        return OrderingComparisons.greaterThan(value);
-    }
-
-    public static <T extends Comparable<T>> Matcher<T> isGreaterThan(T value) {
-        return OrderingComparisons.greaterThan(value);
-    }
-
-    public static <T extends Comparable<T>> Matcher<T> greaterThanOrEqualTo(T value) {
-        return OrderingComparisons.greaterThanOrEqualTo(value);
-    }
-
-    public static <T extends Comparable<T>> Matcher<T> isGreaterThanOrEqualTo(T value) {
-        return OrderingComparisons.greaterThanOrEqualTo(value);
-    }
-
-    public static <T extends Comparable<T>> Matcher<T> lessThan(T value) {
-        return OrderingComparisons.lessThan(value);
-    }
-
-    public static <T extends Comparable<T>> Matcher<T> isLessThan(T value) {
-        return OrderingComparisons.lessThan(value);
-    }
-
-    public static <T extends Comparable<T>> Matcher<T> lessThanOrEqualTo(T value) {
-        return OrderingComparisons.lessThanOrEqualTo(value);
-    }
-
-    public static <T extends Comparable<T>> Matcher<T> isLessThanOrEqualTo(T value) {
-        return OrderingComparisons.lessThanOrEqualTo(value);
-    }
-
-    public static Matcher<String> endsWith(String substring) {
-        return StringEndsWith.endsWith(substring);
-    }
-
-    public static Matcher<String> startsWith(String substring) {
-        return StringStartsWith.startsWith(substring);
-    }
-
-    public static <T> Matcher<T> contains(final String s) {
+    /**
+     * Handles CharSequences like String or StringBuilder and Collections.
+     */
+    public static Matcher<Object> contains(final String s) {
         if (s == null) {
             throw new IllegalArgumentException("Parameter s must not be null.");
         }
-        return new BaseMatcher<T>() {
+        return new BaseMatcher<Object>() {
+            @Override
             public boolean matches(Object o) {
                 final boolean result;
                 if (o instanceof CharSequence || o instanceof StringWriter) {
@@ -455,6 +343,7 @@ public class HamcrestHelper {
                 }
                 return result;
             }
+            @Override
             public void describeTo(Description description) {
                 description.appendText("contains ").appendText(asString(s));
             }
@@ -462,87 +351,34 @@ public class HamcrestHelper {
     }
 
     /**
-     * Works for strings, collections, and maps.
+     * Works for strings, arrays, collections, and maps.
      */
-    public static <T> Matcher<T> empty() {
-        return new BaseMatcher<T>() {
+    public static Matcher<Object> isEmpty() {
+        return new BaseMatcher<Object>() {
+            @Override
             public boolean matches(Object o) {
                 final boolean result;
                 if (o == null) {
-                    result = true;
+                    result = false;
                 } else if (o instanceof CharSequence || o instanceof StringWriter) {
                     final String s = o.toString();
-                    result = (s == null || s.length() == 0);
+                    result = (s.length() == 0);
                 } else if (o instanceof Collection) {
                     result = ((Collection) o).isEmpty();
                 } else if (o instanceof Map) {
                     result = ((Map) o).isEmpty();
+                } else if (o.getClass().isArray()) {
+                    result = (Array.getLength(o) == 0);
                 } else {
                     throw new RuntimeException("Don't know how to handle object of type " + o.getClass().getName());
                 }
                 return result;
             }
+            @Override
             public void describeTo(Description description) {
                 description.appendText("empty");
             }
         };
-    }
-
-    /**
-     * Works for strings, collections, and maps.
-     */
-    public static <T> Matcher<T> isEmpty() {
-        return empty();
-    }
-
-    /**
-     * Works for strings, collections, and maps.
-     */
-    @SuppressWarnings("unchecked")
-    public static <T> Matcher<T> isNotEmpty() {
-        return (Matcher<T>) not(empty());
-    }
-
-    public static Matcher<String> blank() {
-        return new BaseMatcher<String>() {
-            public boolean matches(Object o) {
-                return (o == null || "".equals(o.toString().trim()));
-            }
-            public void describeTo(Description description) {
-                description.appendText("blank string");
-            }
-        };
-    }
-
-    public static Matcher<String> isBlank() {
-        return blank();
-    }
-
-    public static Matcher<String> isNotBlank() {
-        return not(blank());
-    }
-
-    /**
-     * Returns a {@link List} containing the given <code>objects</code>.
-     */
-    public static <T> List<T> asList(T... items) {
-        return Arrays.asList(items);
-    }
-
-    /**
-     * Returns a {@link Map} with the mappings <code>keysAndValues[0] => keysAndValues[1],
-     * keysAndValues[2] => keysAndValues[3], ...</code>.
-     */
-    public static <K, V> Map<K, V> asMap(Object... keysAndValues) {
-        final Map<K, V> result = new LinkedHashMap<K, V>();
-        final int n = keysAndValues.length;
-        if (n % 2 == 1) {
-            throw new IllegalArgumentException("You must provide an even number of arguments.");
-        }
-        for (int i = 0; i < n; i += 2) {
-            result.put((K) keysAndValues[i], (V) keysAndValues[i + 1]);
-        }
-        return result;
     }
 
     private static void fail() {

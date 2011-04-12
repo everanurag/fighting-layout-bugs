@@ -16,124 +16,24 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import org.testng.annotations.AfterSuite;
-
-import java.net.MalformedURLException;
-import java.net.URL;
+import org.junit.AfterClass;
 
 /**
  * Base class for tests using <a href="http://selenium.googlecode.com">Selenium</a>,
- * which also takes care of starting and stopping a {@link TestWebServer} to serve
- * the HTML pages located under the <code>src/test/webapp</code> directory.
+ * which also takes care of starting and stopping a {@link TestWebServer} when needed
+ * to serve the HTML pages located under the <code>src/test/webapp</code> directory.
  *
  * @author Michael Tamm
  */
 public class TestUsingSelenium {
 
-    private static TestWebServer testWebServer;
-    private static WebPageFactory webPageFactory;
-
-    @AfterSuite
-    public void tearDown() {
-        disposeWebPageFactoryIfNeeded();
-        stopWebserverIfNeeded();
+    @AfterClass
+    public static void disposeLastTestWebPageFactory() {
+        TestWebPageFactory.disposeLastFactory();
     }
 
-    /**
-     * Helper class for fluent API - see {@link TestUsingSelenium#getWebPageFor}.
-     */
-    protected static class GetWebPage {
-        private final String _pathToHtmlPageOrCompleteUrl;
-
-        private GetWebPage(String pathToHtmlPageOrCompleteUrl) {
-            _pathToHtmlPageOrCompleteUrl = pathToHtmlPageOrCompleteUrl;
-        }
-
-        public WebPage usingChromeDriver() {
-            if (!(webPageFactory instanceof WebPageFactoryUsingChromeDriver)) {
-                disposeWebPageFactoryIfNeeded();
-                webPageFactory = new WebPageFactoryUsingChromeDriver();
-            }
-            return webPageFactory.createWebPageFor(_pathToHtmlPageOrCompleteUrl);
-        }
-
-        public WebPage usingDefaultSelenium() {
-            if (!(webPageFactory instanceof WebPageFactoryUsingDefaultSelenium)) {
-                disposeWebPageFactoryIfNeeded();
-                webPageFactory = new WebPageFactoryUsingDefaultSelenium();
-            }
-            return webPageFactory.createWebPageFor(_pathToHtmlPageOrCompleteUrl);
-        }
-
-        public WebPage usingFirefoxDriver() {
-            if (!(webPageFactory instanceof WebPageFactoryUsingFirefoxDriver)) {
-                disposeWebPageFactoryIfNeeded();
-                webPageFactory = new WebPageFactoryUsingFirefoxDriver();
-            }
-            return webPageFactory.createWebPageFor(_pathToHtmlPageOrCompleteUrl);
-        }
-
-        public WebPage usingInternetExplorerDriver() {
-            if (!(webPageFactory instanceof WebPageFactoryUsingInternetExplorerDriver)) {
-                disposeWebPageFactoryIfNeeded();
-                webPageFactory = new WebPageFactoryUsingInternetExplorerDriver();
-            }
-            return webPageFactory.createWebPageFor(_pathToHtmlPageOrCompleteUrl);
-        }
+    protected WebPage getWebPageFor(String pathToHtmlPageOrCompleteUrl) {
+        return TestWebPageFactory.UsingFirefoxDriver.createFor(pathToHtmlPageOrCompleteUrl);
     }
 
-    /**
-     * To get a {@link WebPage} in your test, you can either write<pre>
-     * getWebPageFor("...").usingChromeDriver();</pre>
-     * or <pre>
-     * getWebPageFor("...").usingDefaultSelenium();</pre>
-     * or <pre>
-     * getWebPageFor("...").usingFirefoxDriver();</pre>
-     * or <pre>
-     * getWebPageFor("...").usingInternetExplorer();</pre>
-     *
-     * @param pathToHtmlPageOrCompleteUrl either the path to a HTML page relative to the <code>src/test/webapp</code> directory or a complete URL
-     */
-    protected GetWebPage getWebPageFor(String pathToHtmlPageOrCompleteUrl) {
-        return new GetWebPage(pathToHtmlPageOrCompleteUrl);
-    }
-
-    static URL getBaseUrlForTestWebServer() {
-        startWebserverIfNeeded();
-        try {
-            return new URL("http://localhost:" + testWebServer.getPort() + "/");
-        } catch (MalformedURLException e) {
-            throw new RuntimeException("Should never happen.", e);
-        }
-    }
-
-
-    private static void startWebserverIfNeeded() {
-        if (testWebServer == null) {
-            System.out.println("Starting TestWebServer ...");
-            testWebServer = new TestWebServer();
-            testWebServer.start();
-        }
-    }
-
-    private static void disposeWebPageFactoryIfNeeded() {
-        if (webPageFactory != null) {
-            try {
-                webPageFactory.dispose();
-            } finally {
-                webPageFactory = null;
-            }
-        }
-    }
-
-    private static void stopWebserverIfNeeded() {
-        if (testWebServer != null) {
-            try {
-                System.out.println("Stopping TestWebServer ...");
-                testWebServer.stop();
-            } finally {
-                testWebServer = null;
-            }
-        }
-    }
 }

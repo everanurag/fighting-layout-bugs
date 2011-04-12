@@ -16,8 +16,9 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
+import org.junit.Test;
+
 import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.assertThat;
-import org.testng.annotations.Test;
 
 /**
  * @author Michael Tamm
@@ -26,7 +27,7 @@ public class SimpleEdgeDetectorTest extends TestUsingSelenium {
 
     @Test
     public void shouldDetectHorizontalAndVerticalEdgesInYahooProfileUpdatesPage() throws Exception {
-        WebPage testPage = getWebPageFor("/Yahoo!_Profile_Updates.html").usingFirefoxDriver();
+        WebPage testPage = getWebPageFor("/Yahoo!_Profile_Updates.html");
         testPage.executeJavaScript("window.resizeTo(1008, 706)");
         final EdgeDetector edgeDetector = new SimpleEdgeDetector();
         final boolean[][] horizontalEdges = edgeDetector.detectHorizontalEdgesIn(testPage);

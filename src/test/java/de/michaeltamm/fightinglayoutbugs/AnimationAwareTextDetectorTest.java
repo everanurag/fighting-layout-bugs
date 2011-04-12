@@ -16,9 +16,10 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import org.testng.annotations.Test;
+import org.junit.Test;
 
-import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.*;
+import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.assertThat;
+import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.is;
 
 /**
  * @author Michael Tamm
@@ -26,27 +27,22 @@ import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.*;
 public class AnimationAwareTextDetectorTest extends TestUsingSelenium {
 
     @Test
-    public void shouldBehaveLikeSimpleTextDetectorWhenThereAreNoAnimations() throws Exception {
-        // We can not test with ChromeDriver yet, because it compresses screenshots :( ...
-        WebPage testPage = getWebPageFor("/Yahoo!_Profile_Updates.html").usingFirefoxDriver();
-        boolean[][] expected = new SimpleTextDetector().detectTextPixelsIn(testPage);
-        boolean[][] actual = new AnimationAwareTextDetector().detectTextPixelsIn(testPage);
-        assertThat(actual, is(expected));
-        // Test with DefaultSelenium ...
-        testPage = getWebPageFor("/Microsoft_Newsletter.html").usingDefaultSelenium();
-        expected = new SimpleTextDetector().detectTextPixelsIn(testPage);
-        actual = new AnimationAwareTextDetector().detectTextPixelsIn(testPage);
-        assertThat(actual, is(expected));
-        // Test with FirefoxDriver ...
-        testPage = getWebPageFor("/ESPRIT_newsletter.html").usingFirefoxDriver();
-        expected = new SimpleTextDetector().detectTextPixelsIn(testPage);
-        actual = new AnimationAwareTextDetector().detectTextPixelsIn(testPage);
-        assertThat(actual, is(expected));
+    public void shouldBehaveLikeSimpleTextDetectorWhenThereIsNoAnimation() throws Exception {
+        for (String path : new String[] {
+            "/Yahoo!_Profile_Updates.html",
+            "/Microsoft_Newsletter.html",
+            "/ESPRIT_newsletter.html"
+        }) {
+            WebPage testPage = getWebPageFor(path);
+            boolean[][] expected = new SimpleTextDetector().detectTextPixelsIn(testPage);
+            boolean[][] actual = new AnimationAwareTextDetector().detectTextPixelsIn(testPage);
+            assertThat(actual, is(expected));
+        }
     }
 
     @Test
-    public void shouldIgnoreAnimations() throws Exception {
-        WebPage testPage = getWebPageFor("/page_with_animated_gif.html").usingFirefoxDriver();
+    public void shouldIgnoreAnimatedGifImage() throws Exception {
+        WebPage testPage = getWebPageFor("/page_with_animated_gif.html");
         final TextDetector detector = new AnimationAwareTextDetector();
         final boolean[][] textPixels = detector.detectTextPixelsIn(testPage);
         for (boolean[] column : textPixels) {

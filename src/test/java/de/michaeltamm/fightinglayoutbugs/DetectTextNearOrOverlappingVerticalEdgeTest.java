@@ -16,11 +16,11 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.assertThat;
-import org.testng.annotations.Test;
+import org.junit.Test;
 
-import java.io.File;
 import java.util.Collection;
+
+import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.assertThat;
 
 /**
  * @author Michael Tamm
@@ -29,7 +29,7 @@ public class DetectTextNearOrOverlappingVerticalEdgeTest extends TestUsingSeleni
 
     @Test
     public void shouldFindLayoutBugInYahooProfileUpdatesPage() throws Exception {
-        WebPage testPage = getWebPageFor("/Yahoo!_Profile_Updates.html").usingDefaultSelenium();
+        WebPage testPage = getWebPageFor("/Yahoo!_Profile_Updates.html");
         testPage.executeJavaScript("window.resizeTo(1008, 706)");
         final long startTime = System.currentTimeMillis();
         final LayoutBugDetector detector = new DetectTextNearOrOverlappingVerticalEdge();
@@ -44,7 +44,7 @@ public class DetectTextNearOrOverlappingVerticalEdgeTest extends TestUsingSeleni
 
     @Test
     public void shouldFindLayoutBugInMicrosoftNewsletterPage() throws Exception {
-        WebPage testPage = getWebPageFor("/Microsoft_Newsletter.html").usingFirefoxDriver();
+        WebPage testPage = getWebPageFor("/Microsoft_Newsletter.html");
         final long startTime = System.currentTimeMillis();
         final LayoutBugDetector detector = new DetectTextNearOrOverlappingVerticalEdge();
         final Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(testPage);

@@ -16,7 +16,7 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import org.testng.annotations.Test;
+import org.junit.Test;
 
 import java.util.Collection;
 
@@ -25,11 +25,11 @@ import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.*;
 public class DetectNeedsHorizontalScrollingTest extends TestUsingSelenium {
 
     @Test
-    public void testWithFirefox() {
+    public void test() {
         final DetectNeedsHorizontalScrolling detector = new DetectNeedsHorizontalScrolling();
-        WebPage doesNotNeedHorizontalScrollingPage = getWebPageFor("/page_which_does_not_need_horizontal_scrolling.html").usingFirefoxDriver();
+        WebPage doesNotNeedHorizontalScrollingPage = getWebPageFor("/page_which_does_not_need_horizontal_scrolling.html");
         assertThat(detector.findLayoutBugsIn(doesNotNeedHorizontalScrollingPage), isEmpty());
-        WebPage needsHorizontalScrollingPage = getWebPageFor("/page_which_needs_horizontal_scrolling.html").usingFirefoxDriver();
+        WebPage needsHorizontalScrollingPage = getWebPageFor("/page_which_needs_horizontal_scrolling.html");
         final Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(needsHorizontalScrollingPage);
         for (LayoutBug bug : layoutBugs) {
             System.out.println(bug);
@@ -37,23 +37,4 @@ public class DetectNeedsHorizontalScrollingTest extends TestUsingSelenium {
         assertThat(layoutBugs.size(), is(1));
     }
 
-    @Test
-    public void testWithInternetExplorer() {
-        final DetectNeedsHorizontalScrolling detector = new DetectNeedsHorizontalScrolling();
-        WebPage doesNotNeedHorizontalScrollingPage = getWebPageFor("/page_which_does_not_need_horizontal_scrolling.html").usingInternetExplorerDriver();
-        assertThat(detector.findLayoutBugsIn(doesNotNeedHorizontalScrollingPage), isEmpty());
-        WebPage needsHorizontalScrollingPage = getWebPageFor("/page_which_needs_horizontal_scrolling.html").usingInternetExplorerDriver();
-        final Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(needsHorizontalScrollingPage);
-        for (LayoutBug bug : layoutBugs) {
-            System.out.println(bug);
-        }
-        assertThat(layoutBugs.size(), is(1));
-    }
-
-    @Test
-    public void testWithChrome() {
-        final DetectNeedsHorizontalScrolling detector = new DetectNeedsHorizontalScrolling();
-        WebPage doesNotNeedHorizontalScrollingPage = getWebPageFor("/page_which_does_not_need_horizontal_scrolling.html").usingChromeDriver();
-        assertThat(detector.findLayoutBugsIn(doesNotNeedHorizontalScrollingPage), isEmpty());
-    }
 }

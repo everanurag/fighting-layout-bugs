@@ -16,16 +16,17 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.assertThat;
-import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.is;
-import org.testng.annotations.Test;
+import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
+
+import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.assertThat;
+import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.is;
 
 /**
  * @author Michael Tamm
  */
-public class Utf8BomAwareByteArrayOutputStreamTest {
+public class Utf8BomAwareByteArrayOutputStreamUnitTest {
 
     @Test
     public void test() throws UnsupportedEncodingException {

@@ -16,17 +16,19 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import org.testng.annotations.Test;
+import org.junit.Test;
 
 import java.util.List;
 import java.util.Map;
 
 import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.*;
+import static de.michaeltamm.fightinglayoutbugs.TestHelper.asList;
+import static de.michaeltamm.fightinglayoutbugs.TestHelper.asMap;
 
 /**
  * @author Michael Tamm
  */
-public class JsonHelperTest {
+public class JsonHelperUnitTest {
 
     @Test
     public void testNullLiteral() {

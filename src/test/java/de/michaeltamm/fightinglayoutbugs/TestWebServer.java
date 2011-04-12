@@ -16,6 +16,7 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
+import org.apache.log4j.Logger;
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.bio.SocketConnector;
@@ -26,6 +27,8 @@ import org.mortbay.jetty.webapp.WebAppContext;
 import java.io.File;
 
 import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.assertThat;
+import static de.michaeltamm.fightinglayoutbugs.TestHelper.waitFor;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * A simple HTTP server, which serves all files located under the <code>src/test/webapp</code> directory.
@@ -34,49 +37,46 @@ import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.assertThat;
  */
 public class TestWebServer {
 
+    private static final Logger LOG = Logger.getLogger(TestWebServer.class);
+
+    private static int port;
+    private static Server server;
+
     public static void main(String[] args) {
-        TestWebServer testWebServer = new TestWebServer();
-        testWebServer.start();
+        TestWebServer.start();
     }
 
-    private final Server _server;
-    private int _port;
-
-    public TestWebServer() {
-        _server = new Server();
+    public static synchronized void start() {
+        LOG.info("Starting TestWebServer ...");
+        port = SocketHelper.findFreePort();
+        server = new Server();
         HashUserRealm realm = new HashUserRealm("Fighting Layout Bugs Realm");
         realm.put("admin", new Password("secret"));
         realm.addUserToRole("admin", "admin");
-        _server.addUserRealm(realm);
+        server.addUserRealm(realm);
         File webappDir = new File("src/test/webapp");
         File webXml = new File(webappDir, "WEB-INF/web.xml");
         assertThat(webXml.exists());
         WebAppContext webAppContext = new WebAppContext(webappDir.getAbsolutePath(), "/");
-        _server.addHandler(webAppContext);
-    }
-
-    public void start() {
-        _port = SocketHelper.findFreePort();
+        server.addHandler(webAppContext);
         Connector connector = new SocketConnector();
-        connector.setPort(_port);
-        _server.addConnector(connector);
+        connector.setPort(port);
+        server.addConnector(connector);
         try {
-            _server.start();
+            server.start();
         } catch (Exception e) {
-            throw new RuntimeException("Could not start " + _server, e);
+            throw new RuntimeException("Could not start " + server + ".", e);
         }
+        waitFor(3, SECONDS, new RunnableAssert("TestWebServer is started") { @Override public void run() {
+            assertThat(server.isStarted());
+            assertThat(SocketHelper.isBound(port));
+        }});
     }
 
-    public void stop() {
-        try {
-            _server.stop();
-        } catch (Exception e) {
-            System.err.print("Could not stop " + _server + ": ");
-            e.printStackTrace(System.err);
+    public static synchronized int getPort() {
+        if (server == null) {
+            start();
         }
-    }
-
-    public int getPort() {
-        return _port;
+        return port;
     }
 }

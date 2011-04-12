@@ -17,7 +17,10 @@
 package de.michaeltamm.fightinglayoutbugs;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.UnknownHostException;
 
 /**
  * @author Michael Tamm
@@ -31,6 +34,26 @@ public class SocketHelper {
             return socket.getLocalPort();
         } catch (IOException e) {
             throw new RuntimeException("Failed to create ServerSocket on free port.", e);
+        } finally {
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException ignored) {}
+            }
+        }
+    }
+
+    public static boolean isBound(int port) {
+        Socket socket = null;
+        try {
+            socket = new Socket("localhost", port);
+            return true;
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
+        } catch (ConnectException ignored) {
+            return false;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         } finally {
             if (socket != null) {
                 try {

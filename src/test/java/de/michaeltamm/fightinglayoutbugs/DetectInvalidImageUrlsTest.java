@@ -16,14 +16,15 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
-import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.assertThat;
-import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.is;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.testng.annotations.Test;
+import org.junit.Test;
 
 import java.util.Collection;
+
+import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.assertThat;
+import static de.michaeltamm.fightinglayoutbugs.HamcrestHelper.is;
 
 /**
  * @author Michael Tamm
@@ -47,9 +48,9 @@ public class DetectInvalidImageUrlsTest extends TestUsingSelenium {
 
     @Test
     public void shouldFindInvalidImageUrls() throws Exception {
-        WebPage testPage = getWebPageFor("/page_with_invalid_image_urls.html").usingFirefoxDriver();
-        final LayoutBugDetector detector = new DetectInvalidImageUrls();
-        final Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(testPage);
+        WebPage pageWithInvalidImageUrls = getWebPageFor("/page_with_invalid_image_urls.html");
+        LayoutBugDetector detector = new DetectInvalidImageUrls();
+        Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(pageWithInvalidImageUrls);
         for (LayoutBug bug : layoutBugs) {
             System.out.println(bug);
         }
@@ -67,9 +68,9 @@ public class DetectInvalidImageUrlsTest extends TestUsingSelenium {
 
     @Test
     public void shouldNotComplainAboutValidImageUrls() throws Exception {
-        WebPage testPage = getWebPageFor("/page_with_valid_image_urls.html").usingFirefoxDriver();
-        final LayoutBugDetector detector = new DetectInvalidImageUrls();
-        final Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(testPage);
+        WebPage pageWithValidImageUrls = getWebPageFor("/page_with_valid_image_urls.html");
+        LayoutBugDetector detector = new DetectInvalidImageUrls();
+        Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(pageWithValidImageUrls);
         for (LayoutBug bug : layoutBugs) {
             System.out.println(bug);
         }
