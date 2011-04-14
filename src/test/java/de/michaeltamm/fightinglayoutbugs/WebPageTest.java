@@ -10,7 +10,7 @@ public class WebPageTest extends TestUsingSelenium {
     @Test
     public void test() {
         WebPage pageWithFlashMovie = getWebPageFor("/page_with_flash_movie.html");
-        boolean[][] flashMoviePixels = pageWithFlashMovie.getFlashMoviePixels();
+        boolean[][] flashMoviePixels = pageWithFlashMovie.getFlashMovieAndIframePixels();
         assertThat(flashMoviePixels[45][105], is(false));
         assertThat(flashMoviePixels[55][105], is(false));
         assertThat(flashMoviePixels[45][115], is(false));

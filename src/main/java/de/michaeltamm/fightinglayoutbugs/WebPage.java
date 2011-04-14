@@ -188,36 +188,37 @@ public abstract class WebPage {
     /**
      * Returns a two dimensional array <tt>a</tt>, whereby <tt>a[x][y]</tt> is <tt>true</tt>
      * if the pixel with the coordinates x,y in a {@link #getScreenshot screenshot} of this web page
-     * belongs to an embedded object like a Flash movie, otherwise <tt>a[x][y]</tt> is <tt>false</tt>.
+     * belongs to an embedded object like a Java Applet, a Flash movie or an iframe,
+     * otherwise <tt>a[x][y]</tt> is <tt>false</tt>.
      */
-    public boolean[][] getFlashMoviePixels() {
+    public boolean[][] getFlashMovieAndIframePixels() {
         injectJQueryIfNotPresent();
-        @SuppressWarnings("unchecked") List<Map<String, Number>>
-        flashMovies = (List<Map<String, Number>>) executeJavaScript("return (function() { var a = new Array(); jQuery('embed').each(function(i, e) {var j = jQuery(e); var o = j.offset(); a.push({ top: o.top, left: o.left, width: j.width(), height: j.height() }); }); return a; })()");
-        if (flashMovies.isEmpty()) {
+        @SuppressWarnings("unchecked")
+        List<Map<String, Number>> flashMoviesAndIframes = (List<Map<String, Number>>) executeJavaScript("return (function() { var a = new Array(); jQuery('applet').add('embed').add('iframe').add('object').each(function(i, e) {var j = jQuery(e); var o = j.offset(); a.push({ top: o.top, left: o.left, width: j.width(), height: j.height() }); }); return a; })()");
+        if (flashMoviesAndIframes.isEmpty()) {
             boolean[][] flashMoviePixels = new boolean[1][1];
             flashMoviePixels[0][0] = false;
             return flashMoviePixels;
         } else {
             int w = 1;
             int h = 1;
-            for (Map<String, Number> flashMovie : flashMovies) {
-                h = Math.max(h, flashMovie.get("top").intValue() + flashMovie.get("height").intValue());
-                w = Math.max(w, flashMovie.get("left").intValue() + flashMovie.get("width").intValue());
+            for (Map<String, Number> flashMovieOrIframe : flashMoviesAndIframes) {
+                h = Math.max(h, flashMovieOrIframe.get("top").intValue() + flashMovieOrIframe.get("height").intValue());
+                w = Math.max(w, flashMovieOrIframe.get("left").intValue() + flashMovieOrIframe.get("width").intValue());
             }
-            boolean[][] flashMoviePixels = new boolean[w][h];
-            for (Map<String, Number> flashMovie : flashMovies) {
-                int y1 = flashMovie.get("top").intValue();
-                int y2 = y1 + flashMovie.get("height").intValue();
-                int x1 = flashMovie.get("left").intValue();
-                int x2 = x1 + flashMovie.get("width").intValue();
+            boolean[][] flashMovieAndIframePixels = new boolean[w][h];
+            for (Map<String, Number> flashMovieOrIframe : flashMoviesAndIframes) {
+                int y1 = flashMovieOrIframe.get("top").intValue();
+                int y2 = y1 + flashMovieOrIframe.get("height").intValue();
+                int x1 = flashMovieOrIframe.get("left").intValue();
+                int x2 = x1 + flashMovieOrIframe.get("width").intValue();
                 for (int x = x1; x < x2; ++x) {
                     for (int y = y1; y < y2; ++y) {
-                        flashMoviePixels[x][y] = true;
+                        flashMovieAndIframePixels[x][y] = true;
                     }
                 }
             }
-            return flashMoviePixels;
+            return flashMovieAndIframePixels;
         }
     }
 
