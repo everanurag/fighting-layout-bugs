@@ -203,15 +203,23 @@ public abstract class WebPage {
             int w = 1;
             int h = 1;
             for (Map<String, Number> flashMovieOrIframe : flashMoviesAndIframes) {
-                h = Math.max(h, flashMovieOrIframe.get("top").intValue() + flashMovieOrIframe.get("height").intValue());
-                w = Math.max(w, flashMovieOrIframe.get("left").intValue() + flashMovieOrIframe.get("width").intValue());
+                float top = flashMovieOrIframe.get("top").floatValue();
+                float height = flashMovieOrIframe.get("height").floatValue();
+                h = Math.max(h, Math.round(top + height + 0.5f));
+                float left = flashMovieOrIframe.get("left").floatValue();
+                float width = flashMovieOrIframe.get("width").floatValue();
+                w = Math.max(w, Math.round(left + width + 0.5f));
             }
             boolean[][] flashMovieAndIframePixels = new boolean[w][h];
             for (Map<String, Number> flashMovieOrIframe : flashMoviesAndIframes) {
-                int y1 = flashMovieOrIframe.get("top").intValue();
-                int y2 = y1 + flashMovieOrIframe.get("height").intValue();
-                int x1 = flashMovieOrIframe.get("left").intValue();
-                int x2 = x1 + flashMovieOrIframe.get("width").intValue();
+                float top = flashMovieOrIframe.get("top").floatValue();
+                int y1 = (int) top;
+                float height = flashMovieOrIframe.get("height").floatValue();
+                int y2 = Math.round(top + height + 0.5f);
+                float left = flashMovieOrIframe.get("left").floatValue();
+                int x1 = (int) left;
+                float width = flashMovieOrIframe.get("width").floatValue();
+                int x2 = Math.round(left + width + 0.5f);
                 for (int x = x1; x < x2; ++x) {
                     for (int y = y1; y < y2; ++y) {
                         flashMovieAndIframePixels[x][y] = true;
