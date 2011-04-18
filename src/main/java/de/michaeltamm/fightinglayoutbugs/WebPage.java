@@ -26,9 +26,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Represents a web page. This class was created to improve
@@ -185,49 +183,44 @@ public abstract class WebPage {
         return _textPixels;
     }
 
-    /**
-     * Returns a two dimensional array <tt>a</tt>, whereby <tt>a[x][y]</tt> is <tt>true</tt>
-     * if the pixel with the coordinates x,y in a {@link #getScreenshot screenshot} of this web page
-     * belongs to an embedded object like a Java Applet, a Flash movie or an iframe,
-     * otherwise <tt>a[x][y]</tt> is <tt>false</tt>.
-     */
-    public boolean[][] getFlashMovieAndIframePixels() {
-        injectJQueryIfNotPresent();
-        @SuppressWarnings("unchecked")
-        List<Map<String, Number>> flashMoviesAndIframes = (List<Map<String, Number>>) executeJavaScript("return (function() { var a = new Array(); jQuery('applet').add('embed').add('iframe').add('object').each(function(i, e) {var j = jQuery(e); var o = j.offset(); a.push({ top: o.top, left: o.left, width: j.width(), height: j.height() }); }); return a; })()");
-        if (flashMoviesAndIframes.isEmpty()) {
-            boolean[][] flashMoviePixels = new boolean[1][1];
-            flashMoviePixels[0][0] = false;
-            return flashMoviePixels;
-        } else {
-            int w = 1;
-            int h = 1;
-            for (Map<String, Number> flashMovieOrIframe : flashMoviesAndIframes) {
-                float top = flashMovieOrIframe.get("top").floatValue();
-                float height = flashMovieOrIframe.get("height").floatValue();
-                h = Math.max(h, Math.round(top + height + 0.5f));
-                float left = flashMovieOrIframe.get("left").floatValue();
-                float width = flashMovieOrIframe.get("width").floatValue();
-                w = Math.max(w, Math.round(left + width + 0.5f));
-            }
-            boolean[][] flashMovieAndIframePixels = new boolean[w][h];
-            for (Map<String, Number> flashMovieOrIframe : flashMoviesAndIframes) {
-                float top = flashMovieOrIframe.get("top").floatValue();
-                int y1 = (int) top;
-                float height = flashMovieOrIframe.get("height").floatValue();
-                int y2 = Math.round(top + height + 0.5f);
-                float left = flashMovieOrIframe.get("left").floatValue();
-                int x1 = (int) left;
-                float width = flashMovieOrIframe.get("width").floatValue();
-                int x2 = Math.round(left + width + 0.5f);
-                for (int x = x1; x < x2; ++x) {
-                    for (int y = y1; y < y2; ++y) {
-                        flashMovieAndIframePixels[x][y] = true;
-                    }
-                }
-            }
-            return flashMovieAndIframePixels;
+    public Collection<RectangularRegion> getRectangularRegionsCoveredBy(Collection<String> jQuerySelectors) {
+        if (jQuerySelectors.isEmpty()) {
+            return Collections.emptySet();
         }
+        injectJQueryIfNotPresent();
+        // 1.) Assemble JavaScript to select elements ...
+        Iterator<String> i = jQuerySelectors.iterator();
+        String js = "jQuery('" + i.next().replace("'", "\\'");
+        while (i.hasNext()) {
+            js += "').add('" + i.next().replace("'", "\\'");
+        }
+        js += "')";
+        // 2.) Assemble JavaScript function to fill an array with rectangular region of each selected element ...
+        js = "function() { " +
+                 "var a = new Array(); " +
+                  js + ".each(function(i, e) { " +
+                           "var j = jQuery(e); " +
+                           "var o = j.offset(); " +
+                           "a.push({ top: o.top, left: o.left, width: j.width(), height: j.height() }); " +
+                       "}); " +
+                 "return a; " +
+             "}";
+        // 3.) Execute JavaScript function ...
+        @SuppressWarnings("unchecked")
+        List<Map<String, Number>> list = (List<Map<String, Number>>) executeJavaScript("return (" + js + ")()");
+        // 4.) Convert JavaScript return value to Java return value ...
+        if (list.isEmpty()) {
+            return Collections.emptySet();
+        }
+        Collection<RectangularRegion> result = new ArrayList<RectangularRegion>(list.size());
+        for (Map<String, Number> map : list) {
+            float top = map.get("top").floatValue();
+            float height = map.get("height").floatValue();
+            float left = map.get("left").floatValue();
+            float width = map.get("width").floatValue();
+            result.add(new RectangularRegion((int) left, (int) top, (int) Math.round(left + width - 0.5000001), (int) Math.round(top + height - 0.5000001)));
+        }
+        return result;
     }
 
     /**

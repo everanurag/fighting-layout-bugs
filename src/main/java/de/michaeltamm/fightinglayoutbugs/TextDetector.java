@@ -23,6 +23,18 @@ package de.michaeltamm.fightinglayoutbugs;
  */
 public interface TextDetector {
 
+    /**
+     * Call this method to configure the text detector in such a way, that all rectangle
+     * regions of the analyzed web page covered by those elements, which are selected
+     * by the given jQuery selector, will be ignored when text pixels are detected.
+     */
+    void ignore(String jQuerySelector);
+
+    /**
+     * Returns a two dimensional array <tt>a</tt>, whereby <tt>a[x][y]</tt> is <tt>true</tt>
+     * if the pixel with the coordinates x,y in a {@link #getScreenshot screenshot} of this web page
+     * belongs to displayed text, otherwise <tt>a[x][y]</tt> is <tt>false</tt>.
+     */
     boolean[][] detectTextPixelsIn(WebPage webpage);
 
 }

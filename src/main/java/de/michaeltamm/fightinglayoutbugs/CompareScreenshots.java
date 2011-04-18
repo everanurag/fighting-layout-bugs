@@ -16,6 +16,8 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
+import java.util.Collection;
+
 /**
  * @author Michael Tamm
  */
@@ -51,36 +53,25 @@ public class CompareScreenshots {
     /**
      * Updates and returns this {@code CompareScreenshots} object.
      */
-    public CompareScreenshots ignore(boolean[][] pixelsToIgnore) {
-        int w = Math.min(width, pixelsToIgnore.length);
-        int h = Math.min(height, pixelsToIgnore[0].length);
-        boolean foundDifferentPixels = false;
-        int x = 0;
-        while (x < w) {
-            int y = 0;
-            while (y < h) {
-                if (pixelsToIgnore[x][y]) {
+    public CompareScreenshots ignore(Collection<RectangularRegion> ignoredRegions) {
+        for (RectangularRegion ignoredRegion : ignoredRegions) {
+            int x2 = Math.min(width - 1, ignoredRegion.x2);
+            int y2 = Math.min(height- 1, ignoredRegion.y2);
+            for (int x = ignoredRegion.x1; x <= x2; ++x) {
+                for (int y = ignoredRegion.y1; y <= y2; ++y) {
                     differentPixels[x][y] = false;
-                } else if (differentPixels[x][y]) {
-                    foundDifferentPixels = true;
                 }
-                ++y;
             }
-            while (!foundDifferentPixels && y < height) {
-                if (differentPixels[x][y]) {
-                    foundDifferentPixels = true;
-                }
-                ++y;
-            }
-            ++x;
         }
-        while (!foundDifferentPixels && x < width) {
+        boolean foundDifferentPixels = false;
+        outerLoop:
+        for (int x = 0; x < width; ++x) {
             for (int y = 0; y < height; ++y) {
                 if (differentPixels[x][y]) {
                     foundDifferentPixels = true;
+                    break outerLoop;
                 }
             }
-            ++x;
         }
         noDifferencesFound = !foundDifferentPixels;
         return this;

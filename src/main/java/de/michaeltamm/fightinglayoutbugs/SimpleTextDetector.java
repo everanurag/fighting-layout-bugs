@@ -16,18 +16,20 @@
 
 package de.michaeltamm.fightinglayoutbugs;
 
+import java.util.Collection;
+
 import static de.michaeltamm.fightinglayoutbugs.Screenshot.withAllTextColored;
 
 /**
  * Detects text pixels by comparing screenshots after colorizing all text to black
- * and then to white via JavaScript.
- * Might return too many text pixels if there is animation on the web page
- * (like animated GIF images, Flash movies, or JavaScript  * animation). You should use the {@link AnimationAwareTextDetector} if you have
- * animation on your web page.
+ * and then to white via JavaScript. Ignores Java Applets, embedded objects like
+ * Flash movies, and iframes. Might return too many text pixels if there are
+ * animated GIF images or JavaScript animation. You should use the
+ * {@link AnimationAwareTextDetector} for such cases.
  *
  * @author Michael Tamm
  */
-public class SimpleTextDetector implements TextDetector {
+public class SimpleTextDetector extends AbstractTextDetector {
 
     public boolean[][] detectTextPixelsIn(WebPage webPage) {
         // 1.) Take first screenshot with all text colored black ...
@@ -36,9 +38,15 @@ public class SimpleTextDetector implements TextDetector {
         // 2.) Take second screenshot with all text colored white ...
         Screenshot screenshotWithAllTextColoredWhite = webPage.getScreenshot(withAllTextColored("#ffffff"));
         Visualization.algorithmStepFinished("2.) Take second screenshot with all text colored white.", screenshotWithAllTextColoredWhite);
-        // 3.) Determine text pixels by comparing the last two screenshots ...
-        boolean[][] textPixels = new CompareScreenshots(screenshotWithAllTextColoredBlack, screenshotWithAllTextColoredWhite).differentPixels;
-        Visualization.algorithmFinished("3.) Done: Determine text pixels by comparing the last two screenshots.", textPixels);
+        // 3.) Determine potential text pixels by comparing the last two screenshots ...
+        CompareScreenshots diff = new CompareScreenshots(screenshotWithAllTextColoredBlack, screenshotWithAllTextColoredWhite);
+        Visualization.algorithmStepFinished("3.) Determine potential text pixels by comparing the last two screenshots.", diff);
+        // 4.) Determine regions of Java Applets, embedded objects like Flash movies, iframes, and other ignored elements ...
+        Collection<RectangularRegion> ignoredRegions = getIgnoredRegions(webPage);
+        Visualization.algorithmStepFinished("4.) Determine regions of Java Applets, embedded objects like Flash movies, iframes, and other ignored elements.", ignoredRegions);
+        // 5.) Remove potential text pixels inside ignored regions ...
+        boolean[][] textPixels = diff.ignore(ignoredRegions).differentPixels;
+        Visualization.algorithmFinished("5.) Remove potential text pixels inside ignored regions.", textPixels);
         return textPixels;
     }
 }
