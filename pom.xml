@@ -1,15 +1,40 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="Windows-1252"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>de.michaeltamm</groupId>
-    <artifactId>FightingLayoutBugs</artifactId>
+    <groupId>com.googlecode.fighting-layout-bugs</groupId>
+    <artifactId>fighting-layout-bugs</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Fighting Layout Bugs</name>
     <description>A library for automatic detection of layout bugs in web pages</description>
+    <url>http://fighting-layout-bugs.googlecode.com/</url>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:svn:http://fighting-layout-bugs.googlecode.com/svn</connection>
+        <developerConnection>scm:svn:https://fighting-layout-bugs.googlecode.com/svn</developerConnection>
+        <url>http://fighting-layout-bugs.googlecode.com/svn</url>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>michael.tamm2</id>
+            <name>Michael Tamm</name>
+            <roles>
+                <role>Owner</role>
+            </roles>
+        </developer>
+    </developers>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
