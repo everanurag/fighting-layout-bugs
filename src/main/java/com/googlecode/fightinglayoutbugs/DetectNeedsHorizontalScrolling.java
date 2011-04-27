@@ -46,12 +46,12 @@ public class DetectNeedsHorizontalScrolling extends AbstractLayoutBugDetector {
             System.err.println("Skipping " + getClass().getSimpleName() + " -- " + e.getMessage());
             return emptyList();
         }
-        final int scrollMaxX = ((Number) webPage.executeJavaScript("if (typeof window.scrollMaxX != 'undefined') { return window.scrollMaxX; } else { var x = (document.documentElement ? document.documentElement : document.body); return x.scrollWidth - x.clientWidth; }")).intValue();
+        final int scrollMaxX = eval("if (typeof window.scrollMaxX != 'undefined') { return window.scrollMaxX; } else { var x = (document.documentElement ? document.documentElement : document.body); return x.scrollWidth - x.clientWidth; }", webPage);
         if (scrollMaxX == 0) {
             return emptyList();
         } else {
-            final int scrollWidth = ((Number) webPage.executeJavaScript("var x = (document.documentElement ? document.documentElement : document.body); return x.scrollWidth;")).intValue();
-            final int scrollHeight = ((Number) webPage.executeJavaScript("var x = (document.documentElement ? document.documentElement : document.body); return x.scrollHeight;")).intValue();
+            final int scrollWidth = eval("var x = (document.documentElement ? document.documentElement : document.body); return x.scrollWidth;", webPage);
+            final int scrollHeight = eval("var x = (document.documentElement ? document.documentElement : document.body); return x.scrollHeight;", webPage);
             LayoutBug layoutBug = createLayoutBug("Detected horizontal scroll bar when browser window has size " + _minimalSupportedScreenResolution + ".", webPage, new Marker() {
                 public void mark(int[][] screenshot) {
                     int w = screenshot.length;
@@ -69,6 +69,10 @@ public class DetectNeedsHorizontalScrolling extends AbstractLayoutBugDetector {
             });
             return singleton(layoutBug);
         }
+    }
+
+    private int eval(String js, WebPage webPage) {
+        return ((Number) webPage.executeJavaScript("return (function() {" + js + "})()")).intValue();
     }
 
     private void markHorizontalScrollBar(int[][] screenshot) {
