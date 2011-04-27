@@ -19,9 +19,9 @@ package com.googlecode.fightinglayoutbugs;
 import com.thoughtworks.selenium.Selenium;
 import com.thoughtworks.selenium.SeleniumException;
 import org.apache.commons.codec.binary.Base64;
-import org.openqa.selenium.By;
-import org.openqa.selenium.SearchContext;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
+import org.openqa.selenium.Dimension;
+import org.openqa.selenium.Point;
 import org.openqa.selenium.internal.FindsById;
 import org.openqa.selenium.internal.FindsByTagName;
 import org.openqa.selenium.internal.FindsByXPath;
@@ -185,7 +185,7 @@ public class WebPageBackedBySelenium extends WebPage {
         }
     }
 
-    private class SeleniumWebElement implements WebElement {
+    private class SeleniumWebElement implements RenderedWebElement {
         private final Selenium selenium;
         private final String locator;
 
@@ -217,10 +217,6 @@ public class WebPageBackedBySelenium extends WebPage {
                 // SeleniumException thrown if attribute value is ""
                 return "";
             }
-        }
-
-        private String getLocator() {
-            return locator;
         }
 
         public String getTagName() {
@@ -263,6 +259,40 @@ public class WebPageBackedBySelenium extends WebPage {
                 selenium.check(locator);
                 return true;
             }
+        }
+
+        @Override
+        public boolean isDisplayed() {
+            return selenium.isVisible(locator);
+        }
+
+        @Override
+        public Point getLocation() {
+            throw new UnsupportedOperationException("Not implemented.");
+        }
+
+        @Override
+        public Dimension getSize() {
+            throw new UnsupportedOperationException("Not implemented.");
+        }
+
+        @Override
+        public void dragAndDropBy(int moveRightBy, int moveDownBy) {
+            throw new UnsupportedOperationException("Not implemented.");
+        }
+
+        @Override
+        public void dragAndDropOn(RenderedWebElement element) {
+            throw new UnsupportedOperationException("Not implemented.");
+        }
+
+        @Override
+        public String getValueOfCssProperty(String propertyName) {
+            throw new UnsupportedOperationException("Not implemented.");
+        }
+
+        private String getLocator() {
+            return locator;
         }
     }
 }

@@ -47,6 +47,17 @@ public class DetectInvalidImageUrlsTest extends TestUsingSelenium {
     }
 
     @Test
+    public void shouldNotFindInvalidImageUrlsInYahooSportsPage() throws Exception {
+        WebPage yahooSportsPage = getWebPageFor("/Yahoo!_Sports.html");
+        LayoutBugDetector detector = new DetectInvalidImageUrls();
+        Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(yahooSportsPage);
+        for (LayoutBug bug : layoutBugs) {
+            System.out.println(bug);
+        }
+        assertThat(layoutBugs.isEmpty());
+    }
+
+    @Test
     public void shouldFindInvalidImageUrls() throws Exception {
         WebPage pageWithInvalidImageUrls = getWebPageFor("/page_with_invalid_image_urls.html");
         LayoutBugDetector detector = new DetectInvalidImageUrls();

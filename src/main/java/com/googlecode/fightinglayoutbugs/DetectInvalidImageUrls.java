@@ -101,7 +101,7 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
             try {
                 final List<LayoutBug> layoutBugs = new ArrayList<LayoutBug>();
                 // 1. Check the src attribute of all <img> elements ...
-                checkImgElements(webPage, layoutBugs);
+                checkVisibleImgElements(webPage, layoutBugs);
                 // 2. Check the style attribute of all elements ...
                 checkStyleAttributes(webPage, layoutBugs);
                 // 3. Check all <style> elements ...
@@ -143,28 +143,30 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
         }
     }
 
-    private void checkImgElements(WebPage webPage, List<LayoutBug> layoutBugs) {
+    private void checkVisibleImgElements(WebPage webPage, List<LayoutBug> layoutBugs) {
         int numImgElementsWithoutSrcAttribute = 0;
         int numImgElementsWithEmptySrcAttribute = 0;
         final Set<String> seen = new HashSet<String>();
         for (WebElement img : webPage.findElements(By.tagName("img"))) {
-            final String src = img.getAttribute("src");
-            if (src == null) {
-                ++numImgElementsWithoutSrcAttribute;
-            } else if ("".equals(src)) {
-                ++numImgElementsWithEmptySrcAttribute;
-            } else {
-                if (!seen.contains(src)) {
-                    try {
-                        final URL imageUrl = getCompleteUrlFor(src);
-                        final String error = checkImageUrl(imageUrl);
-                        if (error.length() > 0) {
-                            layoutBugs.add(createLayoutBug("Detected <img> element with invalid src attribute \"" + src + "\" - " + error, webPage, saveScreenshot()));
+            if (((RenderedWebElement) img).isDisplayed()) {
+                final String src = img.getAttribute("src");
+                if (src == null) {
+                    ++numImgElementsWithoutSrcAttribute;
+                } else if ("".equals(src)) {
+                    ++numImgElementsWithEmptySrcAttribute;
+                } else {
+                    if (!seen.contains(src)) {
+                        try {
+                            final URL imageUrl = getCompleteUrlFor(src);
+                            final String error = checkImageUrl(imageUrl);
+                            if (error.length() > 0) {
+                                layoutBugs.add(createLayoutBug("Detected <img> element with invalid src attribute \"" + src + "\" - " + error, webPage, saveScreenshot()));
+                            }
+                        } catch (MalformedURLException e) {
+                            layoutBugs.add(createLayoutBug("Detected <img> element with invalid src attribute \"" + src + "\" - " + e.getMessage(), webPage, saveScreenshot()));
                         }
-                    } catch (MalformedURLException e) {
-                        layoutBugs.add(createLayoutBug("Detected <img> element with invalid src attribute \"" + src + "\" - " + e.getMessage(), webPage, saveScreenshot()));
+                        seen.add(src);
                     }
-                    seen.add(src);
                 }
             }
         }

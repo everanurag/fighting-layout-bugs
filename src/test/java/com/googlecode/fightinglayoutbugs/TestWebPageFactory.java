@@ -138,6 +138,8 @@ public enum TestWebPageFactory {
         public WebPage createWebPageFor(URL url) {
             if (lastUrl != null && !StringHelper.equals(lastUrl.getHost(), url.getHost())) {
                 destroyDefaultSelenium();
+            }
+            if (defaultSelenium == null) {
                 LOG.info("Starting DefaultSelenium with " + browser + " for " + url.getProtocol() + "://" + url.getHost() + " ...");
                 defaultSelenium = new DefaultSelenium("localhost", seleniumServerPort, browserStartCommand, url.toExternalForm());
                 defaultSelenium.start(optionsString);

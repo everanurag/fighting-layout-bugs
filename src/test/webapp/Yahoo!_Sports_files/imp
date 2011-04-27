@@ -1,0 +1,6 @@
+document.write('<a target=\"_blank\" href=\"http://ads.bluelithium.com/clk?2,13%3B3892253916d18cb7%3B12f98f0585c,0%3B%3B%3B3258624609,XKUDAMuUGADwrYAAAAAAANKFGQAAAAAAAAAoAAIAAAAAAAEABAAEGJ6uAQAAAAAA9BEiAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADdJAIAAAAAAAIAAgAAAAAAD1jwmC8BAAAAAAAAADNmZjEyNzNjLTcxMTgtMTFlMC04M2Q3LTFjYzFkZTAzZjNiMgCJ5gEAAAA=,http%3A%2F%2Fglobal.ard.yahoo.com%2FSIG%3D15punavgi%2FM%3D787833.14445126.14291893.1806201%2FD%3Dsports%2FS%3D25664825%3ALREC%2F_ylt%3DAk4PmAAh8bDQdKhDfoSo41o5nYcB%2FY%3DYAHOO%2FEXP%3D1303948145%2FL%3D.AF4l0wNdHHLm.6zTV7JXgGlWEk_QE24j1EAB0ny%2FB%3DQU9thUwNPEg-%2FJ%3D1303940945630848%2FK%3D5sbnfS57yha__Yw7tg_S9g%2FA%3D6261244%2FR%3D0%2F%2A%24,http%3A%2F%2Fsports.yahoo.com%2F,\"><img border=\"0\" alt=\"\" height=\"250\" width=\"300\" src=\"http://content.yieldmanager.edgesuite.net/atoms/68/4f/d5/62/684fd5626d7704c5b54356f61b5fae6c.gif\"></img></a>');
+var rm_data = new Object();
+rm_data.creative_id = 8433136;
+rm_data.offer_type = 20;
+rm_data.entity_id = 92639;
+if (window.rm_crex_data) {rm_crex_data.push(8433136);}
