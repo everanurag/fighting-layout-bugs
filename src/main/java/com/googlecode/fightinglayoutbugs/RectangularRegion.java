@@ -32,6 +32,18 @@ public class RectangularRegion {
      * to the right bottom corner (x2,y2).
      */
     public RectangularRegion(int x1, int y1, int x2, int y2) {
+        if (x1 < 0) {
+            throw new IllegalArgumentException("x1 (" + x1 + ") must not be negative.");
+        }
+        if (y1 < 0) {
+            throw new IllegalArgumentException("y1 (" + y1 + ") must not be negative.");
+        }
+        if (x2 < x1) {
+            throw new IllegalArgumentException("x2 (" + x2 + ") must not be less than x1 (" + x1 + ").");
+        }
+        if (y2 < y1) {
+            throw new IllegalArgumentException("y2 (" + y2 + ") must not be less than y1 (" + y1 + ").");
+        }
         this.x1 = x1;
         this.y1 = y1;
         this.x2 = x2;

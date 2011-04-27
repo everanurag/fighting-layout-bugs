@@ -24,6 +24,12 @@ class Point {
     public final int y;
 
     Point(int x, int y) {
+        if (x < 0) {
+            throw new IllegalArgumentException("x (" + x + ") must not be negative.");
+        }
+        if (y < 0) {
+            throw new IllegalArgumentException("y (" + y + ") must not be negative.");
+        }
         this.x = x;
         this.y = y;
     }

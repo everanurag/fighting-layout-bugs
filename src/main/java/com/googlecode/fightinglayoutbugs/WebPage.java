@@ -214,11 +214,23 @@ public abstract class WebPage {
         }
         Collection<RectangularRegion> result = new ArrayList<RectangularRegion>(list.size());
         for (Map<String, Number> map : list) {
-            float top = map.get("top").floatValue();
-            float height = map.get("height").floatValue();
-            float left = map.get("left").floatValue();
-            float width = map.get("width").floatValue();
-            result.add(new RectangularRegion((int) left, (int) top, (int) Math.round(left + width - 0.5000001), (int) Math.round(top + height - 0.5000001)));
+            double top = map.get("top").doubleValue();
+            double height = map.get("height").doubleValue();
+            double left = map.get("left").doubleValue();
+            double width = map.get("width").doubleValue();
+            int x1 = (int) left;
+            int y1 = (int) top;
+            int x2 = (int) Math.round(left + width - 0.5000001);
+            int y2 = (int) Math.round(top + height - 0.5000001);
+            if (x1 < 0) {
+                x1 = 0;
+            }
+            if (y1 < 0) {
+                y1 = 0;
+            }
+            if (x1 <= x2 && y1 <= y2) {
+                result.add(new RectangularRegion(x1, y1, x2, y2));
+            }
         }
         return result;
     }
