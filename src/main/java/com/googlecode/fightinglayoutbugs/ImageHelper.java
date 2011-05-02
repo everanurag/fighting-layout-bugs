@@ -386,12 +386,10 @@ public class ImageHelper {
      */
     public static void blend(int[][] pixels, int[][] pixelsWithAlpha) {
         if (pixels != null && pixelsWithAlpha != null) {
-            final int w = pixels.length;
+            final int w = Math.min(pixels.length, pixelsWithAlpha.length);
             if (w > 0) {
-                final int h = pixels[0].length;
+                final int h = Math.min(pixels[0].length, pixelsWithAlpha[0].length);
                 if (h > 0) {
-                    assert pixelsWithAlpha.length == w;
-                    assert pixelsWithAlpha[0].length == h;
                     for (int x = 0; x < w; ++x) {
                         for (int y = 0; y < h; ++y) {
                             final int p2 = pixelsWithAlpha[x][y];
@@ -436,7 +434,7 @@ public class ImageHelper {
         int x0 = 0;
         int y0 = 0;
         // Look for starting point on top border ...
-        while (pixels[x0][y0] && x0 < w) {
+        while (x0 < w && pixels[x0][y0]) {
             // ... and bottom border ...
             if (!pixels[x0][h1]) {
                 y0 = h1;
@@ -448,7 +446,7 @@ public class ImageHelper {
             // Look for starting point on left border ...
             x0 = 1;
             // ... and right border ...
-            while (pixels[x0][y0] && y0 < h) {
+            while (y0 < h && pixels[x0][y0]) {
                 if (!pixels[w1][y0]) {
                     x0 = w1;
                     break;
