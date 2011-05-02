@@ -200,6 +200,30 @@ public enum TestWebPageFactory {
         }
     }
 
+    public static URL makeAbsolute(String pathToHtmlPageOrCompleteUrl) {
+        URL absoluteUrl;
+        try {
+            if (isAbsolute(pathToHtmlPageOrCompleteUrl)) {
+                absoluteUrl = new URL(pathToHtmlPageOrCompleteUrl);
+            } else {
+                final URL baseUrl = new URL("http://localhost:" + TestWebServer.getPort() + "/");
+                absoluteUrl = new URL(baseUrl, pathToHtmlPageOrCompleteUrl);
+            }
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+        return absoluteUrl;
+    }
+
+    public static boolean isAbsolute(String url) {
+        try {
+            String host = new URL(url).getHost();
+            return (host != null);
+        } catch (MalformedURLException ignored) {
+            return false;
+        }
+    }
+
     protected abstract WebPageCreator getCreator();
 
     /**
@@ -229,29 +253,5 @@ public enum TestWebPageFactory {
             creatorFromLastFactory = lastFactory.getCreator();
         }
         return creatorFromLastFactory.createWebPageFor(absoluteUrl);
-    }
-
-    private URL makeAbsolute(String pathToHtmlPageOrCompleteUrl) {
-        URL absoluteUrl;
-        try {
-            if (isAbsolute(pathToHtmlPageOrCompleteUrl)) {
-                absoluteUrl = new URL(pathToHtmlPageOrCompleteUrl);
-            } else {
-                final URL baseUrl = new URL("http://localhost:" + TestWebServer.getPort() + "/");
-                absoluteUrl = new URL(baseUrl, pathToHtmlPageOrCompleteUrl);
-            }
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
-        return absoluteUrl;
-    }
-
-    private boolean isAbsolute(String url) {
-        try {
-            String host = new URL(url).getHost();
-            return (host != null);
-        } catch (MalformedURLException ignored) {
-            return false;
-        }
     }
 }

@@ -55,7 +55,7 @@ public class AnimationAwareTextDetector extends AbstractTextDetector {
         CompareScreenshots diff2 = new CompareScreenshots(screenshot1, screenshot2).ignore(ignoredRegions);
         Visualization.algorithmStepFinished("7.) Compare the last screenshot with the initial screenshot (ignoring ignored regions) to find more animated pixels.", diff2);
         boolean[][] textPixels;
-        if (diff2.noDifferencesFound) {
+        if (diff2.noDifferencesFound()) {
             // 8.) No more animated pixels found, remove potential text pixels inside ignored regions ...
             textPixels = diff1.ignore(ignoredRegions).differentPixels;
             Visualization.algorithmFinished("8.) No more animated pixels, remove potential text pixels inside ignored regions.", textPixels);

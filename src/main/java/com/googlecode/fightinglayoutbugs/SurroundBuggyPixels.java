@@ -38,11 +38,8 @@ public class SurroundBuggyPixels implements Marker {
     }
 
     public void mark(int[][] screenshot) {
-        final int w = _buggyPixels.length;
-        final int h = _buggyPixels[0].length;
-        if (screenshot.length != w || screenshot[0].length != h) {
-            throw new RuntimeException("Buggy pixels (" + w + " x " + h + ") have different size than screenshot (" + screenshot.length + " x " + screenshot[0].length + ").");
-        }
+        final int w = Math.min(screenshot.length, _buggyPixels.length);
+        final int h = Math.min(screenshot[0].length, _buggyPixels[0].length);
         // 1.) Find buggy areas by drawing a circle with a radius of 5 pixels around each buggy pixel ...
         final boolean[][] buggyAreas = new boolean[w][h];
         for (int x = 0; x < w; ++x) {

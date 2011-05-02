@@ -66,33 +66,6 @@ public class LayoutBug {
         return _screenshotFile;
     }
 
-    public void markScreenshotUsing(Marker marker) {
-        if (_screenshotFile == null) {
-            throw new IllegalStateException("This LayoutBug has no screenshot.");
-        }
-        try {
-            int[][] pixels = ImageHelper.fileToPixels(_screenshotFile);
-            marker.mark(pixels);
-            // Sometimes overwriting the existing screenshot file did not work
-            // on my machine (Windows Vista 64 bit, Sun JDK 1.6.0_10 64 bit),
-            // therefore I always create a new file here ...
-            final String name = _screenshotFile.getName();
-            final String prefix = name.substring(0, name.indexOf('.') + 1);
-            final File newFile = File.createTempFile(prefix, ".png", _screenshotFile.getParentFile());
-            ImageHelper.pixelsToPngFile(pixels, newFile);
-            try {
-                if (!_screenshotFile.delete()) {
-                    _screenshotFile.deleteOnExit();
-                }
-            } finally {
-                _screenshotFile = newFile;
-            }
-        } catch (Exception e) {
-            System.err.print("Could not mark screenshot: ");
-            e.printStackTrace(System.err);
-        }
-    }
-
     @Override
     public String toString() {
         if (_screenshotFile == null) {

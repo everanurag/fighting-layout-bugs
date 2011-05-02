@@ -46,38 +46,29 @@ public abstract class AbstractLayoutBugDetector implements LayoutBugDetector {
         return createLayoutBug(message, webPage, true, marker);
     }
 
+    protected LayoutBug createLayoutBug(String message, WebPage webPage, int[][] screenshot) {
+        File screenshotFile = null;
+        if (screenshotDir != null) {
+            screenshotFile = saveScreenshot(screenshot);
+        }
+        return new LayoutBug(message, webPage, screenshotFile);
+    }
+
     private LayoutBug createLayoutBug(String message, WebPage webPage, boolean saveScreenshot, Marker marker) {
         File screenshotFile = null;
-        boolean screenshotSaved = false;
         if (saveScreenshot && screenshotDir != null) {
-            final DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-            String prefix = getClass().getSimpleName();
-            if (prefix.startsWith("Detect")) {
-                prefix = prefix.substring("Detect".length());
-            }
-            try {
-                if (!screenshotDir.exists()) {
-                    FileUtils.forceMkdir(screenshotDir);
+            Screenshot screenshot = webPage.getScreenshot();
+            if (marker != null) {
+                try {
+                    marker.mark(screenshot.pixels);
+                } catch (Exception e) {
+                    System.err.print("Could not mark screenshot: ");
+                    e.printStackTrace(System.err);
                 }
-                screenshotFile = File.createTempFile(prefix + "_" + df.format(new Date()) + ".", ".png", screenshotDir);
-                Screenshot screenshot = webPage.getScreenshot();
-                ImageHelper.pixelsToPngFile(screenshot.pixels, screenshotFile);
-                screenshotSaved = true;
-            } catch (Exception e) {
-                System.err.print("Could not save screenshot: ");
-                e.printStackTrace(System.err);
             }
+            screenshotFile = saveScreenshot(screenshot.pixels);
         }
-        final LayoutBug layoutBug = new LayoutBug(message, webPage, screenshotFile);
-        if (screenshotSaved && marker != null) {
-            try {
-                layoutBug.markScreenshotUsing(marker);
-            } catch (Exception e) {
-                System.err.print("Could not mark screenshot: ");
-                e.printStackTrace(System.err);
-            }
-        }
-        return layoutBug;
+        return new LayoutBug(message, webPage, screenshotFile);
     }
 
     public final Collection<LayoutBug> findLayoutBugsIn(WebDriver driver) {
@@ -88,5 +79,31 @@ public abstract class AbstractLayoutBugDetector implements LayoutBugDetector {
     public final Collection<LayoutBug> findLayoutBugsIn(Selenium selenium) {
         WebPage webPage = new WebPageBackedBySelenium(selenium);
         return findLayoutBugsIn(webPage);
+    }
+
+    private File saveScreenshot(int[][] pixels) {
+        File screenshotFile = null;
+        final DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        String prefix = getClass().getSimpleName();
+        if (prefix.startsWith("Detect")) {
+            prefix = prefix.substring("Detect".length());
+        }
+        boolean success = false;
+        try {
+            if (!screenshotDir.exists()) {
+                FileUtils.forceMkdir(screenshotDir);
+            }
+            screenshotFile = File.createTempFile(prefix + "_" + df.format(new Date()) + ".", ".png", screenshotDir);
+            ImageHelper.pixelsToPngFile(pixels, screenshotFile);
+            success = true;
+        } catch (Exception e) {
+            System.err.print("Could not save screenshot: ");
+            e.printStackTrace(System.err);
+        } finally {
+            if (!success) {
+                screenshotFile = null;
+            }
+        }
+        return screenshotFile;
     }
 }

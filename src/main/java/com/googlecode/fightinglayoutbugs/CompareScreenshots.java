@@ -27,53 +27,56 @@ public class CompareScreenshots {
     public final int height;
     public final boolean[][] differentPixels;
 
-    public boolean noDifferencesFound;
+    private boolean foundDifferences;
 
     public CompareScreenshots(Screenshot screenshot1, Screenshot screenshot2) {
-        if (!screenshot1.dimension.equals(screenshot2.dimension)) {
-            throw new IllegalArgumentException("Given screenshot1 has dimension " + screenshot1.dimension + " but screenshot2 has dimension " + screenshot2.dimension + ".");
-        }
         int[][] pixels1 = screenshot1.pixels;
         int[][] pixels2 = screenshot2.pixels;
-        width = screenshot1.width;
-        height = screenshot1.height;
+        width = Math.min(screenshot1.width, screenshot2.width);
+        height = Math.min(screenshot1.height, screenshot2.height);
         differentPixels = new boolean[width][height];
-        boolean foundDifferentPixels = false;
+        foundDifferences = false;
         for (int x = 0; x < width; ++x) {
             for (int y = 0; y < height; ++y) {
                 if (pixels1[x][y] != pixels2[x][y]) {
-                    foundDifferentPixels = true;
+                    foundDifferences = true;
                     differentPixels[x][y] = true;
                 }
             }
         }
-        noDifferencesFound = !foundDifferentPixels;
     }
 
     /**
      * Updates and returns this {@code CompareScreenshots} object.
      */
-    public CompareScreenshots ignore(Collection<RectangularRegion> ignoredRegions) {
-        for (RectangularRegion ignoredRegion : ignoredRegions) {
+    public CompareScreenshots ignore(Collection<RectangularRegion> regionsToIgnore) {
+        for (RectangularRegion ignoredRegion : regionsToIgnore) {
             int x2 = Math.min(width - 1, ignoredRegion.x2);
-            int y2 = Math.min(height- 1, ignoredRegion.y2);
+            int y2 = Math.min(height - 1, ignoredRegion.y2);
             for (int x = ignoredRegion.x1; x <= x2; ++x) {
                 for (int y = ignoredRegion.y1; y <= y2; ++y) {
                     differentPixels[x][y] = false;
                 }
             }
         }
-        boolean foundDifferentPixels = false;
+        foundDifferences = false;
         outerLoop:
         for (int x = 0; x < width; ++x) {
             for (int y = 0; y < height; ++y) {
                 if (differentPixels[x][y]) {
-                    foundDifferentPixels = true;
+                    foundDifferences = true;
                     break outerLoop;
                 }
             }
         }
-        noDifferencesFound = !foundDifferentPixels;
         return this;
+    }
+
+    public boolean noDifferencesFound() {
+        return !foundDifferences;
+    }
+
+    public boolean differencesFound() {
+        return foundDifferences;
     }
 }
