@@ -59,14 +59,17 @@ public abstract class AbstractLayoutBugDetector implements LayoutBugDetector {
         if (saveScreenshot && screenshotDir != null) {
             Screenshot screenshot = webPage.getScreenshot();
             if (marker != null) {
+                final int[][] screenshotPixels = ImageHelper.copyOf(screenshot.pixels);
                 try {
-                    marker.mark(screenshot.pixels);
+                    marker.mark(screenshotPixels);
                 } catch (Exception e) {
                     System.err.print("Could not mark screenshot: ");
                     e.printStackTrace(System.err);
                 }
+                screenshotFile = saveScreenshot(screenshotPixels);
+            } else {
+                screenshotFile = saveScreenshot(screenshot.pixels);
             }
-            screenshotFile = saveScreenshot(screenshot.pixels);
         }
         return new LayoutBug(message, webPage, screenshotFile);
     }
