@@ -43,7 +43,7 @@ public class SimpleEdgeDetector implements EdgeDetector {
     private int _minVerticalEdgeLength = 10;
 
     /**
-     * Sets the minimal contrast two pixels must have to be considered as candidates for an edge, default is <code>1&#46;75</code>
+     * Sets the minimal contrast two pixels must have to be considered as candidates for an edge, default is <code>1&#46;5</code>
      * -- see <a href="http://trace.wisc.edu/contrast-ratio-examples/TextSamples_6x6x6_On_000000.htm">Web-safe Colored Text shown on #000</a>
      * for a visualization of different contrast values.
      */
@@ -105,7 +105,7 @@ public class SimpleEdgeDetector implements EdgeDetector {
                 }
             }
         }
-        Visualization.algorithmStepFinished("1.) Determine candidates (those pixels, which have a high contrast to the pixel below/above itself).", candidates);
+        Visualization.algorithmStepFinished("1.) Determine candidates (those pixels, which have a high contrast to the pixel below/above itself).", webPage, candidates);
         // 2.) Find horizontal pixels sequences in candidates of similar color with configured minimal length ...
         boolean[][] horizontalEdges = new boolean[w][h];
         for (int y = 0; y < h; ++y) {
@@ -133,7 +133,7 @@ public class SimpleEdgeDetector implements EdgeDetector {
                 }
             } while(x1 < w);
         }
-        Visualization.algorithmFinished("2.) Done: Find horizontal pixels sequences in candidates of similar color with minimal " + amountString(_minHorizontalEdgeLength, "pixel") + " length.", horizontalEdges);
+        Visualization.algorithmFinished("2.) Done: Find horizontal pixels sequences in candidates of similar color with minimal " + amountString(_minHorizontalEdgeLength, "pixel") + " length.", webPage, horizontalEdges);
         return horizontalEdges;
     }
 
@@ -152,7 +152,7 @@ public class SimpleEdgeDetector implements EdgeDetector {
                 }
             }
         }
-        Visualization.algorithmStepFinished("1.) Determine candidates (those pixels, which have a high contrast to the pixel on the left/right).", candidates);
+        Visualization.algorithmStepFinished("1.) Determine candidates (those pixels, which have a high contrast to the pixel on the left/right).", webPage, candidates);
         // 2.) Find vertical pixels sequences in candidates of similar color and with configured minimal length ...
         boolean[][] verticalEdges = new boolean[w][h];
         for (int x = 0; x < w; ++x) {
@@ -180,7 +180,7 @@ public class SimpleEdgeDetector implements EdgeDetector {
                 }
             } while(y1 < h);
         }
-        Visualization.algorithmFinished("2.) Done: Find vertical pixels sequences in candidates of similar color and with minimal " + amountString(_minVerticalEdgeLength, "pixel") + " length.", verticalEdges);
+        Visualization.algorithmFinished("2.) Done: Find vertical pixels sequences in candidates of similar color and with minimal " + amountString(_minVerticalEdgeLength, "pixel") + " length.", webPage, verticalEdges);
         return verticalEdges;
     }
 
@@ -191,5 +191,4 @@ public class SimpleEdgeDetector implements EdgeDetector {
     private boolean haveSimilarColor(int rgb1, int rgb2) {
         return (rgb1 == rgb2) || (getContrast(rgb1, rgb2) <= _similarColorMaxContrast);
     }
-
 }

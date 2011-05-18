@@ -21,6 +21,7 @@ import org.apache.commons.io.FileUtils;
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
+import java.util.Random;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.googlecode.fightinglayoutbugs.StringHelper.amountString;
@@ -52,5 +53,50 @@ public class FileHelper {
 
     }
 
+    public static File createTempDir() throws IOException {
+        final File baseDir = new File(System.getProperty("java.io.tmpdir"));
+        if (!baseDir.isDirectory()) {
+            throw new IOException("java.io.tmpdir (" + baseDir + ") is not a directory.");
+        }
+        final StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        int i = 0;
+        while (!stackTrace[i].getClassName().equals(FileHelper.class.getName())) { ++i; }
+        while (stackTrace[i].getClassName().equals(FileHelper.class.getName())) { ++i; }
+        String prefix = stackTrace[i].getClassName();
+        prefix = prefix.substring(prefix.lastIndexOf('.') + 1);
+        File tempDir;
+        boolean tempDirSuccessfullyCreated;
+        do {
+            final long randomLong = LazyInitRandom.nextLong();
+            final String dirName = prefix + (randomLong < 0 ? randomLong : "-" + randomLong);
+            tempDir = new File(baseDir, dirName);
+            tempDirSuccessfullyCreated = !tempDir.exists() && tempDir.mkdir();
+        } while (!tempDirSuccessfullyCreated);
+        return tempDir;
+    }
+
     protected FileHelper() {}
+
+    private static class LazyInitRandom {
+
+        private static Random c_random;
+        private static RuntimeException c_initException;
+
+        static {
+            try {
+                c_random = new Random();
+            } catch (RuntimeException e) {
+                c_initException = e;
+            }
+        }
+
+        public static long nextLong() {
+            if (c_random == null) {
+                throw c_initException;
+            }
+            return c_random.nextLong();
+        }
+
+        private LazyInitRandom() {}
+    }
 }
