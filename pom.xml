@@ -125,10 +125,6 @@
                     <groupId>org.seleniumhq.selenium</groupId>
                     <artifactId>selenium-htmlunit-driver</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>org.seleniumhq.selenium</groupId>
-                    <artifactId>selenium-support</artifactId>
-                </exclusion>
             </exclusions>
             <scope>test</scope>
         </dependency>

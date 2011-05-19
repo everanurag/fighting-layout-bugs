@@ -35,15 +35,15 @@ import org.junit.runners.Suite;
     DetectTextWithTooLowContrastTest.class,
     WebPageTest.class
 })
-public class AllTestsUsingInternetExplorerDriver {
+public class AllTestsUsingRemoteWebDriverWithFirefox {
 
     @BeforeClass
     public static void freezeTestWebPageFactory() {
-        TestWebPageFactory.UsingInternetExplorerDriver.freeze();
+        TestWebPageFactory.UsingRemoteWebDriverWithFirefox.freeze();
     }
 
     @AfterClass
     public static void meltTestWebPageFactory() {
-        TestWebPageFactory.UsingInternetExplorerDriver.melt();
+        TestWebPageFactory.UsingRemoteWebDriverWithFirefox.melt();
     }
 }

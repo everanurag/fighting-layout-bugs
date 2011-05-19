@@ -16,14 +16,19 @@
 
 package com.googlecode.fightinglayoutbugs;
 
+import org.apache.commons.codec.binary.Base64;
 import org.openqa.selenium.*;
 
 import java.util.List;
+
+import static com.google.common.primitives.Bytes.asList;
 
 /**
  * @author Michael Tamm
  */
 public class WebPageBackedByWebDriver extends WebPage {
+
+    private static List<Byte> PNG_SIGNATURE = asList(new byte[]{ (byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A });
 
     private final WebDriver _driver;
 
@@ -57,7 +62,22 @@ public class WebPageBackedByWebDriver extends WebPage {
 
     protected byte[] takeScreenshotAsPng() {
         if (_driver instanceof TakesScreenshot) {
-            return ((TakesScreenshot) _driver).getScreenshotAs(OutputType.BYTES);
+            byte[] bytes = ((TakesScreenshot) _driver).getScreenshotAs(OutputType.BYTES);
+            if (bytes == null) {
+                throw new RuntimeException(_driver.getClass().getName() + ".getScreenshotAs(OutputType.BYTES) returned null.");
+            }
+            if (bytes.length < 8) {
+                throw new RuntimeException(_driver.getClass().getName() + ".getScreenshotAs(OutputType.BYTES) did not return a PNG image.");
+            } else {
+                // Workaround for http://code.google.com/p/selenium/issues/detail?id=1686 ...
+                if (!asList(bytes).subList(0, 8).equals(PNG_SIGNATURE)) {
+                    bytes = Base64.decodeBase64(bytes);
+                }
+                if (!asList(bytes).subList(0, 8).equals(PNG_SIGNATURE)) {
+                    throw new RuntimeException(_driver.getClass().getName() + ".getScreenshotAs(OutputType.BYTES) did not return a PNG image.");
+                }
+            }
+            return bytes;
         } else {
             throw new UnsupportedOperationException(_driver.getClass().getName() + " does not support taking screenshots.");
         }

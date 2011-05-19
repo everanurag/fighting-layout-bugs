@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Michael Tamm
+ * Copyright 2009-2011 Michael Tamm
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import org.junit.runners.Suite.SuiteClasses;
     AllUnitTests.class,
     AllTestsUsingFirefoxDriver.class,
     AllTestsUsingInternetExplorerDriver.class,
+    AllTestsUsingRemoteWebDriverWithFirefox.class,
     AllTestsUsingDefaultSeleniumWithFirefox.class,
     AllTestsUsingChromeDriver.class
 })

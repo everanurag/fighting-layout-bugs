@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Michael Tamm
+ * Copyright 2009-2011 Michael Tamm
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,5 +46,4 @@ public class AllTestsUsingFirefoxDriver {
     public static void meltTestWebPageFactory() {
         TestWebPageFactory.UsingFirefoxDriver.melt();
     }
-
 }

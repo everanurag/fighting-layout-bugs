@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Michael Tamm
+ * Copyright 2009-2011 Michael Tamm
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,9 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxBinary;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
+import org.openqa.selenium.remote.Augmenter;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.server.RemoteControlConfiguration;
 import org.openqa.selenium.server.SeleniumServer;
 
@@ -61,6 +64,12 @@ public enum TestWebPageFactory {
             WebDriver driver = new InternetExplorerDriver();
             LOG.info("InternetExplorerDriver created.");
             return new WebPageCreatorUsingWebDriver(driver);
+        }
+    },
+    UsingRemoteWebDriverWithFirefox {
+        @Override
+        protected WebPageCreator getCreator() {
+            return new WebPageCreatorUsingRemoteWebDriver(DesiredCapabilities.firefox());
         }
     },
     UsingDefaultSeleniumWithFirefox {
@@ -104,19 +113,11 @@ public enum TestWebPageFactory {
         }
     }
 
-    private static class WebPageCreatorUsingDefaultSelenium implements WebPageCreator {
-        private String browser;
-        private String browserStartCommand;
-        private String optionsString;
+    private static class StartSeleniumServer {
         private SeleniumServer seleniumServer;
-        private int seleniumServerPort;
-        private DefaultSelenium defaultSelenium;
-        private URL lastUrl;
+        protected int seleniumServerPort;
 
-        private WebPageCreatorUsingDefaultSelenium(String browser,  String browserStartCommand, String optionsString) {
-            this.browser = browser;
-            this.browserStartCommand = browserStartCommand;
-            this.optionsString = optionsString;
+        private StartSeleniumServer() {
             LOG.info("Starting SeleniumServer ...");
             RemoteControlConfiguration config = new RemoteControlConfiguration();
             seleniumServerPort = SocketHelper.findFreePort();
@@ -132,6 +133,61 @@ public enum TestWebPageFactory {
                 throw new RuntimeException("Could not start SeleniumServer.", e);
             }
             LOG.info("SeleniumServer started.");
+        }
+
+        protected void destroy() {
+            try {
+                LOG.info("Stopping SeleniumServer ...");
+                seleniumServer.stop();
+                LOG.info("SeleniumServer stopped.");
+            } finally {
+                seleniumServer = null;
+            }
+        }
+    }
+
+    private static class WebPageCreatorUsingRemoteWebDriver extends StartSeleniumServer implements WebPageCreator {
+        private WebDriver driver;
+
+        private WebPageCreatorUsingRemoteWebDriver(DesiredCapabilities desiredCapabilities) {
+            try {
+                driver = new Augmenter().augment(new RemoteWebDriver(new URL("http://127.0.0.1:" + seleniumServerPort + "/wd/hub"), desiredCapabilities));
+            } catch (MalformedURLException shouldNeverHappen) {
+                throw new RuntimeException(shouldNeverHappen);
+            }
+        }
+
+        @Override
+        public WebPage createWebPageFor(URL url) {
+            driver.get(url.toExternalForm());
+            return new WebPageBackedByWebDriver(driver);
+        }
+
+        @Override
+        public void destroy() {
+            try {
+                String driverName = driver.getClass().getSimpleName();
+                LOG.info("Destroying " + driverName + " ...");
+                driver.quit();
+                LOG.info(driverName + " destroyed.");
+            } finally {
+                driver = null;
+                super.destroy();
+            }
+        }
+    }
+
+    private static class WebPageCreatorUsingDefaultSelenium extends StartSeleniumServer implements WebPageCreator {
+        private String browser;
+        private String browserStartCommand;
+        private String optionsString;
+        private DefaultSelenium defaultSelenium;
+        private URL lastUrl;
+
+        private WebPageCreatorUsingDefaultSelenium(String browser, String browserStartCommand, String optionsString) {
+            this.browser = browser;
+            this.browserStartCommand = browserStartCommand;
+            this.optionsString = optionsString;
         }
 
         @Override
@@ -167,13 +223,7 @@ public enum TestWebPageFactory {
             try {
                 destroyDefaultSelenium();
             } finally {
-                try {
-                    LOG.info("Stopping SeleniumServer ...");
-                    seleniumServer.stop();
-                    LOG.info("SeleniumServer stopped.");
-                } finally {
-                    seleniumServer = null;
-                }
+                super.destroy();
             }
         }
     }
