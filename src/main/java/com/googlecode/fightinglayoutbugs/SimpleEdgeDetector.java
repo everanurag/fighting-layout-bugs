@@ -91,10 +91,12 @@ public class SimpleEdgeDetector implements EdgeDetector {
     }
 
     public boolean[][] detectHorizontalEdgesIn(WebPage webPage) {
+        // 1.) Take screenshot without text ...
         final int[][] pixels = webPage.getScreenshot(withNoText()).pixels;
         final int w = pixels.length;
         final int h = pixels[0].length;
-        // 1.) Determine candidates (those pixels, which have a high contrast to the pixel below/above itself) ...
+        Visualization.algorithmStepFinished("1.) Take screenshot without text.", webPage, pixels);
+        // 2.) Determine candidates (those pixels, which have a high contrast to the pixel below/above itself) ...
         final int h1 = h - 1;
         boolean[][] candidates = new boolean[w][h];
         for (int y = 0; y < h1; ++y) {
@@ -105,8 +107,8 @@ public class SimpleEdgeDetector implements EdgeDetector {
                 }
             }
         }
-        Visualization.algorithmStepFinished("1.) Determine candidates (those pixels, which have a high contrast to the pixel below/above itself).", webPage, candidates);
-        // 2.) Find horizontal pixels sequences in candidates of similar color with configured minimal length ...
+        Visualization.algorithmStepFinished("2.) Determine candidates (those pixels, which have a high contrast to the pixel below/above itself).", webPage, candidates);
+        // 3.) Find horizontal pixels sequences in candidates of similar color with configured minimal length ...
         boolean[][] horizontalEdges = new boolean[w][h];
         for (int y = 0; y < h; ++y) {
             int x1 = 0;
@@ -133,15 +135,17 @@ public class SimpleEdgeDetector implements EdgeDetector {
                 }
             } while(x1 < w);
         }
-        Visualization.algorithmFinished("2.) Done: Find horizontal pixels sequences in candidates of similar color with minimal " + amountString(_minHorizontalEdgeLength, "pixel") + " length.", webPage, horizontalEdges);
+        Visualization.algorithmFinished("3.) Done: Find horizontal pixels sequences in candidates of similar color with minimal " + amountString(_minHorizontalEdgeLength, "pixel") + " length.", webPage, horizontalEdges);
         return horizontalEdges;
     }
 
     public boolean[][] detectVerticalEdgesIn(WebPage webPage) {
+        // 1.) Take screenshot without text ...
         final int[][] pixels = webPage.getScreenshot(withNoText()).pixels;
         final int w = pixels.length;
         final int h = pixels[0].length;
-        // 1.) Determine candidates (those pixels, which have a high contrast to the pixel on the left/right) ...
+        Visualization.algorithmStepFinished("1.) Take screenshot without text.", webPage, pixels);
+        // 2.) Determine candidates (those pixels, which have a high contrast to the pixel on the left/right) ...
         final int w1 = w - 1;
         boolean[][] candidates = new boolean[w][h];
         for (int x = 0; x < w1; ++x) {
@@ -152,8 +156,8 @@ public class SimpleEdgeDetector implements EdgeDetector {
                 }
             }
         }
-        Visualization.algorithmStepFinished("1.) Determine candidates (those pixels, which have a high contrast to the pixel on the left/right).", webPage, candidates);
-        // 2.) Find vertical pixels sequences in candidates of similar color and with configured minimal length ...
+        Visualization.algorithmStepFinished("2.) Determine candidates (those pixels, which have a high contrast to the pixel on the left/right).", webPage, candidates);
+        // 3.) Find vertical pixels sequences in candidates of similar color and with configured minimal length ...
         boolean[][] verticalEdges = new boolean[w][h];
         for (int x = 0; x < w; ++x) {
             int y1 = 0;
@@ -180,7 +184,7 @@ public class SimpleEdgeDetector implements EdgeDetector {
                 }
             } while(y1 < h);
         }
-        Visualization.algorithmFinished("2.) Done: Find vertical pixels sequences in candidates of similar color and with minimal " + amountString(_minVerticalEdgeLength, "pixel") + " length.", webPage, verticalEdges);
+        Visualization.algorithmFinished("3.) Done: Find vertical pixels sequences in candidates of similar color and with minimal " + amountString(_minVerticalEdgeLength, "pixel") + " length.", webPage, verticalEdges);
         return verticalEdges;
     }
 
