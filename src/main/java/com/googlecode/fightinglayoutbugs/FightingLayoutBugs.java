@@ -16,6 +16,9 @@
 
 package com.googlecode.fightinglayoutbugs;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.util.*;
 
 /**
@@ -33,6 +36,8 @@ import java.util.*;
  * @author Michael Tamm
  */
 public class FightingLayoutBugs extends AbstractLayoutBugDetector {
+
+    private static final Log LOG = LogFactory.getLog(FightingLayoutBugs.class);
 
     private TextDetector _textDetector;
     private EdgeDetector _edgeDetector;
@@ -142,7 +147,7 @@ public class FightingLayoutBugs extends AbstractLayoutBugDetector {
         final Collection<LayoutBug> result = new ArrayList<LayoutBug>();
         for (LayoutBugDetector detector : _detectors) {
             detector.setScreenshotDir(screenshotDir);
-            System.out.println("Running " + detector.getClass().getSimpleName() + " ...");
+            LOG.debug("Running " + detector.getClass().getSimpleName() + " ...");
             result.addAll(detector.findLayoutBugsIn(webPage));
         }
         return result;

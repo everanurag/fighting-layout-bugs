@@ -21,6 +21,8 @@ import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.Cookie;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openqa.selenium.*;
 
 import java.io.IOException;
@@ -39,6 +41,8 @@ import java.util.concurrent.ConcurrentMap;
  * @author Michael Tamm
  */
 public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
+
+    private static final Log LOG = LogFactory.getLog(DetectInvalidImageUrls.class);
 
     private static class Css {
         public String charset;
@@ -485,7 +489,7 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
                 getMethod = new GetMethod(url.toURI().toString());
             } catch (URISyntaxException e) {
                 // TODO: how can we check the url?
-                System.out.println("Ignoring image URL " + url + " -- it can not be checked with Apache HttpClient.");
+                LOG.info("Ignoring image URL " + url + " -- it can not be checked with Apache HttpClient.");
                 return "";
             }
             getMethod.setFollowRedirects(true);
@@ -493,7 +497,7 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
                 _httpClient.executeMethod(getMethod);
                 if (getMethod.getStatusCode() >= 400) {
                     if (getMethod.getStatusCode() == 401) {
-                        System.out.println("Ignoring HTTP response status code 401 (" + getMethod.getStatusText() + ") for image URL " + url);
+                        LOG.info("Ignoring HTTP response status code 401 (" + getMethod.getStatusText() + ") for image URL " + url);
                         error = "";
                     } else {
                         error = "HTTP GET responded with: " + getMethod.getStatusCode() + " " + getMethod.getStatusText();

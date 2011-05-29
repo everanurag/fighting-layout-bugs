@@ -16,6 +16,9 @@
 
 package com.googlecode.fightinglayoutbugs;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -24,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DebugHelper implements Visualization.Listener {
+
+    private static final Log LOG = LogFactory.getLog(DebugHelper.class);
 
     public static class AlgorithmStep {
         public final String algorithm;
@@ -83,13 +88,17 @@ public class DebugHelper implements Visualization.Listener {
     public void algorithmStepFinished(String algorithm, String stepDescription, int[][] tempResult) {
         File screenshotFile = new File(screenshotDir, algorithm + "." + nf.format(++i) + ".png");
         ImageHelper.pixelsToPngFile(tempResult, screenshotFile);
-        algorithmSteps.add(new AlgorithmStep(algorithm,  stepDescription, screenshotFile));
+        AlgorithmStep algorithmStep = new AlgorithmStep(algorithm, stepDescription, screenshotFile);
+        LOG.debug(algorithmStep);
+        algorithmSteps.add(algorithmStep);
     }
 
     @Override
     public void algorithmFinished(String algorithm, String stepDescription, int[][] result) {
         File screenshotFile = new File(screenshotDir, algorithm + "." + nf.format(++i) + ".png");
         ImageHelper.pixelsToPngFile(result, screenshotFile);
-        algorithmSteps.add(new AlgorithmStep(algorithm,  stepDescription, screenshotFile));
+        AlgorithmStep algorithmStep = new AlgorithmStep(algorithm, stepDescription, screenshotFile);
+        LOG.debug(algorithmStep);
+        algorithmSteps.add(algorithmStep);
     }
 }

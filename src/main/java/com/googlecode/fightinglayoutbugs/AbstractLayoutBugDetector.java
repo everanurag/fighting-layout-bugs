@@ -18,6 +18,8 @@ package com.googlecode.fightinglayoutbugs;
 
 import com.thoughtworks.selenium.Selenium;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openqa.selenium.WebDriver;
 
 import java.io.File;
@@ -30,6 +32,8 @@ import java.util.Date;
  * @author Michael Tamm
  */
 public abstract class AbstractLayoutBugDetector implements LayoutBugDetector {
+
+    private static final Log LOG = LogFactory.getLog(AbstractLayoutBugDetector.class);
 
     /** The directory where screenshots of erroneous pages will be saved. */
     protected File screenshotDir = new File(System.getProperty("java.io.tmpdir"));
@@ -63,8 +67,7 @@ public abstract class AbstractLayoutBugDetector implements LayoutBugDetector {
                 try {
                     marker.mark(screenshotPixels);
                 } catch (Exception e) {
-                    System.err.print("Could not mark screenshot: ");
-                    e.printStackTrace(System.err);
+                    LOG.error("Failed to mark screenshot.", e);
                 }
                 screenshotFile = saveScreenshot(screenshotPixels);
             } else {
@@ -100,8 +103,7 @@ public abstract class AbstractLayoutBugDetector implements LayoutBugDetector {
             ImageHelper.pixelsToPngFile(pixels, screenshotFile);
             success = true;
         } catch (Exception e) {
-            System.err.print("Could not save screenshot: ");
-            e.printStackTrace(System.err);
+            LOG.error("Failed to save screenshot.", e);
         } finally {
             if (!success) {
                 screenshotFile = null;
