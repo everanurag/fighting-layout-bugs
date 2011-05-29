@@ -17,6 +17,7 @@
 package com.googlecode.fightinglayoutbugs;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -127,7 +128,7 @@ public class Visualization {
             return pixels;
         } else if ((result instanceof Screenshot) || (result instanceof int[][])) {
             return (result instanceof Screenshot ? ((Screenshot) result).pixels : (int[][]) result);
-        } else if (result instanceof List) {
+        } else if (result instanceof Collection) {
             Screenshot screenshot = webPage.getScreenshot();
             int w = screenshot.width;
             int h = screenshot.height;
@@ -139,7 +140,7 @@ public class Visualization {
                 }
             }
             ImageHelper.blend(pixels, alphaMask);
-            for (RectangularRegion r : (List<RectangularRegion>) result) {
+            for (RectangularRegion r : (Collection<RectangularRegion>) result) {
                 for (int x = r.x1; x <= Math.min(w, r.x2); ++x) {
                     for (int y = r.y1; y < Math.min(h, r.y2); ++y) {
                         pixels[x][y] = 0;
