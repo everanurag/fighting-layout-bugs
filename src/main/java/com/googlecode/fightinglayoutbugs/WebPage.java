@@ -117,6 +117,13 @@ public abstract class WebPage {
         return _html;
     }
 
+    /**
+     * Takes back any changes which might have been applied to the web page.
+     */
+    public void restore() {
+        restoreTextColors();
+    }
+
     private class Unmodified implements Condition {
         public boolean isSatisfiedBy(Screenshot screenshot) {
             return screenshot.textColor == null;
@@ -194,7 +201,7 @@ public abstract class WebPage {
         while (i.hasNext()) {
             js += "').add('" + i.next().replace("'", "\\'");
         }
-        js += "')";
+        js += "').filter(':visible')";
         // 2.) Assemble JavaScript function to fill an array with rectangular region of each selected element ...
         js = "function() { " +
                  "var a = new Array(); " +
@@ -214,22 +221,26 @@ public abstract class WebPage {
         }
         Collection<RectangularRegion> result = new ArrayList<RectangularRegion>(list.size());
         for (Map<String, Number> map : list) {
-            double top = map.get("top").doubleValue();
-            double height = map.get("height").doubleValue();
             double left = map.get("left").doubleValue();
             double width = map.get("width").doubleValue();
-            int x1 = (int) left;
-            int y1 = (int) top;
-            int x2 = (int) Math.round(left + width - 0.5000001);
-            int y2 = (int) Math.round(top + height - 0.5000001);
-            if (x1 < 0) {
-                x1 = 0;
-            }
-            if (y1 < 0) {
-                y1 = 0;
-            }
-            if (x1 <= x2 && y1 <= y2) {
-                result.add(new RectangularRegion(x1, y1, x2, y2));
+            double top = map.get("top").doubleValue();
+            double height = map.get("height").doubleValue();
+            if (height > 0 && width > 0) {
+                int x1 = (int) left;
+                int y1 = (int) top;
+                int x2 = (int) Math.round(left + width - 0.5000001);
+                int y2 = (int) Math.round(top + height - 0.5000001);
+                if (x2 >= 0 && y2 >= 0) {
+                    if (x1 < 0) {
+                        x1 = 0;
+                    }
+                    if (y1 < 0) {
+                        y1 = 0;
+                    }
+                    if (x1 <= x2 && y1 <= y2) {
+                        result.add(new RectangularRegion(x1, y1, x2, y2));
+                    }
+                }
             }
         }
         return result;
