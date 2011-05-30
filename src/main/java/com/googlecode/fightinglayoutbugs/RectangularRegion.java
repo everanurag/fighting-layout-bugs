@@ -23,7 +23,9 @@ public class RectangularRegion {
 
     public final int x1;
     public final int y1;
+    /** inclusive */
     public final int x2;
+    /** inclusive */
     public final int y2;
 
     /**

@@ -17,6 +17,7 @@
 package com.googlecode.fightinglayoutbugs;
 
 import javax.annotation.Nonnull;
+import java.awt.image.BufferedImage;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -118,5 +119,9 @@ public class Screenshot {
         width = pixels.length;
         height = pixels[0].length;
         dimension = new Dimension(width, height);
+    }
+
+    public BufferedImage toBufferedImage() {
+        return ImageHelper.pixelsToImage(pixels);
     }
 }

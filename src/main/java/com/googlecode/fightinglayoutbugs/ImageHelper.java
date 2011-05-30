@@ -27,6 +27,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.*;
 
 import static com.googlecode.fightinglayoutbugs.FileHelper.createParentDirectoryIfNeeded;
@@ -35,6 +36,16 @@ import static com.googlecode.fightinglayoutbugs.FileHelper.createParentDirectory
  * @author Michael Tamm
  */
 public class ImageHelper {
+
+    public static BufferedImage urlToImage(URL imageUrl) {
+        BufferedImage image;
+        try {
+            image = ImageIO.read(imageUrl);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read image from URL: " + imageUrl, e);
+        }
+        return image;
+    }
 
     public static BufferedImage fileToImage(File imageFile) {
         BufferedImage image;
@@ -46,16 +57,22 @@ public class ImageHelper {
         return image;
     }
 
+    public static int[][] urlToPixels(URL imageUrl) {
+        BufferedImage image = urlToImage(imageUrl);
+        int[][] pixels = imageToPixels(image);
+        return pixels;
+    }
+
     public static int[][] fileToPixels(File imageFile) {
-        final BufferedImage image;
-        image = fileToImage(imageFile);
-        return imageToPixels(image);
+        BufferedImage image = fileToImage(imageFile);
+        int[][] pixels = imageToPixels(image);
+        return pixels;
     }
 
     public static int[][] pngToPixels(byte[] png) {
         InputStream in = new ByteArrayInputStream(png);
         try {
-            final BufferedImage image = ImageIO.read(in);
+            BufferedImage image = ImageIO.read(in);
             return imageToPixels(image);
         } catch (IOException e) {
             throw new RuntimeException("Should never happen.", e);
@@ -65,7 +82,7 @@ public class ImageHelper {
     }
 
     public static void pixelsToPngFile(int[][] pixels, File pngFile) {
-        final BufferedImage image = pixelsToImage(pixels);
+        BufferedImage image = pixelsToImage(pixels);
         createParentDirectoryIfNeeded(pngFile);
         imageToPngFile(image, pngFile);
     }
@@ -79,7 +96,7 @@ public class ImageHelper {
     }
 
     public static void pixelsToPngFile(boolean[][] pixels, File pngFile) {
-        final BufferedImage image = pixelsToImage(pixels);
+        BufferedImage image = pixelsToImage(pixels);
         createParentDirectoryIfNeeded(pngFile);
         imageToPngFile(image, pngFile);
     }
@@ -88,15 +105,15 @@ public class ImageHelper {
         if (image == null) {
             return null;
         }
-        final int w = image.getWidth();
-        final int h = image.getHeight();
-        final int[][] pixels = new int[w][h];
-        final Raster raster = image.getRaster();
+        int w = image.getWidth();
+        int h = image.getHeight();
+        int[][] pixels = new int[w][h];
+        Raster raster = image.getRaster();
         if (raster.getTransferType() == DataBuffer.TYPE_BYTE) {
-            final byte[] bytes = (byte[]) raster.getDataElements(0, 0, w, h, null);
-            final int bytesPerPixel = (bytes.length / (w*h));
-            final ColorModel colorModel = image.getColorModel();
-            final byte[] buf = new byte[bytesPerPixel];
+            byte[] bytes = (byte[]) raster.getDataElements(0, 0, w, h, null);
+            int bytesPerPixel = (bytes.length / (w*h));
+            ColorModel colorModel = image.getColorModel();
+            byte[] buf = new byte[bytesPerPixel];
             for (int x = 0; x < w; ++x) {
                 for (int y = 0; y < h; ++y) {
                     System.arraycopy(bytes, (x + y * w) * bytesPerPixel, buf, 0, bytesPerPixel);
@@ -113,13 +130,13 @@ public class ImageHelper {
         if (pixels == null) {
             return null;
         }
-        final int w = pixels.length;
+        int w = pixels.length;
         if (w > 0) {
-            final int h = pixels[0].length;
+            int h = pixels[0].length;
             if (h > 0) {
-                final BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+                BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
                 for (int x = 0; x < w; ++x) {
-                    final int[] column = pixels[x];
+                    int[] column = pixels[x];
                     for (int y = 0; y < h; ++y) {
                         image.setRGB(x, y, column[y]);
                     }
@@ -137,13 +154,13 @@ public class ImageHelper {
         if (pixels == null) {
             return null;
         }
-        final int w = pixels.length;
+        int w = pixels.length;
         if (w > 0) {
-            final int h = pixels[0].length;
+            int h = pixels[0].length;
             if (h > 0) {
-                final BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+                BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
                 for (int x = 0; x < w; ++x) {
-                    final boolean[] column = pixels[x];
+                    boolean[] column = pixels[x];
                     for (int y = 0; y < h; ++y) {
                         image.setRGB(x, y, column[y] ? 0 : 0xFFFFFF);
                     }
@@ -158,15 +175,15 @@ public class ImageHelper {
     }
 
     public static int[][] copyOf(int[][] pixels) {
-        final int[][] copy;
+        int[][] copy;
         if (pixels == null) {
             copy = null;
         } else {
-            final int w = pixels.length;
+            int w = pixels.length;
             if (w == 0) {
                 copy = new int[0][];
             } else {
-                final int h = pixels[0].length;
+                int h = pixels[0].length;
                 copy = new int[w][h];
                 if (h > 0) {
                     for (int x = 0; x < w; ++x) {
@@ -179,18 +196,20 @@ public class ImageHelper {
     }
 
     /**
-     * Returns <code>true</code> if the given image contains the
-     * given subimage at an arbitrary location. (Pixels of subimage
-     * with an alpha value lower than 255 are ignored.)
+     * Returns all rectangular regions where the given {@code subImage} is found in the given {@code image}.
+     * Returns an empty collection if no occurrence is found.
+     * Pixels of {@code subImage} with an alpha value lower than 255 are ignored.
      */
-    public static boolean contains(BufferedImage image, BufferedImage subimage) {
-        final Map<Integer, List<Point>> rgb2offsets = new HashMap<Integer, List<Point>>();
-        for (int x = 0; x < subimage.getWidth(); ++x) {
-            for (int y = 0; y < subimage.getHeight(); ++y) {
-                final int argb = subimage.getRGB(x, y);
-                final int a = argb >>> 24;
+    public static Collection<RectangularRegion> findSubImageInImage(BufferedImage subImage, BufferedImage image) {
+        Map<Integer, List<Point>> rgb2offsets = new HashMap<Integer, List<Point>>();
+        int sw = subImage.getWidth();
+        int sh = subImage.getHeight();
+        for (int x = 0; x < sw; ++x) {
+            for (int y = 0; y < sh; ++y) {
+                int argb = subImage.getRGB(x, y);
+                int a = argb >>> 24;
                 if (a == 255) {
-                    final Integer rgb = argb & 0xFFFFFF;
+                    Integer rgb = argb & 0xFFFFFF;
                     List<Point> offsets = rgb2offsets.get(rgb);
                     if (offsets == null) {
                         offsets = new ArrayList<Point>();
@@ -200,52 +219,57 @@ public class ImageHelper {
                 }
             }
         }
-        final int w = image.getWidth();
-        final int h = image.getHeight();
-        final int[][] p = new int[w][h];
-        final Raster raster = image.getRaster();
+        Collection<RectangularRegion> result = new ArrayList<RectangularRegion>();
+        int w = image.getWidth();
+        int h = image.getHeight();
+        int[][] p = new int[w][h];
+        Raster raster = image.getRaster();
         if (raster.getTransferType() == DataBuffer.TYPE_BYTE) {
-            final byte[] bytes = (byte[]) raster.getDataElements(0, 0, w, h, null);
-            final int bytesPerPixel = (bytes.length / (w*h));
-            final ColorModel colorModel = image.getColorModel();
-            final byte[] buf = new byte[bytesPerPixel];
+            byte[] bytes = (byte[]) raster.getDataElements(0, 0, w, h, null);
+            int bytesPerPixel = (bytes.length / (w * h));
+            ColorModel colorModel = image.getColorModel();
+            byte[] buf = new byte[bytesPerPixel];
             for (int x = 0; x < w; ++x) {
                 for (int y = 0; y < h; ++y) {
                     System.arraycopy(bytes, (x + y * w) * bytesPerPixel, buf, 0, bytesPerPixel);
                     p[x][y] = colorModel.getRGB(buf) & 0xFFFFFF;
                 }
             }
+        } else if (raster.getTransferType() == DataBuffer.TYPE_INT) {
             for (int x = 0; x < w; ++x) {
-                for (int y = 0; y < h; ++y) {
-                    final Iterator<Map.Entry<Integer,List<Point>>> i = rgb2offsets.entrySet().iterator();
-                    compareWithSubimageLoop:
-                    do {
-                        final Map.Entry<Integer,List<Point>> mapEntry = i.next();
-                        final int expectedRgb = mapEntry.getKey();
-                        for (Point offset : mapEntry.getValue()) {
-                            final int xx = x + offset.x;
-                            final int yy = y + offset.y;
-                            if (xx >= w || yy >= h || expectedRgb != p[xx][yy]) {
-                                break compareWithSubimageLoop;
-                            }
+                p[x] = (int[]) raster.getDataElements(x, 0, 1, h, null);
+            }
+        } else {
+            throw new RuntimeException("findSubImageInImage not implemented for image transfer type " + raster.getTransferType() + " yet.");
+        }
+        for (int x = 0; x < w; ++x) {
+            for (int y = 0; y < h; ++y) {
+                Iterator<Map.Entry<Integer, List<Point>>> i = rgb2offsets.entrySet().iterator();
+                compareWithSubImageLoop:
+                while (i.hasNext()) {
+                    Map.Entry<Integer, List<Point>> mapEntry = i.next();
+                    int expectedRgb = mapEntry.getKey();
+                    for (Point offset : mapEntry.getValue()) {
+                        int xx = x + offset.x;
+                        int yy = y + offset.y;
+                        if (xx >= w || yy >= h || expectedRgb != p[xx][yy]) {
+                            break compareWithSubImageLoop;
                         }
-                        if (!i.hasNext()) {
-                            return true;
-                        }
-                    } while(true);
+                    }
+                    if (!i.hasNext()) {
+                        result.add(new RectangularRegion(x, y, x + (sw - 1), y + (sh - 1)));
+                    }
                 }
             }
-            return false;
-        } else {
-            throw new RuntimeException("transfer type " + raster.getTransferType() + " not implemented yet");
         }
+        return result;
     }
 
     public static void applyConvolutionFilter(int[][] pixels, float[][] kernel) {
         if (kernel == null) {
             throw new IllegalArgumentException("Method parameter kernel must not be null.");
         }
-        final int kernelSize = kernel.length;
+        int kernelSize = kernel.length;
         if (kernelSize % 2 == 0) {
             throw new IllegalArgumentException("Method parameter kernel must have odd size. (e.g. 3, 5, 7, ...)");
         }
@@ -253,14 +277,14 @@ public class ImageHelper {
             throw new IllegalArgumentException("Method parameter kernel must have square dimensions. (e.g. 3x3, 5x5, 7x7, ...)");
         }
         if (pixels != null) {
-            final int w = pixels.length;
+            int w = pixels.length;
             if (w > 0) {
-                final int h = pixels[0].length;
+                int h = pixels[0].length;
                 if (h > 0) {
-                    final int[][] r = new int[w][h];
-                    final int[][] g = new int[w][h];
-                    final int[][] b = new int[w][h];
-                    final int[][] a = splitIntoChannels(pixels, r, g, b);
+                    int[][] r = new int[w][h];
+                    int[][] g = new int[w][h];
+                    int[][] b = new int[w][h];
+                    int[][] a = splitIntoChannels(pixels, r, g, b);
                     if (a != null) {
                         applyConvolutionFilterToChannel(a, kernel);
                     }
@@ -278,8 +302,8 @@ public class ImageHelper {
     }
 
     public static void combineChannels(int[][] a, int[][] r, int[][] g, int[][] b, int[][] pixels) {
-        final int w = pixels.length;
-        final int h = pixels[0].length;
+        int w = pixels.length;
+        int h = pixels[0].length;
         for (int x = 0; x < w; ++x) {
             for (int y = 0; y < h; ++y) {
                 pixels[x][y] = (a[x][y] << 24) | (r[x][y] << 16) | (g[x][y] << 8) | b[x][y];
@@ -288,8 +312,8 @@ public class ImageHelper {
     }
 
     public static void combineChannels(int[][] r, int[][] g, int[][] b, int[][] pixels) {
-        final int w = pixels.length;
-        final int h = pixels[0].length;
+        int w = pixels.length;
+        int h = pixels[0].length;
         for (int x = 0; x < w; ++x) {
             for (int y = 0; y < h; ++y) {
                 pixels[x][y] = (r[x][y] << 16) | (g[x][y] << 8) | b[x][y];
@@ -303,12 +327,12 @@ public class ImageHelper {
      */
     public static int[][] splitIntoChannels(int[][] pixels, int[][] r, int[][] g, int[][] b) {
         int[][] a = null;
-        final int w = pixels.length;
-        final int h = pixels[0].length;
+        int w = pixels.length;
+        int h = pixels[0].length;
         for (int x = 0; x < w; ++x) {
             for (int y = 0; y < h; ++y) {
-                final int p = pixels[x][y];
-                final int alpha = p >>> 24;
+                int p = pixels[x][y];
+                int alpha = p >>> 24;
                 if (alpha > 0) {
                     if (a == null) {
                         a = new int[w][h];
@@ -324,10 +348,10 @@ public class ImageHelper {
     }
 
     public static void applyConvolutionFilterToChannel(int[][] channel, float[][] kernel) {
-        final int w = channel.length;
-        final int h = channel[0].length;
-        final int kernelSize = kernel.length;
-        final int r = (kernelSize / 2);
+        int w = channel.length;
+        int h = channel[0].length;
+        int kernelSize = kernel.length;
+        int r = (kernelSize / 2);
         int xx, yy;
         float n, d;
         // for each column ...
@@ -343,8 +367,8 @@ public class ImageHelper {
                         for (int j = 0; j < kernelSize; ++j) {
                             yy = y + (j - r);
                             if (0 <= yy && yy < h) {
-                                final float k = kernel[i][j];
-                                final int oldValue = channel[xx][yy];
+                                float k = kernel[i][j];
+                                int oldValue = channel[xx][yy];
                                 assert 0 <= oldValue && oldValue <= 255;
                                 n += k * oldValue;
                                 d += k;
@@ -352,7 +376,7 @@ public class ImageHelper {
                         }
                     }
                 }
-                final int newValue = Math.round(n / d);
+                int newValue = Math.round(n / d);
                 assert 0 <= newValue && newValue <= 255;
                 channel[x][y] = newValue;
             }
@@ -367,14 +391,14 @@ public class ImageHelper {
         if (kernelSize < 3) {
             kernelSize = 3;
         }
-        final float[][] kernel = new float[kernelSize][kernelSize];
-        final int m = kernelSize / 2;
-        final double q = 2 * sigma * sigma;
-        final double f = 1 / (Math.PI * q);
+        float[][] kernel = new float[kernelSize][kernelSize];
+        int m = kernelSize / 2;
+        double q = 2 * sigma * sigma;
+        double f = 1 / (Math.PI * q);
         for (int x = 0; x < kernelSize; ++x) {
-            final int dx = x - m;
+            int dx = x - m;
             for (int y = 0; y < kernelSize; ++y) {
-                final int dy = y - m;
+                int dy = y - m;
                 kernel[x][y] = (float) (f * Math.exp(- ((dx * dx + dy * dy) / q)));
             }
         }
@@ -386,22 +410,22 @@ public class ImageHelper {
      */
     public static void blend(int[][] pixels, int[][] pixelsWithAlpha) {
         if (pixels != null && pixelsWithAlpha != null) {
-            final int w = Math.min(pixels.length, pixelsWithAlpha.length);
+            int w = Math.min(pixels.length, pixelsWithAlpha.length);
             if (w > 0) {
-                final int h = Math.min(pixels[0].length, pixelsWithAlpha[0].length);
+                int h = Math.min(pixels[0].length, pixelsWithAlpha[0].length);
                 if (h > 0) {
                     for (int x = 0; x < w; ++x) {
                         for (int y = 0; y < h; ++y) {
-                            final int p2 = pixelsWithAlpha[x][y];
-                            final int a = p2 >>> 24;
+                            int p2 = pixelsWithAlpha[x][y];
+                            int a = p2 >>> 24;
                             if (a < 0xFF) {
                                 if (a == 0) {
                                     pixels[x][y] = p2;
                                 } else {
-                                    final float a2 = ((float) (0xFF - a)) / 0xFF;
+                                    float a2 = ((float) (0xFF - a)) / 0xFF;
                                     assert 0 < a2 && a2 < 1;
-                                    final float a1 = 1 - a2;
-                                    final int p1 = pixels[x][y];
+                                    float a1 = 1 - a2;
+                                    int p1 = pixels[x][y];
                                     int r = (p1 & 0xFF0000) >> 16;
                                     int g = (p1 & 0xFF00) >> 8;
                                     int b = (p1 & 0xFF);
@@ -425,11 +449,11 @@ public class ImageHelper {
      * Find the outlines of all areas where <code>pixels[x][y]</code> is <code>true</code>.
      */
     public static boolean[][] findOutlines(boolean[][] pixels) {
-        final int w = pixels.length;
-        final int h = pixels[0].length;
-        final int w1 = w - 1;
-        final int h1 = h - 1;
-        final boolean[][] outlines = new boolean[w][h];
+        int w = pixels.length;
+        int h = pixels[0].length;
+        int w1 = w - 1;
+        int h1 = h - 1;
+        boolean[][] outlines = new boolean[w][h];
         // Find starting point ...
         int x0 = 0;
         int y0 = 0;
@@ -459,19 +483,19 @@ public class ImageHelper {
             return outlines;
         }
         // Find outlines ...
-        final Queue<Point> todo = new LinkedList<Point>();
+        Queue<Point> todo = new LinkedList<Point>();
         todo.add(new Point(x0, y0));
-        final boolean[][] visited = new boolean[w][h];
+        boolean[][] visited = new boolean[w][h];
         while (!todo.isEmpty()) {
-            final Point p = todo.poll();
-            final int x = p.x;
-            final int y = p.y;
+            Point p = todo.poll();
+            int x = p.x;
+            int y = p.y;
             if (!visited[x][y]) {
                 visited[x][y] = true;
                 if (!pixels[x][y]) {
                     // Compare with pixel above ...
                     if (y > 0) {
-                        final int y1 = y - 1;
+                        int y1 = y - 1;
                         if (pixels[x][y1]) {
                             outlines[x][y] = true;
                         } else if (!visited[x][y1]){
@@ -480,7 +504,7 @@ public class ImageHelper {
                     }
                     // Compare with pixel to the right ...
                     if (x < w1) {
-                        final int x1 = x + 1;
+                        int x1 = x + 1;
                         if (pixels[x1][y]) {
                             outlines[x][y] = true;
                         } else if (!visited[x1][y]){
@@ -489,7 +513,7 @@ public class ImageHelper {
                     }
                     // Compare with pixel below ...
                     if (y < h1) {
-                        final int y1 = y + 1;
+                        int y1 = y + 1;
                         if (pixels[x][y1]) {
                             outlines[x][y] = true;
                         } else if (!visited[x][y1]){
@@ -498,7 +522,7 @@ public class ImageHelper {
                     }
                     // Compare with pixel to the left ...
                     if (x > 0) {
-                        final int x1 = x - 1;
+                        int x1 = x - 1;
                         if (pixels[x1][y]) {
                             outlines[x][y] = true;
                         } else if (!visited[x1][y]){
@@ -521,10 +545,10 @@ public class ImageHelper {
         return ((l1 >= l2) ? (l1 + 0.05) / (l2 + 0.05) : (l2 + 0.05) / (l1 + 0.05));
     }
 
-    private static final double[] PRE_CALCULATED_LUMINANCE_TABLE = new double[256];
+    private static double[] PRE_CALCULATED_LUMINANCE_TABLE = new double[256];
     static {
         for (int i = 0; i < 256; ++i) {
-            final double x = i / 255.0;
+            double x = i / 255.0;
             PRE_CALCULATED_LUMINANCE_TABLE[i] = (x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4));
         }
     }
