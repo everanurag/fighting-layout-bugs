@@ -39,7 +39,7 @@ public class DetectNeedsHorizontalScrolling extends AbstractLayoutBugDetector {
         _minimalSupportedScreenResolution = new Dimension(width, height);
     }
 
-    public Collection<LayoutBug> findLayoutBugsIn(WebPage webPage) {
+    public Collection<LayoutBug> findLayoutBugsIn(final WebPage webPage) {
         try {
             webPage.resizeBrowserWindowTo(_minimalSupportedScreenResolution);
         } catch (Exception e) {
@@ -59,7 +59,9 @@ public class DetectNeedsHorizontalScrolling extends AbstractLayoutBugDetector {
                     if (w != scrollWidth || h != scrollHeight) {
                         // the screenshot dimension are not the dimensions of the entire web page,
                         // the screenshot probably contains the horizontal scroll bar, mark it ...
-                        markHorizontalScrollBar(screenshot);
+                        final int clientHeight = eval("var x = (document.documentElement ? document.documentElement : document.body); return x.clientHeight;", webPage);
+                        final int clientWidth = eval("var x = (document.documentElement ? document.documentElement : document.body); return x.clientWidth;", webPage);
+                        markHorizontalScrollBar(screenshot, h - clientHeight, w - clientWidth);
                     } else {
                         // mark all pixels at the right side, which are responsible
                         // for the horizontal scroll bar ...
@@ -75,12 +77,12 @@ public class DetectNeedsHorizontalScrolling extends AbstractLayoutBugDetector {
         return ((Number) webPage.executeJavaScript("return (function() {" + js + "})()")).intValue();
     }
 
-    private void markHorizontalScrollBar(int[][] screenshot) {
+    private void markHorizontalScrollBar(int[][] screenshot, int horizontalScrollBarHeight, int verticalScrollBarWidth) {
         int w = screenshot.length;
         int h = screenshot[0].length;
         // Mark horizontal scroll bar ...
-        for (int y = h - 20; y < h; ++y) {
-            for (int x = y % 2; x < w - 20; x += 2) {
+        for (int y = h - horizontalScrollBarHeight; y < h; ++y) {
+            for (int x = y % 2; x < w - verticalScrollBarWidth; x += 2) {
                 screenshot[x][y] = 0xFF0000;
             }
         }
@@ -88,7 +90,7 @@ public class DetectNeedsHorizontalScrolling extends AbstractLayoutBugDetector {
         int n = 50;
         int[][] fadeOutMask = new int[w][h];
         int y = 0;
-        while (y < h - (n + 20)) {
+        while (y < h - (n + horizontalScrollBarHeight)) {
             for (int x = 0; x < w; ++x) {
                 fadeOutMask[x][y] = 0x80FFFFFF;
             }
@@ -98,8 +100,8 @@ public class DetectNeedsHorizontalScrolling extends AbstractLayoutBugDetector {
         for (int i = 0; i < n; ++i) {
             a[i] = 128 + (int) Math.round((1 - Math.cos((i * Math.PI) / n)) * 63.5);
         }
-        while (y < h - 20) {
-            int m = (a[y - (h - (n + 20))] << 24) | 0xFFFFFF;
+        while (y < h - horizontalScrollBarHeight) {
+            int m = (a[y - (h - (n + horizontalScrollBarHeight))] << 24) | 0xFFFFFF;
             for (int x = 0; x < w; ++x) {
                 fadeOutMask[x][y] = m;
             }
