@@ -14,21 +14,25 @@
  * limitations under the License.
  */
 
-package com.googlecode.fightinglayoutbugs;
-
-import org.junit.Test;
-
-import static com.googlecode.fightinglayoutbugs.HamcrestHelper.assertThat;
-import static com.googlecode.fightinglayoutbugs.HamcrestHelper.is;
+package com.googlecode.fightinglayoutbugs.helpers;
 
 /**
- * @author Michael Tamm
- */
-public class SocketHelperUnitTest {
+* Helper class for {@link TestHelper#waitFor}.
+*
+* @author Michael Tamm
+*/
+public abstract class RunnableAssert {
 
-    @Test
-    public void test() {
-        int freePort = SocketHelper.findFreePort();
-        assertThat(SocketHelper.isBound(freePort), is(false));
+    private final String _description;
+
+    public RunnableAssert(String description) {
+        _description = description;
+    }
+
+    public abstract void run() throws Exception;
+
+    @Override
+    public String toString() {
+        return _description;
     }
 }

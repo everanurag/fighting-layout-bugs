@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.googlecode.fightinglayoutbugs;
+package com.googlecode.fightinglayoutbugs.helpers;
 
 import org.apache.commons.io.FileUtils;
 
@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.util.Random;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.googlecode.fightinglayoutbugs.StringHelper.amountString;
 
 /**
  * @author Michael Tamm
@@ -48,7 +47,7 @@ public class FileHelper {
         try {
             FileUtils.writeByteArrayToFile(file, bytes);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to write " + amountString(bytes.length, "byte") + " to file: " + file, e);
+            throw new RuntimeException("Failed to write " + StringHelper.amountString(bytes.length, "byte") + " to file: " + file, e);
         }
 
     }

@@ -20,8 +20,8 @@ import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
 
-import static com.googlecode.fightinglayoutbugs.HamcrestHelper.assertThat;
-import static com.googlecode.fightinglayoutbugs.HamcrestHelper.is;
+import static com.googlecode.fightinglayoutbugs.helpers.HamcrestHelper.assertThat;
+import static com.googlecode.fightinglayoutbugs.helpers.HamcrestHelper.is;
 
 /**
  * @author Michael Tamm

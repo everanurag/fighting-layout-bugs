@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.googlecode.fightinglayoutbugs;
+package com.googlecode.fightinglayoutbugs.helpers;
 
+import com.googlecode.fightinglayoutbugs.Visualization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

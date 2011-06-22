@@ -16,6 +16,7 @@
 
 package com.googlecode.fightinglayoutbugs;
 
+import com.googlecode.fightinglayoutbugs.helpers.TestWebPageFactory;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;

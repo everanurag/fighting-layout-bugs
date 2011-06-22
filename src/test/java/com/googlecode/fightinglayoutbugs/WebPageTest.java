@@ -16,13 +16,14 @@
 
 package com.googlecode.fightinglayoutbugs;
 
+import com.googlecode.fightinglayoutbugs.helpers.RectangularRegion;
 import org.junit.Test;
 
 import java.util.Collection;
 
-import static com.googlecode.fightinglayoutbugs.HamcrestHelper.assertThat;
-import static com.googlecode.fightinglayoutbugs.HamcrestHelper.is;
-import static com.googlecode.fightinglayoutbugs.TestHelper.asList;
+import static com.googlecode.fightinglayoutbugs.helpers.HamcrestHelper.assertThat;
+import static com.googlecode.fightinglayoutbugs.helpers.HamcrestHelper.is;
+import static com.googlecode.fightinglayoutbugs.helpers.TestHelper.asList;
 
 public class WebPageTest extends TestUsingSelenium {
 

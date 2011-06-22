@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.googlecode.fightinglayoutbugs;
+package com.googlecode.fightinglayoutbugs.helpers;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -24,7 +24,10 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.SelfDescribing;
-import org.hamcrest.core.*;
+import org.hamcrest.core.IsEqual;
+import org.hamcrest.core.IsInstanceOf;
+import org.hamcrest.core.IsNull;
+import org.hamcrest.core.IsSame;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,8 +35,7 @@ import java.io.StringWriter;
 import java.lang.reflect.Array;
 import java.util.*;
 
-import static com.googlecode.fightinglayoutbugs.StringHelper.asString;
-import static com.googlecode.fightinglayoutbugs.TestHelper.asSet;
+import static com.googlecode.fightinglayoutbugs.helpers.StringHelper.asString;
 
 /**
  * Helper class for easy use of <a href="http://code.google.com/p/hamcrest/">hamcrest</a>.
@@ -218,7 +220,7 @@ public class HamcrestHelper {
                 } else if (o instanceof Collection) {
                     if (moreExpectedValues.length > 0) {
                         if (o instanceof Set) {
-                            Set<?> expectedSet = Sets.union(asSet(expected), asSet(moreExpectedValues));
+                            Set<?> expectedSet = Sets.union(TestHelper.asSet(expected), TestHelper.asSet(moreExpectedValues));
                             matches = expectedSet.equals(o);
                         } else if (o instanceof List) {
                             List<?> expectedList = Lists.asList(expected, moreExpectedValues);

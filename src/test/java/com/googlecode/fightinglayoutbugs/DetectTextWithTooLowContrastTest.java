@@ -16,12 +16,13 @@
 
 package com.googlecode.fightinglayoutbugs;
 
+import com.googlecode.fightinglayoutbugs.helpers.HamcrestHelper;
 import org.junit.Test;
 
 import java.util.Collection;
 
-import static com.googlecode.fightinglayoutbugs.HamcrestHelper.assertThat;
-import static com.googlecode.fightinglayoutbugs.HamcrestHelper.is;
+import static com.googlecode.fightinglayoutbugs.helpers.HamcrestHelper.assertThat;
+import static com.googlecode.fightinglayoutbugs.helpers.HamcrestHelper.is;
 
 /**
  * @author Michael Tamm

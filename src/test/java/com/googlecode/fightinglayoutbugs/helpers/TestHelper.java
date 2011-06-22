@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.googlecode.fightinglayoutbugs;
+package com.googlecode.fightinglayoutbugs.helpers;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;

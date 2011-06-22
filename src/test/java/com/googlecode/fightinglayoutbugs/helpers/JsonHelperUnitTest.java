@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package com.googlecode.fightinglayoutbugs;
+package com.googlecode.fightinglayoutbugs.helpers;
 
 import org.junit.Test;
 
 import java.util.List;
 import java.util.Map;
 
-import static com.googlecode.fightinglayoutbugs.HamcrestHelper.*;
-import static com.googlecode.fightinglayoutbugs.TestHelper.asList;
-import static com.googlecode.fightinglayoutbugs.TestHelper.asMap;
+import static com.googlecode.fightinglayoutbugs.helpers.HamcrestHelper.*;
 
 /**
  * @author Michael Tamm
@@ -65,12 +63,12 @@ public class JsonHelperUnitTest {
 
     @Test
     public void testArray() {
-        assertThat(JsonHelper.parse("[1,\"foo\",null,true]"), both(isInstanceOf(List.class)).and(isEqualTo(asList(1, "foo", null, true))));
+        assertThat(JsonHelper.parse("[1,\"foo\",null,true]"), both(isInstanceOf(List.class)).and(isEqualTo(TestHelper.asList(1, "foo", null, true))));
     }
 
     @Test
     public void testObject() {
-        assertThat(JsonHelper.parse("{\"x\":1,\"y\":2}"), both(isInstanceOf(Map.class)).and(isEqualTo(asMap("x", 1, "y", 2))));
+        assertThat(JsonHelper.parse("{\"x\":1,\"y\":2}"), both(isInstanceOf(Map.class)).and(isEqualTo(TestHelper.asMap("x", 1, "y", 2))));
     }
 
     @Test

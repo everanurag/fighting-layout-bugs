@@ -16,9 +16,9 @@
 
 package com.googlecode.fightinglayoutbugs;
 
-import static com.googlecode.fightinglayoutbugs.ImageHelper.getContrast;
 import static com.googlecode.fightinglayoutbugs.Screenshot.withNoText;
-import static com.googlecode.fightinglayoutbugs.StringHelper.amountString;
+import static com.googlecode.fightinglayoutbugs.helpers.ImageHelper.getContrast;
+import static com.googlecode.fightinglayoutbugs.helpers.StringHelper.amountString;
 
 /**
  * <p>Detects horizontal and vertical edges with a simple algorithm.</p>

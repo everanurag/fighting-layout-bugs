@@ -16,6 +16,8 @@
 
 package com.googlecode.fightinglayoutbugs;
 
+import com.googlecode.fightinglayoutbugs.helpers.RectangularRegion;
+
 import java.util.Collection;
 
 /**

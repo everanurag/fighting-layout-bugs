@@ -16,12 +16,11 @@
 
 package com.googlecode.fightinglayoutbugs;
 
+import com.googlecode.fightinglayoutbugs.helpers.JsonHelper;
 import com.thoughtworks.selenium.Selenium;
 import com.thoughtworks.selenium.SeleniumException;
 import org.apache.commons.codec.binary.Base64;
 import org.openqa.selenium.*;
-import org.openqa.selenium.Dimension;
-import org.openqa.selenium.Point;
 import org.openqa.selenium.internal.FindsById;
 import org.openqa.selenium.internal.FindsByTagName;
 import org.openqa.selenium.internal.FindsByXPath;
@@ -30,7 +29,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.googlecode.fightinglayoutbugs.StringHelper.asString;
+import static com.googlecode.fightinglayoutbugs.helpers.StringHelper.asString;
 
 /**
  * @author Sascha Schwarze, Michael Tamm

@@ -16,9 +16,13 @@
 
 package com.googlecode.fightinglayoutbugs;
 
-import java.util.*;
+import com.googlecode.fightinglayoutbugs.helpers.Point;
 
-import static com.googlecode.fightinglayoutbugs.ImageHelper.getContrast;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.Queue;
+
+import static com.googlecode.fightinglayoutbugs.helpers.ImageHelper.getContrast;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 

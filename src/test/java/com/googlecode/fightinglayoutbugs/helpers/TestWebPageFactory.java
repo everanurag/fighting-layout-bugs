@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package com.googlecode.fightinglayoutbugs;
+package com.googlecode.fightinglayoutbugs.helpers;
 
+import com.googlecode.fightinglayoutbugs.WebPage;
+import com.googlecode.fightinglayoutbugs.WebPageBackedBySelenium;
+import com.googlecode.fightinglayoutbugs.WebPageBackedByWebDriver;
 import com.thoughtworks.selenium.DefaultSelenium;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.WebDriver;

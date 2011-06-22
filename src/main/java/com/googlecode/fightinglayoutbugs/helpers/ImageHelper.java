@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.googlecode.fightinglayoutbugs;
+package com.googlecode.fightinglayoutbugs.helpers;
 
 import org.apache.commons.io.IOUtils;
 
@@ -30,7 +30,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.*;
 
-import static com.googlecode.fightinglayoutbugs.FileHelper.createParentDirectoryIfNeeded;
+import static com.googlecode.fightinglayoutbugs.helpers.FileHelper.createParentDirectoryIfNeeded;
 
 /**
  * @author Michael Tamm

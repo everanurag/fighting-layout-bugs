@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package com.googlecode.fightinglayoutbugs;
+package com.googlecode.fightinglayoutbugs.helpers;
 
 import org.hamcrest.Matcher;
 import org.junit.Test;
 
-import static com.googlecode.fightinglayoutbugs.TestHelper.asList;
-import static com.googlecode.fightinglayoutbugs.TestHelper.asSet;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Michael Tamm
@@ -60,23 +59,23 @@ public class HamcrestHelperUnitTest {
     @Test
     public void testWithCollections() {
         final Matcher<Object> matcher1 = HamcrestHelper.is("foo");
-        assertTrue(matcher1.matches(asList("foo")));
-        assertFalse(matcher1.matches(asList("bar")));
-        assertFalse(matcher1.matches(asList("foo", "bar")));
-        assertFalse(matcher1.matches(asList("bar", "foo")));
-        assertTrue(matcher1.matches(asSet("foo")));
-        assertFalse(matcher1.matches(asSet("bar")));
-        assertFalse(matcher1.matches(asSet("foo", "bar")));
-        assertFalse(matcher1.matches(asSet("bar", "foo")));
+        assertTrue(matcher1.matches(TestHelper.asList("foo")));
+        assertFalse(matcher1.matches(TestHelper.asList("bar")));
+        assertFalse(matcher1.matches(TestHelper.asList("foo", "bar")));
+        assertFalse(matcher1.matches(TestHelper.asList("bar", "foo")));
+        assertTrue(matcher1.matches(TestHelper.asSet("foo")));
+        assertFalse(matcher1.matches(TestHelper.asSet("bar")));
+        assertFalse(matcher1.matches(TestHelper.asSet("foo", "bar")));
+        assertFalse(matcher1.matches(TestHelper.asSet("bar", "foo")));
         final Matcher<Object> matcher2 = HamcrestHelper.is("foo", "bar");
-        assertFalse(matcher2.matches(asList("foo")));
-        assertFalse(matcher2.matches(asList("bar")));
-        assertTrue(matcher2.matches(asList("foo", "bar")));
-        assertFalse(matcher2.matches(asList("bar", "foo")));
-        assertFalse(matcher2.matches(asSet("foo")));
-        assertFalse(matcher2.matches(asSet("bar")));
-        assertTrue(matcher2.matches(asSet("foo", "bar")));
-        assertTrue(matcher2.matches(asSet("bar", "foo")));
+        assertFalse(matcher2.matches(TestHelper.asList("foo")));
+        assertFalse(matcher2.matches(TestHelper.asList("bar")));
+        assertTrue(matcher2.matches(TestHelper.asList("foo", "bar")));
+        assertFalse(matcher2.matches(TestHelper.asList("bar", "foo")));
+        assertFalse(matcher2.matches(TestHelper.asSet("foo")));
+        assertFalse(matcher2.matches(TestHelper.asSet("bar")));
+        assertTrue(matcher2.matches(TestHelper.asSet("foo", "bar")));
+        assertTrue(matcher2.matches(TestHelper.asSet("bar", "foo")));
     }
 
     @Test

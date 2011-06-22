@@ -17,6 +17,9 @@
 package com.googlecode.fightinglayoutbugs;
 
 import com.googlecode.fightinglayoutbugs.Screenshot.Condition;
+import com.googlecode.fightinglayoutbugs.helpers.Dimension;
+import com.googlecode.fightinglayoutbugs.helpers.ImageHelper;
+import com.googlecode.fightinglayoutbugs.helpers.RectangularRegion;
 import org.apache.commons.io.IOUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;

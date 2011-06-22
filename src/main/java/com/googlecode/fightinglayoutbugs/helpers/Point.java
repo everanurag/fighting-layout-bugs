@@ -14,30 +14,36 @@
  * limitations under the License.
  */
 
-package com.googlecode.fightinglayoutbugs;
+package com.googlecode.fightinglayoutbugs.helpers;
 
 /**
  * @author Michael Tamm
  */
-public class Dimension {
-    public final int width;
-    public final int height;
+public final class Point {
+    public final int x;
+    public final int y;
 
-    public Dimension(int width, int height) {
-        this.width = width;
-        this.height = height;
+    public Point(int x, int y) {
+        if (x < 0) {
+            throw new IllegalArgumentException("x (" + x + ") must not be negative.");
+        }
+        if (y < 0) {
+            throw new IllegalArgumentException("y (" + y + ") must not be negative.");
+        }
+        this.x = x;
+        this.y = y;
     }
 
     @Override
     public int hashCode() {
-        return (width << 16 | height);
+        return (x << 16 | y);
     }
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof Dimension) {
-            Dimension other = (Dimension) o;
-            return (this.width == other.width && this.height == other.height);
+        if (o instanceof Point) {
+            Point other = (Point) o;
+            return (this.x == other.x && this.y == other.y);
         } else {
             return false;
         }
@@ -45,6 +51,6 @@ public class Dimension {
 
     @Override
     public String toString() {
-        return width + "x" + height;
+        return x + "," + y;
     }
 }

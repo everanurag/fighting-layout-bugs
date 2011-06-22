@@ -16,6 +16,7 @@
 
 package com.googlecode.fightinglayoutbugs;
 
+import com.googlecode.fightinglayoutbugs.helpers.ImageHelper;
 import com.thoughtworks.selenium.Selenium;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;

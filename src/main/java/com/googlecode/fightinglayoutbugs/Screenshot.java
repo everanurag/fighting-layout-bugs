@@ -16,6 +16,10 @@
 
 package com.googlecode.fightinglayoutbugs;
 
+import com.googlecode.fightinglayoutbugs.helpers.Dimension;
+import com.googlecode.fightinglayoutbugs.helpers.ImageHelper;
+import com.googlecode.fightinglayoutbugs.helpers.StringHelper;
+
 import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 import java.util.Date;

@@ -20,7 +20,7 @@ import org.junit.Test;
 
 import java.util.Collection;
 
-import static com.googlecode.fightinglayoutbugs.HamcrestHelper.*;
+import static com.googlecode.fightinglayoutbugs.helpers.HamcrestHelper.*;
 
 public class DetectNeedsHorizontalScrollingTest extends TestUsingSelenium {
 

@@ -16,6 +16,9 @@
 
 package com.googlecode.fightinglayoutbugs;
 
+import com.googlecode.fightinglayoutbugs.helpers.Dimension;
+import com.googlecode.fightinglayoutbugs.helpers.ImageHelper;
+
 import java.util.Collection;
 
 import static java.util.Collections.emptyList;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.googlecode.fightinglayoutbugs;
+package com.googlecode.fightinglayoutbugs.helpers;
 
 import org.apache.log4j.Logger;
 import org.mortbay.jetty.Connector;
@@ -26,8 +26,8 @@ import org.mortbay.jetty.webapp.WebAppContext;
 
 import java.io.File;
 
-import static com.googlecode.fightinglayoutbugs.HamcrestHelper.assertThat;
-import static com.googlecode.fightinglayoutbugs.TestHelper.waitFor;
+import static com.googlecode.fightinglayoutbugs.helpers.HamcrestHelper.assertThat;
+import static com.googlecode.fightinglayoutbugs.helpers.TestHelper.waitFor;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**

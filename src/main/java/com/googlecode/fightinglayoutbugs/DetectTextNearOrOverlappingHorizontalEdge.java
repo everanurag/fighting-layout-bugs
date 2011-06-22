@@ -17,6 +17,7 @@
 package com.googlecode.fightinglayoutbugs;
 
 import java.util.Collection;
+
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 

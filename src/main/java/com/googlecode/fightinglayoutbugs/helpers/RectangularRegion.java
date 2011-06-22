@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.googlecode.fightinglayoutbugs;
+package com.googlecode.fightinglayoutbugs.helpers;
 
 /**
  * @author Michael Tamm
  */
-public class RectangularRegion {
+public final class RectangularRegion {
 
     public final int x1;
     public final int y1;
@@ -50,5 +50,25 @@ public class RectangularRegion {
         this.y1 = y1;
         this.x2 = x2;
         this.y2 = y2;
+    }
+
+    @Override
+    public int hashCode() {
+        return (x1 << 16 | x2) ^ (y1 << 16 | y2);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof RectangularRegion) {
+            RectangularRegion other = (RectangularRegion) o;
+            return (this.x1 == other.x1 && this.x2 == other.x2 && this.y1 == other.y1 && this.y2 == other.y2);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "(" + x1 + "," + y1 + ") - (" + x2 + "," + y2 + ")";
     }
 }

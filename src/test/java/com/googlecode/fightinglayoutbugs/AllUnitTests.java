@@ -16,6 +16,7 @@
 
 package com.googlecode.fightinglayoutbugs;
 
+import com.googlecode.fightinglayoutbugs.helpers.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 

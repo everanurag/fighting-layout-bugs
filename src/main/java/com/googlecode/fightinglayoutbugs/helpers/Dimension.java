@@ -14,36 +14,30 @@
  * limitations under the License.
  */
 
-package com.googlecode.fightinglayoutbugs;
+package com.googlecode.fightinglayoutbugs.helpers;
 
 /**
  * @author Michael Tamm
  */
-class Point {
-    public final int x;
-    public final int y;
+public class Dimension {
+    public final int width;
+    public final int height;
 
-    Point(int x, int y) {
-        if (x < 0) {
-            throw new IllegalArgumentException("x (" + x + ") must not be negative.");
-        }
-        if (y < 0) {
-            throw new IllegalArgumentException("y (" + y + ") must not be negative.");
-        }
-        this.x = x;
-        this.y = y;
+    public Dimension(int width, int height) {
+        this.width = width;
+        this.height = height;
     }
 
     @Override
     public int hashCode() {
-        return (x << 16 | y);
+        return (width << 16 | height);
     }
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof Point) {
-            Point other = (Point) o;
-            return (this.x == other.x && this.y == other.y);
+        if (o instanceof Dimension) {
+            Dimension other = (Dimension) o;
+            return (this.width == other.width && this.height == other.height);
         } else {
             return false;
         }
@@ -51,6 +45,6 @@ class Point {
 
     @Override
     public String toString() {
-        return x + "," + y;
+        return width + "x" + height;
     }
 }

@@ -16,6 +16,9 @@
 
 package com.googlecode.fightinglayoutbugs;
 
+import com.googlecode.fightinglayoutbugs.helpers.ImageHelper;
+import com.googlecode.fightinglayoutbugs.helpers.RectangularRegion;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
