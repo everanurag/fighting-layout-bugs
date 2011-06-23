@@ -18,6 +18,7 @@ package com.googlecode.fightinglayoutbugs;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
 /**
  * Represents a layout bug found by a {@link LayoutBugDetector}.
@@ -27,7 +28,7 @@ import java.io.IOException;
 public class LayoutBug {
 
     private final String _description;
-    private final String _url;
+    private final URL _url;
     private final String _html;
     private File _screenshotFile;
 
@@ -48,7 +49,7 @@ public class LayoutBug {
     /**
      * Returns the URL of the page with this layout bug.
      */
-    public String getUrl() {
+    public URL getUrl() {
         return _url;
     }
 

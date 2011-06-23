@@ -35,8 +35,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.lang.Character.isWhitespace;
 
@@ -46,11 +46,6 @@ import static java.lang.Character.isWhitespace;
 public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
 
     private static final Log LOG = LogFactory.getLog(DetectInvalidImageUrls.class);
-
-    private static class Css {
-        public String charset;
-        public String text;
-    }
 
     static String stripCommentsFrom(String css) {
         final int n = css.length();
@@ -75,86 +70,86 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
         return result;
     }
 
-    /**
-     * <code>""</code> as value means the URL is valid, otherwise
-     * the value contains the error message for the URL.
-     */
-    private final Map<URL, String> _checkedUrls = new HashMap<URL, String>();
+    private static boolean isValidCharset(String charset) {
+        boolean result = false;
+        if (charset != null && charset.length() > 0) {
+            try {
+                result = (Charset.forName(charset) != null);
+            } catch (Exception ignored) {}
+        }
+        return result;
+    }
 
+    private static boolean hasProtocol(String url) {
+        boolean result = false;
+        if (url != null) {
+            final int i = url.indexOf(':');
+            final int j = url.indexOf('?');
+            result = (i > 0 && (j == -1 || i < j));
+        }
+        return result;
+    }
+
+    /**
+     * <code>""</code> as value means the image URL is either currently being checked or valid,
+     * all other values are the error message for the image URL.
+     */
+    private final ConcurrentMap<String, String> _checkedImageUrls = new ConcurrentHashMap<String, String>();
+
+    private WebPage _webPage;
     private URL _baseUrl;
-    private boolean _screenshotTaken;
     private String _documentCharset;
-    private HttpClient _httpClient;
-    private Set<URL> _visitedCssUrls;
-    /** Initialized in by {@link #findLayoutBugsIn}, might be overwritten by {@link #checkLinkedCss}. */
+    private boolean _screenshotTaken;
+    private Set<String> _checkedCssUrls;
     private String _faviconUrl;
+    private List<LayoutBug> _layoutBugs;
+    /** Initialized in by {@link #findLayoutBugsIn}, might be overwritten by {@link #checkLinkedCss}. */
+    private MockBrowser _mockBrowser;
 
     public Collection<LayoutBug> findLayoutBugsIn(WebPage webPage) {
-        // Determine base URL for completion of relative URLs ...
-        final String url = webPage.getUrl();
         try {
-            _baseUrl = new URL(url);
-        } catch (MalformedURLException e) {
-            // Should never happen.
-            throw new RuntimeException("Could not convert " + url + " into an URL.", e);
-        }
-        _documentCharset = (String) webPage.executeJavaScript("return document.characterSet");
-        try {
-            _httpClient = new HttpClient();
-            HttpState state = getHttpStateFor(webPage);
-            _httpClient.setState(state);
-            _visitedCssUrls = new HashSet<URL>();
+            _webPage = webPage;
+            _baseUrl = _webPage.getUrl();
+            _documentCharset = (String) _webPage.executeJavaScript("return document.characterSet");
+            _screenshotTaken = false;
+            _checkedCssUrls = new ConcurrentSkipListSet<String>();
             _faviconUrl = "/favicon.ico";
+            _layoutBugs = new ArrayList<LayoutBug>();
+            _mockBrowser = new MockBrowser();
             try {
-                final List<LayoutBug> layoutBugs = new ArrayList<LayoutBug>();
-                // 1. Check the src attribute of all <img> elements ...
-                checkVisibleImgElements(webPage, layoutBugs);
+                // 1. Check the src attribute of all visible <img> elements ...
+                checkVisibleImgElements();
                 // 2. Check the style attribute of all elements ...
-                checkStyleAttributes(webPage, layoutBugs);
+                checkStyleAttributes();
                 // 3. Check all <style> elements ...
-                checkStyleElements(webPage, layoutBugs);
+                checkStyleElements();
                 // 4. Check all linked CSS resources ...
-                checkLinkedCss(webPage, layoutBugs);
+                checkLinkedCss();
                 // 5. Check favicon ...
-                checkFavicon(webPage, layoutBugs);
-                return layoutBugs;
+                checkFavicon();
+                // 6. Wait until all asynchronous checks are finished ...
+                _mockBrowser.waitUntilAllDownloadsAreFinished();
+                return _layoutBugs;
             } finally {
-                _visitedCssUrls = null;
-                _httpClient = null;
+                _mockBrowser.dispose();
             }
         } finally {
+            // Free resources for garbage collection ...
+            _mockBrowser = null;
+            _layoutBugs = null;
+            _faviconUrl = null;
+            _checkedCssUrls = null;
+            _documentCharset = null;
             _baseUrl = null;
+            _webPage = null;
         }
     }
 
-    private HttpState getHttpStateFor(WebPage webPage) {
-        HttpState state = new HttpState();
-        if (webPage instanceof WebPageBackedByWebDriver) {
-            WebDriver driver = ((WebPageBackedByWebDriver) webPage).getDriver();
-            for (org.openqa.selenium.Cookie cookie : driver.manage().getCookies()) {
-                state.addCookie(new Cookie(cookie.getDomain(), cookie.getName(), cookie.getValue(), cookie.getPath(), cookie.getExpiry(), cookie.isSecure()));
-            }
-        } else {
-            Selenium selenium = ((WebPageBackedBySelenium) webPage).getSelenium();
-            // TODO: copy cookies from Selenium
-        }
-        return state;
-    }
-
-    boolean saveScreenshot() {
-        if (_screenshotTaken) {
-            return false;
-        } else {
-            _screenshotTaken = true;
-            return true;
-        }
-    }
-
-    private void checkVisibleImgElements(WebPage webPage, List<LayoutBug> layoutBugs) {
+    private void checkVisibleImgElements() {
         int numImgElementsWithoutSrcAttribute = 0;
         int numImgElementsWithEmptySrcAttribute = 0;
         final Set<String> seen = new HashSet<String>();
-        for (WebElement img : webPage.findElements(By.tagName("img"))) {
+        for (WebElement img : _webPage.findElements(By.tagName("img"))) {
             if (((RenderedWebElement) img).isDisplayed()) {
                 final String src = img.getAttribute("src");
                 if (src == null) {
@@ -162,77 +157,69 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
                 } else if ("".equals(src)) {
                     ++numImgElementsWithEmptySrcAttribute;
                 } else {
-                    if (!seen.contains(src)) {
+                    if (seen.add(src)) {
                         try {
-                            final URL imageUrl = getCompleteUrlFor(src);
-                            final String error = checkImageUrl(imageUrl);
-                            if (error.length() > 0) {
-                                layoutBugs.add(createLayoutBug("Detected <img> element with invalid src attribute \"" + src + "\" - " + error, webPage, saveScreenshot()));
-                            }
+                            URL imageUrl = getCompleteUrlFor(src);
+                            checkImageUrlAsync(imageUrl, "Detected visible <img> element with invalid src attribute \"" + src + "\"");
                         } catch (MalformedURLException e) {
-                            layoutBugs.add(createLayoutBug("Detected <img> element with invalid src attribute \"" + src + "\" - " + e.getMessage(), webPage, saveScreenshot()));
+                            addLayoutBugIfNotPresent("Detected visible <img> element with invalid src attribute \"" + src + "\" -- " + e.getMessage());
                         }
-                        seen.add(src);
                     }
                 }
             }
         }
         if (numImgElementsWithEmptySrcAttribute > 0) {
             if (numImgElementsWithEmptySrcAttribute == 1) {
-                layoutBugs.add(createLayoutBug("Detected <img> element with empty src attribute.", webPage, saveScreenshot()));
+                addLayoutBugIfNotPresent("Detected visible <img> element with empty src attribute.");
             } else {
-                layoutBugs.add(createLayoutBug("Detected " + numImgElementsWithEmptySrcAttribute + " <img> elements with empty src attribute.", webPage, saveScreenshot()));
+                addLayoutBugIfNotPresent("Detected " + numImgElementsWithEmptySrcAttribute + " visible <img> elements with empty src attribute.");
             }
         }
         if (numImgElementsWithoutSrcAttribute > 0) {
             if (numImgElementsWithEmptySrcAttribute == 1) {
-                layoutBugs.add(createLayoutBug("Detected <img> without src attribute.", webPage, saveScreenshot()));
+                addLayoutBugIfNotPresent("Detected visible <img> without src attribute.");
             } else {
-                layoutBugs.add(createLayoutBug("Detected " + numImgElementsWithoutSrcAttribute + " <img> elements without src attribute.", webPage, saveScreenshot()));
+                addLayoutBugIfNotPresent("Detected " + numImgElementsWithoutSrcAttribute + " visible <img> elements without src attribute.");
             }
         }
     }
 
-    private void checkStyleAttributes(WebPage webPage, List<LayoutBug> layoutBugs) {
-        for (WebElement element : webPage.findElements(By.xpath("//*[@style]"))) {
+    private void checkStyleAttributes() {
+        for (WebElement element : _webPage.findElements(By.xpath("//*[@style]"))) {
             final String css = element.getAttribute("style");
             for (String importUrl : getImportUrlsFrom(css)) {
-                checkCssResource(importUrl + " (imported in style attribute of <" + element.getTagName() + "> element)", importUrl, _baseUrl, _documentCharset, webPage, layoutBugs);
+                checkCssResourceAsync(importUrl + " (imported in style attribute of <" + element.getTagName() + "> element)", importUrl, _baseUrl, _documentCharset);
             }
-            for (String imageUrl : extractUrlsFrom(css).keySet()) {
+            for (String url : extractUrlsFrom(css).keySet()) {
                 try {
-                    final String error = checkImageUrl(getCompleteUrlFor(imageUrl));
-                    if (error.length() > 0) {
-                        layoutBugs.add(createLayoutBug("Detected <" + element.getTagName() + "> element with invalid image URL \"" + imageUrl + "\" in its style attribute - " + error, webPage, saveScreenshot()));
-                    }
+                    URL imageUrl = getCompleteUrlFor(url);
+                    checkImageUrlAsync(imageUrl, "Detected <" + element.getTagName() + "> element with invalid image URL \"" + url + "\" in its style attribute");
                 } catch (MalformedURLException e) {
-                    layoutBugs.add(createLayoutBug("Detected <" + element.getTagName() + "> element with invalid image URL \"" + imageUrl + "\" in its style attribute - " + e.getMessage(), webPage, saveScreenshot()));
+                    addLayoutBugIfNotPresent("Detected <" + element.getTagName() + "> element with invalid image URL \"" + url + "\" in its style attribute -- " + e.getMessage());
                 }
             }
         }
     }
 
-    private void checkStyleElements(WebPage webPage, List<LayoutBug> layoutBugs) {
-        for (WebElement styleElement : webPage.findElements(By.tagName("style"))) {
-            final String css = (String) webPage.executeJavaScript("return arguments[0].innerHTML", styleElement);
+    private void checkStyleElements() {
+        for (WebElement styleElement : _webPage.findElements(By.tagName("style"))) {
+            final String css = (String) _webPage.executeJavaScript("return arguments[0].innerHTML", styleElement);
             for (String importUrl : getImportUrlsFrom(css)) {
-                checkCssResource(importUrl + " (imported in <style> element)", importUrl, _baseUrl, _documentCharset, webPage, layoutBugs);
+                checkCssResourceAsync(importUrl + " (imported in <style> element)", importUrl, _baseUrl, _documentCharset);
             }
-            for (String imageUrl : extractUrlsFrom(css).keySet()) {
+            for (String url : extractUrlsFrom(css).keySet()) {
                 try {
-                    final String error = checkImageUrl(getCompleteUrlFor(imageUrl));
-                    if (error.length() > 0) {
-                        layoutBugs.add(createLayoutBug("Detected <style> element with invalid image URL \"" + imageUrl + "\" - " + error, webPage, saveScreenshot()));
-                    }
+                    URL imageUrl = getCompleteUrlFor(url);
+                    checkImageUrlAsync(imageUrl, "Detected <style> element with invalid image URL \"" + url + "\"");
                 } catch (MalformedURLException e) {
-                    layoutBugs.add(createLayoutBug("Detected <style> element with invalid image URL \"" + imageUrl + "\" - " + e.getMessage(), webPage, saveScreenshot()));
+                    addLayoutBugIfNotPresent("Detected <style> element with invalid image URL \"" + url + "\" -- " + e.getMessage());
                 }
             }
         }
     }
 
-    private void checkLinkedCss(WebPage webPage, List<LayoutBug> layoutBugs) {
-        for (WebElement link : webPage.findElements(By.tagName("link"))) {
+    private void checkLinkedCss() {
+        for (WebElement link : _webPage.findElements(By.tagName("link"))) {
             String rel = link.getAttribute("rel");
             if (rel != null) {
                 rel = rel.toLowerCase(Locale.ENGLISH);
@@ -245,7 +232,7 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
                     if (!isValidCharset(charset)) {
                         charset = _documentCharset;
                     }
-                    checkCssResource(href, href, _baseUrl, charset, webPage, layoutBugs);
+                    checkCssResourceAsync(href, href, _baseUrl, charset);
                 }
             }
             // prepare checkFavicon ...
@@ -257,41 +244,12 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
         }
     }
 
-    private boolean isValidCharset(String charset) {
-        boolean result = false;
-        if (charset != null && charset.length() > 0) {
-            try {
-                result = (Charset.forName(charset) != null);
-            } catch (Exception ignored) {}
-        }
-        return result;
-    }
-
-    private void checkCssResource(String pathToCssResource, String url, URL baseUrl, String fallBackCharset, WebPage webPage, List<LayoutBug> layoutBugs) {
-        URL cssUrl = null;
+    private void checkFavicon() {
         try {
-            cssUrl = getCompleteUrlFor(baseUrl, url);
+            URL faviconUrl = getCompleteUrlFor(_faviconUrl);
+            checkImageUrlAsync(faviconUrl, "Detected invalid favicon URL \"" + _faviconUrl + "\"");
         } catch (MalformedURLException e) {
-            System.err.print("Could not get CSS from " + pathToCssResource + " - " + e.getMessage());
-        }
-        if (cssUrl != null && !_visitedCssUrls.contains(cssUrl)) {
-            _visitedCssUrls.add(cssUrl);
-            final Css css = getCssFrom(cssUrl, fallBackCharset);
-            if (css.text != null) {
-                for (String importUrl : getImportUrlsFrom(css.text)) {
-                    checkCssResource(importUrl + " (imported from " + pathToCssResource + ")", importUrl, cssUrl, css.charset, webPage, layoutBugs);
-                }
-                for (String imageUrl : extractUrlsFrom(css.text).keySet()) {
-                    try {
-                        final String error = checkImageUrl(getCompleteUrlFor(cssUrl, imageUrl));
-                        if (error.length() > 0) {
-                            layoutBugs.add(createLayoutBug("Detected invalid image URL \"" + imageUrl + "\" in " + pathToCssResource + " - " + error, webPage, saveScreenshot()));
-                        }
-                    } catch (MalformedURLException e) {
-                        layoutBugs.add(createLayoutBug("Detected invalid image URL \"" + imageUrl + "\" in " + pathToCssResource + " - " + e.getMessage(), webPage, saveScreenshot()));
-                    }
-                }
-            }
+            addLayoutBugIfNotPresent("Detected invalid favicon URL \"" + _faviconUrl + "\" -- " + e.getMessage());
         }
     }
 
@@ -393,142 +351,6 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
         return imageUrls;
     }
 
-    /**
-     * @param externallySpecifiedCharset the charset from the charset attribute of a &lt;link&gt; attribute if present,
-     *                                   otherwise the charset of the refering style sheet or document.
-     */
-    private Css getCssFrom(URL url, String externallySpecifiedCharset) {
-        final Css result = new Css();
-        final GetMethod getMethod = new GetMethod(url.toExternalForm());
-        getMethod.setFollowRedirects(true);
-        try {
-            _httpClient.executeMethod(getMethod);
-            if (getMethod.getStatusCode() >= 400) {
-                System.err.println("Could not get CSS from " + url + " - server responded with: " + getMethod.getStatusCode() + " " + getMethod.getStatusText());
-            } else {
-                final InputStream in = getMethod.getResponseBodyAsStream();
-                try {
-                    final Utf8BomAwareByteArrayOutputStream out = new Utf8BomAwareByteArrayOutputStream();
-                    IOUtils.copy(in, out);
-                    // Determine charset (see http://www.w3.org/TR/CSS2/syndata.html#charset) ...
-                    // 1. Check charset parameter of Content-Type response header ...
-                    final Header contentTypeHeader = getMethod.getResponseHeader("Content-Type");
-                    if (contentTypeHeader != null) {
-                        final HeaderElement[] a = contentTypeHeader.getElements();
-                        if (a.length > 0) {
-                            final NameValuePair charsetParam = a[0].getParameterByName("charset");
-                            if (charsetParam != null) {
-                                result.charset = charsetParam.getValue();
-                            }
-                        }
-                    }
-                    // 2. Check for BOM ...
-                    if (!isValidCharset(result.charset) && out.hasUtf8Bom()) {
-                        result.charset= "UTF-8";
-                    }
-                    // 3. Check for @charset rule ...
-                    if (!isValidCharset(result.charset)) {
-                        String temp = out.toString("US-ASCII");
-                        if (temp.startsWith("@charset \"")) {
-                            int i = temp.indexOf("\";");
-                            if (i == -1) {
-                                result.text = "";
-                            } else {
-                                result.charset = temp.substring("@charset \"".length(), i);
-                            }
-                        }
-                    }
-                    // 4. Fall back to the externally specified charset parameter ...
-                    if (!isValidCharset(result.charset) && result.text == null) {
-                        result.charset = externallySpecifiedCharset;
-                    }
-                    // 5. If the charset is not determined by now, assume UTF-8 ...
-                    if (!isValidCharset(result.charset) && result.text == null) {
-                        result.charset = "UTF-8";
-                    }
-                    if (result.text == null) {
-                        try {
-                            result.text = out.toString(result.charset);
-                        } catch (UnsupportedEncodingException e) {
-                            result.text = "";
-                        }
-                    }
-                } finally {
-                    in.close();
-                }
-            }
-        } catch (IOException e) {
-            System.err.println("Could not get CSS from " + url + " - " + e.getMessage());
-        } finally {
-            getMethod.releaseConnection();
-        }
-        return result;
-    }
-
-    private void checkFavicon(WebPage webPage, List<LayoutBug> layoutBugs) {
-        URL faviconUrl = null;
-        try {
-            faviconUrl = getCompleteUrlFor(_faviconUrl);
-        } catch (MalformedURLException e) {
-            layoutBugs.add(createLayoutBug("Detected invalid favicon URL \"" + _faviconUrl + "\" - " + e.getMessage(), webPage, saveScreenshot()));
-        }
-        if (faviconUrl != null) {
-            final String error = checkImageUrl(faviconUrl);
-            if (error.length() > 0) {
-                layoutBugs.add(createLayoutBug("Detected invalid favicon URL \"" + _faviconUrl + "\" - " + error, webPage, saveScreenshot()));
-            }
-        }
-    }
-
-    /**
-     * Returns <code>""</code> if the given URL is a valid image URL,
-     * otherwise an error message is returned.
-     */
-    private String checkImageUrl(URL url) {
-        String error = _checkedUrls.get(url);
-        if (error == null) {
-            final GetMethod getMethod;
-            try {
-                getMethod = new GetMethod(url.toURI().toString());
-            } catch (URISyntaxException e) {
-                // TODO: how can we check the url?
-                LOG.info("Ignoring image URL " + url + " -- it can not be checked with Apache HttpClient.");
-                return "";
-            }
-            getMethod.setFollowRedirects(true);
-            try {
-                _httpClient.executeMethod(getMethod);
-                if (getMethod.getStatusCode() >= 400) {
-                    if (getMethod.getStatusCode() == 401) {
-                        LOG.info("Ignoring HTTP response status code 401 (" + getMethod.getStatusText() + ") for image URL " + url);
-                        error = "";
-                    } else {
-                        error = "HTTP GET responded with: " + getMethod.getStatusCode() + " " + getMethod.getStatusText();
-                    }
-                } else {
-                    final Header contentTypeHeader = getMethod.getResponseHeader("Content-Type");
-                    if (contentTypeHeader == null) {
-                        error = "HTTP response did not contain Content-Type header.";
-                    } else {
-                        final String contentType = contentTypeHeader.getValue();
-                        if (!contentType.startsWith("image/")) {
-                            error = "Content-Type HTTP response header \"" + contentType + "\" does not start with \"image/\".";
-                        } else {
-                            // The given URL seems to be a valid image URL.
-                            error = "";
-                        }
-                    }
-                }
-            } catch (IOException e) {
-                error = "HTTP GET failed: " + e.getMessage();
-            } finally {
-                getMethod.releaseConnection();
-            }
-            _checkedUrls.put(url, error);
-        }
-        return error;
-    }
-
     private URL getCompleteUrlFor(String url) throws MalformedURLException {
         return getCompleteUrlFor(_baseUrl, url);
     }
@@ -543,13 +365,254 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
         return completeUrl;
     }
 
-    private boolean hasProtocol(String url) {
-        boolean result = false;
-        if (url != null) {
-            final int i = url.indexOf(':');
-            final int j = url.indexOf('?');
-            result = (i > 0 && (j == -1 || i < j));
+    private void checkImageUrlAsync(final URL imageUrl, final String errorDescriptionPrefix) {
+        final String imageUrlAsString = imageUrl.toExternalForm();
+        String error = _checkedImageUrls.putIfAbsent(imageUrlAsString, "");
+        if (error == null) {
+            _mockBrowser.downloadAsync(imageUrl, new DownloadCallback() {
+                @Override
+                public void onSuccess(GetMethod getMethod) {
+                    if (getMethod.getStatusCode() >= 400) {
+                        if (getMethod.getStatusCode() == 401) {
+                            LOG.info("Ignoring HTTP response status code 401 (" + getMethod.getStatusText() + ") for image URL " + imageUrl);
+                        } else {
+                            handleError("HTTP server responded with: " + getMethod.getStatusCode() + " " + getMethod.getStatusText());
+                        }
+                    } else {
+                        final Header contentTypeHeader = getMethod.getResponseHeader("Content-Type");
+                        if (contentTypeHeader == null) {
+                            handleError("HTTP response did not contain Content-Type header.");
+                        } else {
+                            final String contentType = contentTypeHeader.getValue();
+                            if (!contentType.startsWith("image/")) {
+                                handleError("Content-Type HTTP response header \"" + contentType + "\" does not start with \"image/\".");
+                            } else {
+                                // The given imageUrl seems to be a valid image URL.
+                            }
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(IOException e) {
+                    handleError("HTTP GET failed: " + e.getMessage());
+                }
+
+                private void handleError(String error) {
+                    _checkedImageUrls.put(imageUrlAsString, error);
+                    addLayoutBugIfNotPresent(errorDescriptionPrefix + " -- " + error);
+                }
+            });
+        } else if (error.length() > 0) {
+            addLayoutBugIfNotPresent(errorDescriptionPrefix + " -- " + error);
+        }
+    }
+
+    private void checkCssResourceAsync(final String pathToCssResource, String url, URL baseUrl, final String fallBackCharset) {
+        try {
+            final URL cssUrl = getCompleteUrlFor(baseUrl, url);
+            if (_checkedCssUrls.add(cssUrl.toExternalForm())) {
+                _mockBrowser.downloadAsync(cssUrl, new DownloadCallback() {
+                    @Override
+                    public void onSuccess(GetMethod getMethod) {
+                        final Css css = getCssFrom(getMethod, cssUrl, fallBackCharset);
+                        if (css.text != null) {
+                            for (String importUrl : getImportUrlsFrom(css.text)) {
+                                checkCssResourceAsync(importUrl + " (imported from " + pathToCssResource + ")", importUrl, cssUrl, css.charset);
+                            }
+                            for (String url : extractUrlsFrom(css.text).keySet()) {
+                                try {
+                                    URL imageUrl = getCompleteUrlFor(cssUrl, url);
+                                    checkImageUrlAsync(imageUrl, "Detected invalid image URL \"" + url + "\" in " + pathToCssResource);
+                                } catch (MalformedURLException e) {
+                                    addLayoutBugIfNotPresent("Detected invalid image URL \"" + url + "\" in " + pathToCssResource);
+                                }
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(IOException e) {
+                        LOG.error("Could not get CSS from " + pathToCssResource + ".", e);
+                    }
+                });
+            }
+        } catch (MalformedURLException e) {
+            LOG.error("Could not get CSS from " + pathToCssResource + ".", e);
+        }
+    }
+
+    /**
+     * @param externallySpecifiedCharset the charset from the charset attribute of a &lt;link&gt; attribute if present,
+     *                                   otherwise the charset of the refering style sheet or document.
+     */
+    private Css getCssFrom(GetMethod getMethod, URL cssUrl, String externallySpecifiedCharset) {
+        final Css result = new Css();
+        if (getMethod.getStatusCode() >= 400) {
+            LOG.error("Could not get CSS from " + cssUrl + " -- HTTP server responded with: " + getMethod.getStatusCode() + " " + getMethod.getStatusText());
+        } else {
+            InputStream in = null;
+            try {
+                in = getMethod.getResponseBodyAsStream();
+                Utf8BomAwareByteArrayOutputStream out = new Utf8BomAwareByteArrayOutputStream();
+                IOUtils.copy(in, out);
+                // Determine charset (see http://www.w3.org/TR/CSS2/syndata.html#charset) ...
+                // 1. Check charset parameter of Content-Type response header ...
+                final Header contentTypeHeader = getMethod.getResponseHeader("Content-Type");
+                if (contentTypeHeader != null) {
+                    final HeaderElement[] a = contentTypeHeader.getElements();
+                    if (a.length > 0) {
+                        final NameValuePair charsetParam = a[0].getParameterByName("charset");
+                        if (charsetParam != null) {
+                            result.charset = charsetParam.getValue();
+                        }
+                    }
+                }
+                // 2. Check for BOM ...
+                if (!isValidCharset(result.charset) && out.hasUtf8Bom()) {
+                    result.charset= "UTF-8";
+                }
+                // 3. Check for @charset rule ...
+                if (!isValidCharset(result.charset)) {
+                    String temp = out.toString("US-ASCII");
+                    if (temp.startsWith("@charset \"")) {
+                        int i = temp.indexOf("\";");
+                        if (i == -1) {
+                            result.text = "";
+                        } else {
+                            result.charset = temp.substring("@charset \"".length(), i);
+                        }
+                    }
+                }
+                // 4. Fall back to the externally specified charset parameter ...
+                if (!isValidCharset(result.charset) && result.text == null) {
+                    result.charset = externallySpecifiedCharset;
+                }
+                // 5. If the charset is not determined by now, assume UTF-8 ...
+                if (!isValidCharset(result.charset) && result.text == null) {
+                    result.charset = "UTF-8";
+                }
+                if (result.text == null) {
+                    try {
+                        result.text = out.toString(result.charset);
+                    } catch (UnsupportedEncodingException e) {
+                        LOG.error("Could not get CSS from " + cssUrl, e);
+                    }
+                }
+            } catch (IOException e) {
+                LOG.error("Could not get CSS from " + cssUrl, e);
+            } finally {
+                IOUtils.closeQuietly(in);
+            }
         }
         return result;
+    }
+
+    private void addLayoutBugIfNotPresent(String description) {
+        // noinspection SynchronizeOnNonFinalField
+        synchronized (_layoutBugs) {
+            for (LayoutBug layoutBug : _layoutBugs) {
+                if (description.equals(layoutBug.getDescription())) {
+                    return;
+                }
+            }
+            boolean saveScreenshot;
+            if (_screenshotTaken) {
+                saveScreenshot = false;
+            } else {
+                _screenshotTaken = (saveScreenshot = true);
+            }
+            _layoutBugs.add(createLayoutBug(description, _webPage, saveScreenshot));
+        }
+    }
+
+    private interface DownloadCallback {
+        void onSuccess(GetMethod getMethod);
+        void onFailure(IOException e);
+    }
+
+    private class MockBrowser {
+        private final ExecutorService _threadPool;
+        private final HttpClient _httpClient;
+        private final AtomicInteger _downloads = new AtomicInteger(0);
+
+        public MockBrowser() {
+            _threadPool = Executors.newFixedThreadPool(10);
+            _httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
+            HttpState httpState = new HttpState();
+            if (_webPage instanceof WebPageBackedByWebDriver) {
+                WebDriver driver = ((WebPageBackedByWebDriver) _webPage).getDriver();
+                for (org.openqa.selenium.Cookie cookie : driver.manage().getCookies()) {
+                    httpState.addCookie(new Cookie(cookie.getDomain(), cookie.getName(), cookie.getValue(), cookie.getPath(), cookie.getExpiry(), cookie.isSecure()));
+                }
+            } else {
+                Selenium selenium = ((WebPageBackedBySelenium) _webPage).getSelenium();
+                // TODO: copy cookies from Selenium
+            }
+            _httpClient.setState(httpState);
+        }
+
+        public void downloadAsync(URL url, final DownloadCallback callBack) {
+            try {
+                final GetMethod getMethod = new GetMethod(url.toURI().toString());
+                getMethod.setFollowRedirects(true);
+                _downloads.incrementAndGet();
+                boolean downloadSubmitted = false;
+                try {
+                    _threadPool.submit(new Runnable() { @Override public void run() {
+                        try {
+                            _httpClient.executeMethod(getMethod);
+                            try {
+                                callBack.onSuccess(getMethod);
+                            } catch (Throwable t) {
+                                LOG.error("Unexpected exception while handling HTTP response for " + getMethod, t);
+                            }
+                        } catch (IOException e) {
+                            try {
+                                callBack.onFailure(e);
+                            } catch (Throwable t) {
+                                LOG.error("Unexpected exception while handling IOException for " + getMethod, t);
+                            }
+                        } finally {
+                            try {
+                                getMethod.releaseConnection();
+                            } catch (Throwable t) {
+                                LOG.error("Failed to release connection of " + getMethod, t);
+                            } finally {
+                                _downloads.decrementAndGet();
+                            }
+                        }
+                    }});
+                    downloadSubmitted = true;
+                } finally {
+                    if (!downloadSubmitted) {
+                        _downloads.decrementAndGet();
+                    }
+                }
+            } catch (URISyntaxException e) {
+                // TODO: how can we check the url?
+                LOG.info("Ignoring URL " + url + " -- it can not be checked with Apache HttpClient.");
+            }
+        }
+
+        public void waitUntilAllDownloadsAreFinished() {
+            while (_downloads.get() > 0) {
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException("Got interrupted while waiting for all downloads to finish.", e);
+                }
+            }
+        }
+
+        public void dispose() {
+            _threadPool.shutdown();
+        }
+    }
+
+    private static class Css {
+        public String charset;
+        public String text;
     }
 }

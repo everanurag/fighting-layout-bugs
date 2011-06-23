@@ -29,7 +29,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
+
+import static com.googlecode.fightinglayoutbugs.helpers.StringHelper.asString;
 
 /**
  * Represents a web page. This class was created to improve
@@ -44,7 +48,7 @@ public abstract class WebPage {
     private TextDetector _textDetector;
     private EdgeDetector _edgeDetector;
 
-    private String _url;
+    private URL _url;
     private String _html;
     private final List<Screenshot> _screenshots = new ArrayList<Screenshot>();
     private boolean[][] _textPixels;
@@ -103,9 +107,14 @@ public abstract class WebPage {
     /**
      * Returns the URL of this web page.
      */
-    public String getUrl() {
+    public URL getUrl() {
         if (_url == null) {
-            _url = retrieveUrl();
+            String urlAsString = retrieveUrl();
+            try {
+                _url = new URL(urlAsString);
+            } catch (MalformedURLException e) {
+                throw new RuntimeException("Could not convert " + asString(urlAsString) + " into an URL.", e);
+            }
         }
         return _url;
     }

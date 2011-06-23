@@ -73,8 +73,8 @@ public class DetectInvalidImageUrlsTest extends TestUsingSelenium {
         assertThat(layoutBugs, containsLayoutBug("/invalid/url/6.png"));
         assertThat(layoutBugs, containsLayoutBug("/invalid/url/7.png"));
         assertThat(layoutBugs, containsLayoutBug("/invalid/url/8.png"));
-        assertThat(layoutBugs, containsLayoutBug("Detected <img> without src attribute."));
-        assertThat(layoutBugs, containsLayoutBug("Detected <img> element with empty src attribute."));
+        assertThat(layoutBugs, containsLayoutBug("Detected visible <img> without src attribute."));
+        assertThat(layoutBugs, containsLayoutBug("Detected visible <img> element with empty src attribute."));
     }
 
     @Test
