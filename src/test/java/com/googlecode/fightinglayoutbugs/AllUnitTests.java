@@ -16,7 +16,9 @@
 
 package com.googlecode.fightinglayoutbugs;
 
-import com.googlecode.fightinglayoutbugs.helpers.*;
+import com.googlecode.fightinglayoutbugs.helpers.HamcrestHelperUnitTest;
+import com.googlecode.fightinglayoutbugs.helpers.JsonHelperUnitTest;
+import com.googlecode.fightinglayoutbugs.helpers.SocketHelperUnitTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 

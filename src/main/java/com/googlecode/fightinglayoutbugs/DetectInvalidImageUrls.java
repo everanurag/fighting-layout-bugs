@@ -16,14 +16,12 @@
 
 package com.googlecode.fightinglayoutbugs;
 
-import com.thoughtworks.selenium.Selenium;
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openqa.selenium.By;
-import org.openqa.selenium.RenderedWebElement;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
@@ -150,7 +148,7 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
         int numImgElementsWithEmptySrcAttribute = 0;
         final Set<String> seen = new HashSet<String>();
         for (WebElement img : _webPage.findElements(By.tagName("img"))) {
-            if (((RenderedWebElement) img).isDisplayed()) {
+            if (img.isDisplayed()) {
                 final String src = img.getAttribute("src");
                 if (src == null) {
                     ++numImgElementsWithoutSrcAttribute;
@@ -540,14 +538,9 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
             _threadPool = Executors.newFixedThreadPool(10);
             _httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
             HttpState httpState = new HttpState();
-            if (_webPage instanceof WebPageBackedByWebDriver) {
-                WebDriver driver = ((WebPageBackedByWebDriver) _webPage).getDriver();
-                for (org.openqa.selenium.Cookie cookie : driver.manage().getCookies()) {
-                    httpState.addCookie(new Cookie(cookie.getDomain(), cookie.getName(), cookie.getValue(), cookie.getPath(), cookie.getExpiry(), cookie.isSecure()));
-                }
-            } else {
-                Selenium selenium = ((WebPageBackedBySelenium) _webPage).getSelenium();
-                // TODO: copy cookies from Selenium
+            WebDriver driver = _webPage.getDriver();
+            for (org.openqa.selenium.Cookie cookie : driver.manage().getCookies()) {
+                httpState.addCookie(new Cookie(cookie.getDomain(), cookie.getName(), cookie.getValue(), cookie.getPath(), cookie.getExpiry(), cookie.isSecure()));
             }
             _httpClient.setState(httpState);
         }

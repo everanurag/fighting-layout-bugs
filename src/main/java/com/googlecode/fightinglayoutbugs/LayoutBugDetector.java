@@ -16,9 +16,6 @@
 
 package com.googlecode.fightinglayoutbugs;
 
-import com.thoughtworks.selenium.Selenium;
-import org.openqa.selenium.WebDriver;
-
 import java.io.File;
 import java.util.Collection;
 
@@ -35,18 +32,6 @@ public interface LayoutBugDetector {
      * @param screenshotDir if {@code null}, no screenshots will be stored
      */
     void setScreenshotDir(File screenshotDir);
-
-    /**
-     * Finds layout bugs in the web page currently displayed in the browser
-     * controlled by the given {@link Selenium}.
-     */
-    Collection<LayoutBug> findLayoutBugsIn(Selenium selenium);
-
-    /**
-     * Finds layout bugs in the web page currently displayed in the browser
-     * controlled by the given {@link WebDriver}.
-     */
-    Collection<LayoutBug> findLayoutBugsIn(WebDriver driver);
 
     /**
      * Finds layout bugs in the given web page.

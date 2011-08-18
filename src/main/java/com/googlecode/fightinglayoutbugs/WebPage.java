@@ -20,9 +20,9 @@ import com.googlecode.fightinglayoutbugs.Screenshot.Condition;
 import com.googlecode.fightinglayoutbugs.helpers.Dimension;
 import com.googlecode.fightinglayoutbugs.helpers.ImageHelper;
 import com.googlecode.fightinglayoutbugs.helpers.RectangularRegion;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 
 import javax.annotation.Nonnull;
 import java.io.ByteArrayOutputStream;
@@ -33,6 +33,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
+import static com.google.common.primitives.Bytes.asList;
 import static com.googlecode.fightinglayoutbugs.helpers.StringHelper.asString;
 
 /**
@@ -43,7 +44,11 @@ import static com.googlecode.fightinglayoutbugs.helpers.StringHelper.asString;
  *
  * @author Michael Tamm
  */
-public abstract class WebPage {
+public class WebPage {
+
+    private static List<Byte> PNG_SIGNATURE = asList(new byte[]{ (byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A });
+
+    private final WebDriver _driver;
 
     private TextDetector _textDetector;
     private EdgeDetector _edgeDetector;
@@ -58,6 +63,14 @@ public abstract class WebPage {
     private boolean _jqueryInjected;
     private boolean _textColorsBackedUp;
     private String _currentTextColor;
+
+    public WebPage(WebDriver driver) {
+        _driver = driver;
+    }
+
+    public WebDriver getDriver() {
+        return _driver;
+    }
 
     /**
      * Sets the detector for {@link #getTextPixels()},
@@ -109,7 +122,7 @@ public abstract class WebPage {
      */
     public URL getUrl() {
         if (_url == null) {
-            String urlAsString = retrieveUrl();
+            String urlAsString = _driver.getCurrentUrl();
             try {
                 _url = new URL(urlAsString);
             } catch (MalformedURLException e) {
@@ -124,7 +137,7 @@ public abstract class WebPage {
      */
     public String getHtml() {
         if (_html == null) {
-            _html = retrieveHtml();
+            _html = _driver.getPageSource();
         }
         return _html;
     }
@@ -291,27 +304,46 @@ public abstract class WebPage {
     /**
      * Returns all elements on this web page for the given find criteria.
      */
-    public abstract List<WebElement> findElements(By by);
+    public List<WebElement> findElements(By by) {
+        return _driver.findElements(by);
+    }
 
     /**
      * Executes the given JavaScript in the context of this web page.
      */
-    protected abstract Object executeJavaScript(String javaScript, Object... arguments);
-
-    /**
-     * Returns the URL of this web page.
-     */
-    protected abstract String retrieveUrl();
-
-    /**
-     * Returns the HTML source code of this web page.
-     */
-    protected abstract String retrieveHtml();
+    protected Object executeJavaScript(String javaScript, Object... arguments) {
+        if (_driver instanceof JavascriptExecutor) {
+            return ((JavascriptExecutor) _driver).executeScript(javaScript, arguments);
+        } else {
+            throw new UnsupportedOperationException("Can't execute JavaScript via " + _driver.getClass().getName());
+        }
+    }
 
     /**
      * Returns the bytes of a PNG image.
      */
-    protected abstract byte[] takeScreenshotAsPng();
+    protected byte[] takeScreenshotAsPng() {
+        if (_driver instanceof TakesScreenshot) {
+            byte[] bytes = ((TakesScreenshot) _driver).getScreenshotAs(OutputType.BYTES);
+            if (bytes == null) {
+                throw new RuntimeException(_driver.getClass().getName() + ".getScreenshotAs(OutputType.BYTES) returned null.");
+            }
+            if (bytes.length < 8) {
+                throw new RuntimeException(_driver.getClass().getName() + ".getScreenshotAs(OutputType.BYTES) did not return a PNG image.");
+            } else {
+                // Workaround for http://code.google.com/p/selenium/issues/detail?id=1686 ...
+                if (!asList(bytes).subList(0, 8).equals(PNG_SIGNATURE)) {
+                    bytes = Base64.decodeBase64(bytes);
+                }
+                if (!asList(bytes).subList(0, 8).equals(PNG_SIGNATURE)) {
+                    throw new RuntimeException(_driver.getClass().getName() + ".getScreenshotAs(OutputType.BYTES) did not return a PNG image.");
+                }
+            }
+            return bytes;
+        } else {
+            throw new UnsupportedOperationException(_driver.getClass().getName() + " does not support taking screenshots.");
+        }
+    }
 
     void colorAllText(@Nonnull String color) {
         if (!color.equals(_currentTextColor)) {

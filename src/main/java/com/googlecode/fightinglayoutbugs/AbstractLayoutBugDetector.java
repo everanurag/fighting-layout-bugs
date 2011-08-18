@@ -17,16 +17,14 @@
 package com.googlecode.fightinglayoutbugs;
 
 import com.googlecode.fightinglayoutbugs.helpers.ImageHelper;
-import com.thoughtworks.selenium.Selenium;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openqa.selenium.WebDriver;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Collection;
 import java.util.Date;
 
 /**
@@ -51,15 +49,7 @@ public abstract class AbstractLayoutBugDetector implements LayoutBugDetector {
         return createLayoutBug(message, webPage, true, marker);
     }
 
-    protected LayoutBug createLayoutBug(String message, WebPage webPage, int[][] screenshot) {
-        File screenshotFile = null;
-        if (screenshotDir != null) {
-            screenshotFile = saveScreenshot(screenshot);
-        }
-        return new LayoutBug(message, webPage, screenshotFile);
-    }
-
-    private LayoutBug createLayoutBug(String message, WebPage webPage, boolean saveScreenshot, Marker marker) {
+    private LayoutBug createLayoutBug(String message, WebPage webPage, boolean saveScreenshot, @Nullable Marker marker) {
         File screenshotFile = null;
         if (saveScreenshot && screenshotDir != null) {
             Screenshot screenshot = webPage.getScreenshot();
@@ -76,16 +66,6 @@ public abstract class AbstractLayoutBugDetector implements LayoutBugDetector {
             }
         }
         return new LayoutBug(message, webPage, screenshotFile);
-    }
-
-    public final Collection<LayoutBug> findLayoutBugsIn(WebDriver driver) {
-        WebPage webPage = new WebPageBackedByWebDriver(driver);
-        return findLayoutBugsIn(webPage);
-    }
-
-    public final Collection<LayoutBug> findLayoutBugsIn(Selenium selenium) {
-        WebPage webPage = new WebPageBackedBySelenium(selenium);
-        return findLayoutBugsIn(webPage);
     }
 
     private File saveScreenshot(int[][] pixels) {

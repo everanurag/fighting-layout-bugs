@@ -17,9 +17,6 @@
 package com.googlecode.fightinglayoutbugs.helpers;
 
 import com.googlecode.fightinglayoutbugs.WebPage;
-import com.googlecode.fightinglayoutbugs.WebPageBackedBySelenium;
-import com.googlecode.fightinglayoutbugs.WebPageBackedByWebDriver;
-import com.thoughtworks.selenium.DefaultSelenium;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -74,13 +71,6 @@ public enum TestWebPageFactory {
         protected WebPageCreator getCreator() {
             return new WebPageCreatorUsingRemoteWebDriver(DesiredCapabilities.firefox());
         }
-    },
-    UsingDefaultSeleniumWithFirefox {
-        @Override
-        protected WebPageCreator getCreator() {
-            File firefoxExecutable = FirefoxHelper.findFirefoxExecutable();
-            return new WebPageCreatorUsingDefaultSelenium("Firefox", "*firefox", "executablePath=" + firefoxExecutable.getAbsolutePath());
-        }
     };
 
     private static final Logger LOG = Logger.getLogger(TestWebPageFactory.class);
@@ -100,7 +90,7 @@ public enum TestWebPageFactory {
         @Override
         public WebPage createWebPageFor(URL url) {
             driver.get(url.toExternalForm());
-            return new WebPageBackedByWebDriver(driver);
+            return new WebPage(driver);
         }
 
         @Override
@@ -163,7 +153,7 @@ public enum TestWebPageFactory {
         @Override
         public WebPage createWebPageFor(URL url) {
             driver.get(url.toExternalForm());
-            return new WebPageBackedByWebDriver(driver);
+            return new WebPage(driver);
         }
 
         @Override
@@ -175,57 +165,6 @@ public enum TestWebPageFactory {
                 LOG.info(driverName + " destroyed.");
             } finally {
                 driver = null;
-                super.destroy();
-            }
-        }
-    }
-
-    private static class WebPageCreatorUsingDefaultSelenium extends StartSeleniumServer implements WebPageCreator {
-        private String browser;
-        private String browserStartCommand;
-        private String optionsString;
-        private DefaultSelenium defaultSelenium;
-        private URL lastUrl;
-
-        private WebPageCreatorUsingDefaultSelenium(String browser, String browserStartCommand, String optionsString) {
-            this.browser = browser;
-            this.browserStartCommand = browserStartCommand;
-            this.optionsString = optionsString;
-        }
-
-        @Override
-        public WebPage createWebPageFor(URL url) {
-            if (lastUrl != null && !StringHelper.equals(lastUrl.getHost(), url.getHost())) {
-                destroyDefaultSelenium();
-            }
-            if (defaultSelenium == null) {
-                LOG.info("Starting DefaultSelenium with " + browser + " for " + url.getProtocol() + "://" + url.getHost() + " ...");
-                defaultSelenium = new DefaultSelenium("localhost", seleniumServerPort, browserStartCommand, url.toExternalForm());
-                defaultSelenium.start(optionsString);
-                LOG.info("DefaultSelenium started.");
-            }
-            defaultSelenium.open(url.toExternalForm());
-            lastUrl = url;
-            return new WebPageBackedBySelenium(defaultSelenium);
-        }
-
-        private void destroyDefaultSelenium() {
-            if (defaultSelenium != null) {
-                try {
-                    LOG.info("Stopping DefaultSelenium ...");
-                    defaultSelenium.stop();
-                    LOG.info("DefaultSelenium stopped.");
-                } finally {
-                    defaultSelenium = null;
-                }
-            }
-        }
-
-        @Override
-        public void destroy() {
-            try {
-                destroyDefaultSelenium();
-            } finally {
                 super.destroy();
             }
         }

@@ -29,7 +29,6 @@ import org.junit.runners.Suite.SuiteClasses;
     AllTestsUsingFirefoxDriver.class,
     AllTestsUsingInternetExplorerDriver.class,
     AllTestsUsingRemoteWebDriverWithFirefox.class,
-    AllTestsUsingDefaultSeleniumWithFirefox.class,
     AllTestsUsingChromeDriver.class
 })
 public class AllTests {}
