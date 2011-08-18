@@ -29,7 +29,6 @@ import java.util.List;
  * set of {@link LayoutBugDetector}s. By default the following
  * detectors are enabled:
  * <ul>
- *     <li>{@link DetectNeedsHorizontalScrolling}</li>
  *     <li>{@link DetectInvalidImageUrls}</li>
  *     <li>{@link DetectTextNearOrOverlappingHorizontalEdge}</li>
  *     <li>{@link DetectTextNearOrOverlappingVerticalEdge}</li>
@@ -48,7 +47,6 @@ public class FightingLayoutBugs extends AbstractLayoutBugDetector {
 
     /**
      * Registers the following detectors:<ul>
-     *     <li>{@link DetectNeedsHorizontalScrolling}</li>
      *     <li>{@link DetectInvalidImageUrls}</li>
      *     <li>{@link DetectTextNearOrOverlappingHorizontalEdge}</li>
      *     <li>{@link DetectTextNearOrOverlappingVerticalEdge}</li>
@@ -58,7 +56,6 @@ public class FightingLayoutBugs extends AbstractLayoutBugDetector {
     public FightingLayoutBugs() {
         // The first detector should always be DetectNeedsHorizontalScrolling, because it resizes the browser window ...
         this(
-            new DetectNeedsHorizontalScrolling(),
             new DetectInvalidImageUrls(),
             new DetectTextNearOrOverlappingHorizontalEdge(),
             new DetectTextNearOrOverlappingVerticalEdge(),

@@ -31,7 +31,6 @@ import org.junit.runners.Suite;
     AnimationAwareTextDetectorTest.class,
     SimpleEdgeDetectorTest.class,
     DetectInvalidImageUrlsTest.class,
-    DetectNeedsHorizontalScrollingTest.class,
     DetectTextNearOrOverlappingVerticalEdgeTest.class,
     DetectTextWithTooLowContrastTest.class,
     WebPageTest.class
