@@ -371,10 +371,10 @@ public class WebPage {
         if (!_jqueryInjected) {
             // Check if jQuery is present ...
             if ("undefined".equals(executeJavaScript("return typeof jQuery"))) {
-                String jquery = readResource("jquery-1.5.2.min.js");
+                String jquery = readResource("jquery-1.6.2.min.js");
                 executeJavaScript(jquery);
                 // Check if jQuery was successfully injected ...
-                if (!"1.5.2".equals(executeJavaScript("return jQuery.fn.jquery"))) {
+                if (!"1.6.2".equals(executeJavaScript("return jQuery.fn.jquery"))) {
                     throw new RuntimeException("Failed to inject jQuery.");
                 }
             }
