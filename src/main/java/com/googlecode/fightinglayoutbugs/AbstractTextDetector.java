@@ -38,6 +38,7 @@ public abstract class AbstractTextDetector implements TextDetector {
         jQuerySelectorsForElementsToIgnore.add("embed");
         jQuerySelectorsForElementsToIgnore.add("iframe");
         jQuerySelectorsForElementsToIgnore.add("object");
+        jQuerySelectorsForElementsToIgnore.add("video");
     }
 
     @Override
