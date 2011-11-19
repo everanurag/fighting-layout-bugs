@@ -18,6 +18,8 @@ package com.googlecode.fightinglayoutbugs.helpers;
 
 import org.apache.commons.io.IOUtils;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
@@ -196,11 +198,25 @@ public class ImageHelper {
     }
 
     /**
+     * Returns {@code null} if the given subImage can not be found in the given image.
+     */
+    @Nullable
+    public static RectangularRegion findFirstSubImageInImage(@Nonnull BufferedImage subImage, @Nonnull BufferedImage image) {
+        List<RectangularRegion> temp = findSubImageInImage(subImage, image, 1);
+        return (temp.isEmpty() ? null : temp.get(0));
+    }
+
+    /**
      * Returns all rectangular regions where the given {@code subImage} is found in the given {@code image}.
      * Returns an empty collection if no occurrence is found.
      * Pixels of {@code subImage} with an alpha value lower than 255 are ignored.
      */
-    public static Collection<RectangularRegion> findSubImageInImage(BufferedImage subImage, BufferedImage image) {
+    @Nonnull
+    public static Collection<RectangularRegion> findSubImageInImage(@Nonnull BufferedImage subImage, @Nonnull BufferedImage image) {
+        return findSubImageInImage(subImage, image, Integer.MAX_VALUE);
+    }
+
+    private static List<RectangularRegion> findSubImageInImage(BufferedImage subImage, BufferedImage image, int max) {
         Map<Integer, List<Point>> rgb2offsets = new HashMap<Integer, List<Point>>();
         int sw = subImage.getWidth();
         int sh = subImage.getHeight();
@@ -219,7 +235,7 @@ public class ImageHelper {
                 }
             }
         }
-        Collection<RectangularRegion> result = new ArrayList<RectangularRegion>();
+        List<RectangularRegion> result = new ArrayList<RectangularRegion>();
         int w = image.getWidth();
         int h = image.getHeight();
         int[][] p = new int[w][h];
@@ -258,6 +274,9 @@ public class ImageHelper {
                     }
                     if (!i.hasNext()) {
                         result.add(new RectangularRegion(x, y, x + (sw - 1), y + (sh - 1)));
+                        if (result.size() == max) {
+                            return result;
+                        }
                     }
                 }
             }
