@@ -16,22 +16,26 @@
 
 package com.googlecode.fightinglayoutbugs.helpers;
 
+import java.awt.Rectangle;
+
 /**
  * @author Michael Tamm
  */
 public final class RectangularRegion {
 
+    /** X coordinate of top left corner (inclusive -- belongs to this rectangular region). */
     public final int x1;
+    /** Y coordinate of top left corner (inclusive -- belongs to this rectangular region). */
     public final int y1;
-    /** inclusive */
+    /** X coordinate of bottom right corner (inclusive -- belongs to this rectangular region). */
     public final int x2;
-    /** inclusive */
+    /** Y coordinate of bottom right corner (inclusive -- belongs to this rectangular region). */
     public final int y2;
 
     /**
      * Constructs a rectangular region covering all
      * pixels from the top left corner (x1,x2)
-     * to the right bottom corner (x2,y2).
+     * to the bottom right corner (x2,y2).
      */
     public RectangularRegion(int x1, int y1, int x2, int y2) {
         if (x1 < 0) {
@@ -70,5 +74,9 @@ public final class RectangularRegion {
     @Override
     public String toString() {
         return "(" + x1 + "," + y1 + ") - (" + x2 + "," + y2 + ")";
+    }
+
+    public Rectangle asRectangle() {
+        return new Rectangle(x1, y1, (x2 - x1) + 1, (y2 - y1) + 1);
     }
 }
