@@ -205,6 +205,7 @@ public class WebPage {
      * if the pixel with the coordinates x,y in a {@link #getScreenshot screenshot} of this web page
      * belongs to displayed text, otherwise <tt>a[x][y]</tt> is <tt>false</tt>.
      */
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings("EI")
     public boolean[][] getTextPixels() {
         if (_textPixels == null) {
             if (_textDetector == null) {
@@ -215,6 +216,7 @@ public class WebPage {
         return _textPixels;
     }
 
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings("SBSC")
     public Collection<RectangularRegion> getRectangularRegionsCoveredBy(Collection<String> jQuerySelectors) {
         if (jQuerySelectors.isEmpty()) {
             return Collections.emptySet();
@@ -276,6 +278,7 @@ public class WebPage {
      * if the pixel with the coordinates x,y in a {@link #getScreenshot screenshot} of this web page
      * belongs to a horizontal edge, otherwise <tt>a[x][y]</tt> is <tt>false</tt>.
      */
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings("EI")
     public boolean[][] getHorizontalEdges() {
         if (_horizontalEdges == null) {
             if (_edgeDetector == null) {
@@ -291,6 +294,7 @@ public class WebPage {
      * if the pixel with the coordinates x,y in a {@link #getScreenshot screenshot} of this web page
      * belongs to a vertical edge, otherwise <tt>a[x][y]</tt> is <tt>false</tt>.
      */
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings("EI")
     public boolean[][] getVerticalEdges() {
         if (_verticalEdges == null) {
             if (_edgeDetector == null) {

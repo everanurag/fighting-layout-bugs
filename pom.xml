@@ -42,12 +42,20 @@
     </properties>
 
     <dependencies>
+        <!-- dependencies for annotations ... -->
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
             <version>1.3.9</version>
-            <scope>compile</scope>
+            <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>annotations</artifactId>
+            <version>1.3.9</version>
+            <optional>true</optional>
+        </dependency>
+        <!-- compile dependencies ... -->
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
@@ -92,7 +100,13 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- Test dependencies ... -->
+        <!-- test dependencies ... -->
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>findbugs</artifactId>
+            <version>1.3.9</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit-dep</artifactId>

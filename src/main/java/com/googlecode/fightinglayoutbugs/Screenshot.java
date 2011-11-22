@@ -39,7 +39,7 @@ public class Screenshot {
     private static class WithAllTextColoredCondition implements Condition {
         private final String color;
 
-        private WithAllTextColoredCondition(String color) {
+        private WithAllTextColoredCondition(@Nonnull String color) {
             this.color = color;
         }
 
@@ -53,6 +53,11 @@ public class Screenshot {
 
         public void satisfyFor(WebPage webPage) {
             webPage.colorAllText(color);
+        }
+
+        @Override
+        public int hashCode() {
+            return color.hashCode();
         }
 
         @Override
@@ -116,6 +121,7 @@ public class Screenshot {
     public final int height;
     public final Dimension dimension;
 
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings("EI2")
     public Screenshot(int[][] pixels, String textColor) {
         creationDate = new Date();
         this.pixels = pixels;

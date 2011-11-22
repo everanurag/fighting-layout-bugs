@@ -36,6 +36,7 @@ public class SurroundBuggyPixels implements Marker {
 
     private final boolean[][] _buggyPixels;
 
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings("EI2")
     public SurroundBuggyPixels(boolean[][] buggyPixels) {
         _buggyPixels = buggyPixels;
     }
