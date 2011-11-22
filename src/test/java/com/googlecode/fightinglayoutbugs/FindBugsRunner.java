@@ -5,7 +5,6 @@ import edu.umd.cs.findbugs.classfile.ClassDescriptor;
 import edu.umd.cs.findbugs.config.UserPreferences;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.runner.Description;
-import org.junit.runner.RunWith;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
