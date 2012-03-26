@@ -54,7 +54,6 @@ public class FightingLayoutBugs extends AbstractLayoutBugDetector {
      * </ul>
      */
     public FightingLayoutBugs() {
-        // The first detector should always be DetectNeedsHorizontalScrolling, because it resizes the browser window ...
         this(
             new DetectInvalidImageUrls(),
             new DetectTextNearOrOverlappingHorizontalEdge(),
@@ -64,7 +63,6 @@ public class FightingLayoutBugs extends AbstractLayoutBugDetector {
     }
 
     public FightingLayoutBugs(LayoutBugDetector... detectors) {
-        // The first detector should always be DetectNeedsHorizontalScrolling, because it resizes the browser window ...
         for (LayoutBugDetector d : detectors) {
             enable(d);
         }
