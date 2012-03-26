@@ -21,12 +21,13 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+import org.junit.runners.Suite.SuiteClasses;
 
 /**
  * @author Michael Tamm
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({
+@SuiteClasses({
     SimpleTextDetectorTest.class,
     AnimationAwareTextDetectorTest.class,
     SimpleEdgeDetectorTest.class,

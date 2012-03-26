@@ -18,14 +18,17 @@ package com.googlecode.fightinglayoutbugs;
 
 import com.googlecode.fightinglayoutbugs.helpers.HamcrestHelperUnitTest;
 import com.googlecode.fightinglayoutbugs.helpers.JsonHelperUnitTest;
+import com.googlecode.fightinglayoutbugs.helpers.RectangularRegionUnitTest;
 import com.googlecode.fightinglayoutbugs.helpers.SocketHelperUnitTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses({
+@SuiteClasses({
     HamcrestHelperUnitTest.class,
     JsonHelperUnitTest.class,
+    RectangularRegionUnitTest.class,
     SocketHelperUnitTest.class,
     Utf8BomAwareByteArrayOutputStreamUnitTest.class
 })
