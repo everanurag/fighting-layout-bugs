@@ -101,7 +101,7 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
     private Set<String> _checkedCssUrls;
     private String _faviconUrl;
     private List<LayoutBug> _layoutBugs;
-    /** Initialized in by {@link #findLayoutBugsIn}, might be overwritten by {@link #checkLinkedCss}. */
+    private HttpClient _httpClient;
     private MockBrowser _mockBrowser;
 
     public Collection<LayoutBug> findLayoutBugsIn(WebPage webPage) {
@@ -113,7 +113,7 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
             _checkedCssUrls = new ConcurrentSkipListSet<String>();
             _faviconUrl = "/favicon.ico";
             _layoutBugs = new ArrayList<LayoutBug>();
-            _mockBrowser = new MockBrowser();
+            _mockBrowser = new MockBrowser(_httpClient == null ? new HttpClient(new MultiThreadedHttpConnectionManager()) : _httpClient);
             try {
                 // 1. Check the src attribute of all visible <img> elements ...
                 checkVisibleImgElements();
@@ -141,6 +141,13 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
             _baseUrl = null;
             _webPage = null;
         }
+    }
+
+    /**
+     * Sets the {@link HttpClient} used for downloading CSS files and checking image URLs.
+     */
+    public void setHttpClient(HttpClient httpClient) throws IllegalArgumentException {
+        _httpClient = httpClient;
     }
 
     private void checkVisibleImgElements() {
@@ -530,13 +537,19 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
     }
 
     private class MockBrowser {
-        private final ExecutorService _threadPool;
         private final HttpClient _httpClient;
+        private final ExecutorService _threadPool;
         private final AtomicInteger _downloads = new AtomicInteger(0);
 
-        public MockBrowser() {
-            _threadPool = Executors.newFixedThreadPool(10);
-            _httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
+        public MockBrowser(HttpClient httpClient) {
+            _httpClient = httpClient;
+            HttpConnectionManager connectionManager = httpClient.getHttpConnectionManager();
+            if (connectionManager instanceof MultiThreadedHttpConnectionManager) {
+                _threadPool = Executors.newFixedThreadPool(10);
+            } else {
+                LOG.warn("The configured HttpClient does not use a MultiThreadedHttpConnectionManager, will only use 1 thread (instead of 10) for downloading CSS files and checking image URLs ...");
+                _threadPool = Executors.newFixedThreadPool(1);
+            }
             HttpState httpState = new HttpState();
             WebDriver driver = _webPage.getDriver();
             for (org.openqa.selenium.Cookie cookie : driver.manage().getCookies()) {
