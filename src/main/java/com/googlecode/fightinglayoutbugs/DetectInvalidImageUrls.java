@@ -146,7 +146,7 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
     /**
      * Sets the {@link HttpClient} used for downloading CSS files and checking image URLs.
      */
-    public void setHttpClient(HttpClient httpClient) throws IllegalArgumentException {
+    public void setHttpClient(HttpClient httpClient) {
         _httpClient = httpClient;
     }
 
