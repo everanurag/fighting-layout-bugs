@@ -16,10 +16,15 @@
 
 package com.googlecode.fightinglayoutbugs.helpers;
 
+import java.io.Serializable;
+
 /**
  * @author Michael Tamm
  */
-public class Dimension {
+public class Dimension implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     public final int width;
     public final int height;
 
@@ -35,7 +40,9 @@ public class Dimension {
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof Dimension) {
+        if (o == this) {
+            return true;
+        } else if (o instanceof Dimension) {
             Dimension other = (Dimension) o;
             return (this.width == other.width && this.height == other.height);
         } else {

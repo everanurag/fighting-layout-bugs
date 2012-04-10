@@ -17,11 +17,14 @@
 package com.googlecode.fightinglayoutbugs.helpers;
 
 import java.awt.Rectangle;
+import java.io.Serializable;
 
 /**
  * @author Michael Tamm
  */
-public final class RectangularRegion {
+public final class RectangularRegion implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /** X coordinate of top left corner (inclusive -- belongs to this rectangular region). */
     public final int x1;
@@ -63,7 +66,9 @@ public final class RectangularRegion {
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof RectangularRegion) {
+        if (o == this) {
+            return true;
+        } else if (o instanceof RectangularRegion) {
             RectangularRegion other = (RectangularRegion) o;
             return (this.x1 == other.x1 && this.x2 == other.x2 && this.y1 == other.y1 && this.y2 == other.y2);
         } else {

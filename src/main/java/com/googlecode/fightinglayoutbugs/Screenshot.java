@@ -22,13 +22,16 @@ import com.googlecode.fightinglayoutbugs.helpers.StringHelper;
 
 import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Represents a screenshot of an entire {@link WebPage}.
  */
-public class Screenshot {
+public class Screenshot implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     public interface Condition {
         boolean isSatisfiedBy(Screenshot screenshot);

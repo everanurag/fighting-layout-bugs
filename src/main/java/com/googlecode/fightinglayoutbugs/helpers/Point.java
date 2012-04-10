@@ -16,10 +16,15 @@
 
 package com.googlecode.fightinglayoutbugs.helpers;
 
+import java.io.Serializable;
+
 /**
  * @author Michael Tamm
  */
-public final class Point {
+public final class Point implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     public final int x;
     public final int y;
 
@@ -41,7 +46,9 @@ public final class Point {
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof Point) {
+        if (o == this) {
+            return true;
+        } else if (o instanceof Point) {
             Point other = (Point) o;
             return (this.x == other.x && this.y == other.y);
         } else {
