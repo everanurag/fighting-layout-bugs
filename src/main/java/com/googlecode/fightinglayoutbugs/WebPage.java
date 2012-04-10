@@ -197,7 +197,9 @@ public class WebPage {
         for (Condition condition : conditions) {
             condition.satisfyFor(this);
         }
-        return takeScreenshot();
+        Screenshot screenshot = takeScreenshot();
+        _screenshots.add(screenshot);
+        return screenshot;
     }
 
     /**
@@ -312,6 +314,12 @@ public class WebPage {
         return _driver.findElements(by);
     }
 
+    public Screenshot takeScreenshot() {
+        byte[] bytes = takeScreenshotAsPng();
+        int[][] pixels = ImageHelper.pngToPixels(bytes);
+        return new Screenshot(pixels, _currentTextColor);
+    }
+
     /**
      * Executes the given JavaScript in the context of this web page.
      */
@@ -371,7 +379,7 @@ public class WebPage {
         }
     }
 
-    private void injectJQueryIfNotPresent() {
+    void injectJQueryIfNotPresent() {
         if (!_jqueryInjected) {
             // Check if jQuery is present ...
             if ("undefined".equals(executeJavaScript("return typeof jQuery"))) {
@@ -408,13 +416,5 @@ public class WebPage {
             // Should never happen
             throw new RuntimeException(e);
         }
-    }
-
-    private Screenshot takeScreenshot() {
-        byte[] bytes = takeScreenshotAsPng();
-        int[][] pixels = ImageHelper.pngToPixels(bytes);
-        Screenshot screenshot = new Screenshot(pixels, _currentTextColor);
-        _screenshots.add(screenshot);
-        return screenshot;
     }
 }

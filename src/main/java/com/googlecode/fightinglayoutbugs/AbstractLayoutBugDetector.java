@@ -42,18 +42,26 @@ public abstract class AbstractLayoutBugDetector implements LayoutBugDetector {
     }
 
     protected LayoutBug createLayoutBug(String message, WebPage webPage, boolean saveScreenshot) {
-        return createLayoutBug(message, webPage, saveScreenshot, null);
+        return createLayoutBug(message, webPage, null, saveScreenshot, null);
     }
 
-    protected LayoutBug createLayoutBug(String message, WebPage webPage, Marker marker) {
-        return createLayoutBug(message, webPage, true, marker);
+    protected LayoutBug createLayoutBug(String message, WebPage webPage, @Nullable Marker marker) {
+        return createLayoutBug(message, webPage, null, true, marker);
     }
 
-    private LayoutBug createLayoutBug(String message, WebPage webPage, boolean saveScreenshot, @Nullable Marker marker) {
+    protected LayoutBug createLayoutBug(String message, WebPage webPage, Screenshot screenshot, @Nullable Marker marker) {
+        return createLayoutBug(message, webPage, screenshot, true, marker);
+    }
+
+    private LayoutBug createLayoutBug(String message, WebPage webPage, Screenshot screenshot, boolean saveScreenshot, @Nullable Marker marker) {
         File screenshotFile = null;
         if (saveScreenshot && screenshotDir != null) {
-            Screenshot screenshot = webPage.getScreenshot();
-            if (marker != null) {
+            if (screenshot == null) {
+                screenshot = webPage.getScreenshot();
+            }
+            if (marker == null) {
+                screenshotFile = saveScreenshot(screenshot.pixels);
+            } else {
                 final int[][] screenshotPixels = ImageHelper.copyOf(screenshot.pixels);
                 try {
                     marker.mark(screenshotPixels);
@@ -61,8 +69,6 @@ public abstract class AbstractLayoutBugDetector implements LayoutBugDetector {
                     LOG.error("Failed to mark screenshot.", e);
                 }
                 screenshotFile = saveScreenshot(screenshotPixels);
-            } else {
-                screenshotFile = saveScreenshot(screenshot.pixels);
             }
         }
         return new LayoutBug(message, webPage, screenshotFile);
