@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2011 Michael Tamm
+ * Copyright 2009-2012 Michael Tamm
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package com.googlecode.fightinglayoutbugs;
 
-import static com.googlecode.fightinglayoutbugs.Screenshot.withNoText;
+import static com.googlecode.fightinglayoutbugs.ScreenshotCache.Condition.WITH_ALL_TEXT_TRANSPARENT;
 import static com.googlecode.fightinglayoutbugs.helpers.ImageHelper.getContrast;
 import static com.googlecode.fightinglayoutbugs.helpers.StringHelper.amountString;
 
@@ -92,7 +92,7 @@ public class SimpleEdgeDetector implements EdgeDetector {
 
     public boolean[][] detectHorizontalEdgesIn(WebPage webPage) {
         // 1.) Take screenshot without text ...
-        final int[][] pixels = webPage.getScreenshot(withNoText()).pixels;
+        final int[][] pixels = webPage.getScreenshot(WITH_ALL_TEXT_TRANSPARENT).pixels;
         final int w = pixels.length;
         final int h = pixels[0].length;
         Visualization.algorithmStepFinished("1.) Take screenshot without text.", webPage, pixels);
@@ -141,7 +141,7 @@ public class SimpleEdgeDetector implements EdgeDetector {
 
     public boolean[][] detectVerticalEdgesIn(WebPage webPage) {
         // 1.) Take screenshot without text ...
-        final int[][] pixels = webPage.getScreenshot(withNoText()).pixels;
+        final int[][] pixels = webPage.getScreenshot(WITH_ALL_TEXT_TRANSPARENT).pixels;
         final int w = pixels.length;
         final int h = pixels[0].length;
         Visualization.algorithmStepFinished("1.) Take screenshot without text.", webPage, pixels);

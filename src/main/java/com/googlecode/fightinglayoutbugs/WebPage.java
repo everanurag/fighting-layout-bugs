@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2011 Michael Tamm
+ * Copyright 2009-2012 Michael Tamm
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,14 @@
 
 package com.googlecode.fightinglayoutbugs;
 
-import com.googlecode.fightinglayoutbugs.Screenshot.Condition;
-import com.googlecode.fightinglayoutbugs.helpers.Dimension;
-import com.googlecode.fightinglayoutbugs.helpers.ImageHelper;
+import com.googlecode.fightinglayoutbugs.ScreenshotCache.Condition;
 import com.googlecode.fightinglayoutbugs.helpers.RectangularRegion;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
-import org.openqa.selenium.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 
-import javax.annotation.Nonnull;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,7 +32,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
-import static com.google.common.primitives.Bytes.asList;
+import static com.googlecode.fightinglayoutbugs.ScreenshotCache.Condition.UNMODIFIED;
 import static com.googlecode.fightinglayoutbugs.helpers.StringHelper.asString;
 
 /**
@@ -46,26 +45,23 @@ import static com.googlecode.fightinglayoutbugs.helpers.StringHelper.asString;
  */
 public class WebPage {
 
-    private static List<Byte> PNG_SIGNATURE = asList(new byte[]{ (byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A });
-
     private final WebDriver _driver;
+    private final ScreenshotCache _screenshotCache;
 
     private TextDetector _textDetector;
     private EdgeDetector _edgeDetector;
 
     private URL _url;
     private String _html;
-    private final List<Screenshot> _screenshots = new ArrayList<Screenshot>();
     private boolean[][] _textPixels;
     private boolean[][] _horizontalEdges;
     private boolean[][] _verticalEdges;
 
     private boolean _jqueryInjected;
-    private boolean _textColorsBackedUp;
-    private String _currentTextColor;
 
     public WebPage(WebDriver driver) {
         _driver = driver;
+        _screenshotCache = new ScreenshotCache(this);
     }
 
     public WebDriver getDriver() {
@@ -97,26 +93,6 @@ public class WebPage {
         _edgeDetector = edgeDetector;
     }
 
-    public void resizeBrowserWindowTo(Dimension newBrowserWindowSize) {
-        Number currentBrowserWindowWidth = (Number) executeJavaScript("return window.outerWidth");
-        if (currentBrowserWindowWidth == null || currentBrowserWindowWidth.intValue() != newBrowserWindowSize.width || ((Number) executeJavaScript("return window.outerHeight")).intValue() != newBrowserWindowSize.height) {
-            executeJavaScript("window.resizeTo(" + newBrowserWindowSize.width + ", " + newBrowserWindowSize.height + ")");
-            if (currentBrowserWindowWidth != null) {
-                // Check if resizing succeeded ...
-                int browserWindowWidth = ((Number) executeJavaScript("return window.outerWidth")).intValue();
-                int browserWindowHeight = ((Number) executeJavaScript("return window.outerHeight")).intValue();
-                if (browserWindowWidth != newBrowserWindowSize.width || browserWindowHeight != newBrowserWindowSize.height) {
-                    throw new RuntimeException("Failed to resize browser window. If you are using Chrome, see http://code.google.com/p/chromium/issues/detail?id=2091");
-                }
-            }
-            // Clear all cached screenshots and derived values ...
-            _screenshots.clear();
-            _textPixels = null;
-            _horizontalEdges = null;
-            _verticalEdges = null;
-        }
-    }
-
     /**
      * Returns the URL of this web page.
      */
@@ -142,64 +118,12 @@ public class WebPage {
         return _html;
     }
 
-    /**
-     * Takes back any changes which might have been applied to the web page.
-     */
-    public void restore() {
-        restoreTextColors();
+    public Screenshot getScreenshot() {
+        return getScreenshot(UNMODIFIED);
     }
 
-    private class Unmodified implements Condition {
-        public boolean isSatisfiedBy(Screenshot screenshot) {
-            return screenshot.textColor == null;
-        }
-        public boolean satisfyWillModifyWebPage() {
-            return false;
-        }
-        public void satisfyFor(WebPage webPage) {
-            restoreTextColors();
-        }
-    }
-
-    /**
-     * Returns a screenshot of this web page.
-     *
-     * @param conditions conditions the taken screenshot must satisfy.
-     */
-    public Screenshot getScreenshot(Condition... conditions) {
-        // 1.) Check if there is a condition, which modifies the web page ...
-        boolean thereIsAConditionWhichModifiesTheWebPage = false;
-        for (int i = 0; i < conditions.length && !thereIsAConditionWhichModifiesTheWebPage; ++i) {
-            if (conditions[i].satisfyWillModifyWebPage()) {
-                thereIsAConditionWhichModifiesTheWebPage = true;
-            }
-        }
-        // 2.) If there is no condition, which modifies the web page, we need to add the Unmodified condition ...
-        if (!thereIsAConditionWhichModifiesTheWebPage) {
-            Condition[] temp = new Condition[1 + conditions.length];
-            temp[0] = new Unmodified();
-            System.arraycopy(conditions, 0, temp, 1, conditions.length);
-            conditions = temp;
-        }
-        // 3.) Check if we have already taken a screenshot which satisfies all conditions ...
-        for (Screenshot screenshot : _screenshots) {
-            boolean satisfiesAllConditions = true;
-            for (int i = 0; i < conditions.length && satisfiesAllConditions; ++i) {
-                if (!conditions[i].isSatisfiedBy(screenshot)) {
-                    satisfiesAllConditions = false;
-                }
-            }
-            if (satisfiesAllConditions) {
-                return screenshot;
-            }
-        }
-        // 4.) No screenshot satisfied all conditions, we need to tak a new one ...
-        for (Condition condition : conditions) {
-            condition.satisfyFor(this);
-        }
-        Screenshot screenshot = takeScreenshot();
-        _screenshots.add(screenshot);
-        return screenshot;
+    public Screenshot getScreenshot(Condition condition) {
+        return _screenshotCache.getScreenshot(condition);
     }
 
     /**
@@ -315,9 +239,7 @@ public class WebPage {
     }
 
     public Screenshot takeScreenshot() {
-        byte[] bytes = takeScreenshotAsPng();
-        int[][] pixels = ImageHelper.pngToPixels(bytes);
-        return new Screenshot(pixels, _currentTextColor);
+        return _screenshotCache.takeScreenshot(UNMODIFIED);
     }
 
     /**
@@ -328,54 +250,6 @@ public class WebPage {
             return ((JavascriptExecutor) _driver).executeScript(javaScript, arguments);
         } else {
             throw new UnsupportedOperationException("Can't execute JavaScript via " + _driver.getClass().getName());
-        }
-    }
-
-    /**
-     * Returns the bytes of a PNG image.
-     */
-    protected byte[] takeScreenshotAsPng() {
-        if (_driver instanceof TakesScreenshot) {
-            byte[] bytes = ((TakesScreenshot) _driver).getScreenshotAs(OutputType.BYTES);
-            if (bytes == null) {
-                throw new RuntimeException(_driver.getClass().getName() + ".getScreenshotAs(OutputType.BYTES) returned null.");
-            }
-            if (bytes.length < 8) {
-                throw new RuntimeException(_driver.getClass().getName() + ".getScreenshotAs(OutputType.BYTES) did not return a PNG image.");
-            } else {
-                // Workaround for http://code.google.com/p/selenium/issues/detail?id=1686 ...
-                if (!asList(bytes).subList(0, 8).equals(PNG_SIGNATURE)) {
-                    bytes = Base64.decodeBase64(bytes);
-                }
-                if (!asList(bytes).subList(0, 8).equals(PNG_SIGNATURE)) {
-                    throw new RuntimeException(_driver.getClass().getName() + ".getScreenshotAs(OutputType.BYTES) did not return a PNG image.");
-                }
-            }
-            return bytes;
-        } else {
-            throw new UnsupportedOperationException(_driver.getClass().getName() + " does not support taking screenshots.");
-        }
-    }
-
-    void colorAllText(@Nonnull String color) {
-        if (!color.equals(_currentTextColor)) {
-            if (!_textColorsBackedUp) {
-                injectJQueryIfNotPresent();
-                executeJavaScript("jQuery('*').each(function() { var j = jQuery(this); j.attr('flb_color_backup', j.css('color')); }).size();"); // ... the trailing ".size()" will reduce the size of the response
-                _textColorsBackedUp = true;
-            }
-            executeJavaScript("jQuery('*').css('color', '" + color + "').size();"); // ... the trailing ".size()" will reduce the size of the response
-            _currentTextColor = color;
-        }
-    }
-
-    void restoreTextColors() {
-        if (_currentTextColor != null) {
-            if (!_textColorsBackedUp) {
-                throw new IllegalStateException("text colors have not been backed up.");
-            }
-            executeJavaScript("jQuery('*').each(function() { var j = jQuery(this); j.css('color', j.attr('flb_color_backup')); }).size();"); // ... the trailing ".size()" will reduce the size of the response
-            _currentTextColor = null;
         }
     }
 

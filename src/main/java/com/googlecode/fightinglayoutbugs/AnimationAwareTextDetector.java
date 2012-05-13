@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2011 Michael Tamm
+ * Copyright 2009-2012 Michael Tamm
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,10 @@ package com.googlecode.fightinglayoutbugs;
 import com.googlecode.fightinglayoutbugs.helpers.RectangularRegion;
 
 import java.util.Collection;
+import java.util.Random;
 
-import static com.googlecode.fightinglayoutbugs.Screenshot.takenAtLeast;
-import static com.googlecode.fightinglayoutbugs.Screenshot.withAllTextColored;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static com.googlecode.fightinglayoutbugs.ScreenshotCache.Condition.WITH_ALL_TEXT_BLACK;
+import static com.googlecode.fightinglayoutbugs.ScreenshotCache.Condition.WITH_ALL_TEXT_WHITE;
 
 /**
  * Works similar to the {@link SimpleTextDetector}, but detects
@@ -34,15 +34,18 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
  */
 public class AnimationAwareTextDetector extends AbstractTextDetector {
 
+    private static final int[] SOME_PRIME_NUMBERS = { 83, 107, 137, 167 };
+
     public boolean[][] detectTextPixelsIn(WebPage webPage) {
         // 1.) Take initial screenshot of web page ...
-        Screenshot screenshot1 = webPage.getScreenshot();
+        long timeOfLastScreenshot = System.currentTimeMillis();
+        Screenshot screenshot1 = webPage.takeScreenshot();
         Visualization.algorithmStepFinished("1.) Take initial screenshot of web page.", webPage, screenshot1);
         // 2.) Take a screenshot with all text colored black ...
-        Screenshot screenshotWithAllTextColoredBlack = webPage.getScreenshot(withAllTextColored("#000000"));
+        Screenshot screenshotWithAllTextColoredBlack = webPage.getScreenshot(WITH_ALL_TEXT_BLACK);
         Visualization.algorithmStepFinished("2.) Take a screenshot with all text colored black.", webPage, screenshotWithAllTextColoredBlack);
         // 3.) Take another screenshot with all text colored white ...
-        Screenshot screenshotWithAllTextColoredWhite = webPage.getScreenshot(withAllTextColored("#ffffff"));
+        Screenshot screenshotWithAllTextColoredWhite = webPage.getScreenshot(WITH_ALL_TEXT_WHITE);
         Visualization.algorithmStepFinished("3.) Take another screenshot with all text colored white.", webPage, screenshotWithAllTextColoredWhite);
         // 4.) Determine potential text pixels by comparing the last two screenshots ...
         CompareScreenshots diff1 = new CompareScreenshots(screenshotWithAllTextColoredBlack, screenshotWithAllTextColoredWhite);
@@ -50,8 +53,9 @@ public class AnimationAwareTextDetector extends AbstractTextDetector {
         // 5.) Determine regions of Java Applets, embedded objects like Flash movies, iframes, and other ignored elements ...
         Collection<RectangularRegion> ignoredRegions = getIgnoredRegions(webPage);
         Visualization.algorithmStepFinished("5.) Determine regions of Java Applets, embedded objects like Flash movies, iframes, and other ignored elements.", webPage, ignoredRegions);
-        // 6.) Take another screenshot of the web page (with text colors restored) ...
-        Screenshot screenshot2 = webPage.getScreenshot(takenAtLeast(500, MILLISECONDS).laterThan(screenshot1));
+        // 6.) Take another screenshot of the web page (with text colors restored and at least 283 milliseconds later) ...
+        sleepUntil(timeOfLastScreenshot + 283);
+        Screenshot screenshot2 = webPage.takeScreenshot();
         Visualization.algorithmStepFinished("6.) Take another screenshot of the web page (with text colors restored).", webPage, screenshot2);
         // 7.) Compare the last screenshot with the initial screenshot (ignoring ignored regions) to find more animated pixels ...
         CompareScreenshots diff2 = new CompareScreenshots(screenshot1, screenshot2).ignore(ignoredRegions);
@@ -78,10 +82,12 @@ public class AnimationAwareTextDetector extends AbstractTextDetector {
             // 9.) Take a series of screenshots to determine all animated pixels ...
             int w = screenshot1.width;
             int h = screenshot2.height;
+            Random random = new Random();
             do {
                 moreAnimatedPixelsFound = false;
                 screenshot1 = screenshot2;
-                screenshot2 = webPage.getScreenshot(takenAtLeast(137, MILLISECONDS).laterThan(screenshot1));
+                sleepUntil(timeOfLastScreenshot + SOME_PRIME_NUMBERS[random.nextInt(SOME_PRIME_NUMBERS.length)]);
+                screenshot2 = webPage.takeScreenshot();
                 int[][] pixels1 = screenshot1.pixels;
                 int[][] pixels2 = screenshot2.pixels;
                 for (int x = 0; x < w; ++x) {
@@ -106,5 +112,17 @@ public class AnimationAwareTextDetector extends AbstractTextDetector {
             Visualization.algorithmFinished("10.) Ignore all animated pixels.", webPage, textPixels);
         }
         return textPixels;
+    }
+
+    private void sleepUntil(long t) {
+        long delay = t - System.currentTimeMillis();
+        if (delay > 0) {
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new RuntimeException("Got interrupted.", e);
+            }
+        }
     }
 }

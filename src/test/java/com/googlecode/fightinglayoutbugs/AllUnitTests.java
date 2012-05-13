@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2011 Michael Tamm
+ * Copyright 2009-2012 Michael Tamm
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import org.junit.runners.Suite.SuiteClasses;
     HamcrestHelperUnitTest.class,
     JsonHelperUnitTest.class,
     RectangularRegionUnitTest.class,
+    ScreenshotCacheTest.class,
     SocketHelperUnitTest.class,
     Utf8BomAwareByteArrayOutputStreamUnitTest.class
 })

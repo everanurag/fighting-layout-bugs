@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2011 Michael Tamm
+ * Copyright 2009-2012 Michael Tamm
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,8 @@ import com.googlecode.fightinglayoutbugs.helpers.RectangularRegion;
 
 import java.util.Collection;
 
-import static com.googlecode.fightinglayoutbugs.Screenshot.withAllTextColored;
+import static com.googlecode.fightinglayoutbugs.ScreenshotCache.Condition.WITH_ALL_TEXT_BLACK;
+import static com.googlecode.fightinglayoutbugs.ScreenshotCache.Condition.WITH_ALL_TEXT_WHITE;
 
 /**
  * Detects text pixels by comparing screenshots after colorizing all text to black
@@ -35,10 +36,10 @@ public class SimpleTextDetector extends AbstractTextDetector {
 
     public boolean[][] detectTextPixelsIn(WebPage webPage) {
         // 1.) Take first screenshot with all text colored black ...
-        Screenshot screenshotWithAllTextColoredBlack = webPage.getScreenshot(withAllTextColored("#000000"));
+        Screenshot screenshotWithAllTextColoredBlack = webPage.getScreenshot(WITH_ALL_TEXT_BLACK);
         Visualization.algorithmStepFinished("1.) Take first screenshot with all text colored black.", webPage, screenshotWithAllTextColoredBlack);
         // 2.) Take second screenshot with all text colored white ...
-        Screenshot screenshotWithAllTextColoredWhite = webPage.getScreenshot(withAllTextColored("#ffffff"));
+        Screenshot screenshotWithAllTextColoredWhite = webPage.getScreenshot(WITH_ALL_TEXT_WHITE);
         Visualization.algorithmStepFinished("2.) Take second screenshot with all text colored white.", webPage, screenshotWithAllTextColoredWhite);
         // 3.) Determine potential text pixels by comparing the last two screenshots ...
         CompareScreenshots diff = new CompareScreenshots(screenshotWithAllTextColoredBlack, screenshotWithAllTextColoredWhite);
