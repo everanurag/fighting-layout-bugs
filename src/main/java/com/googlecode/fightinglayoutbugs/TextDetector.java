@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2011 Michael Tamm
+ * Copyright 2009-2012 Michael Tamm
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,9 +32,9 @@ public interface TextDetector {
 
     /**
      * Returns a two dimensional array <tt>a</tt>, whereby <tt>a[x][y]</tt> is <tt>true</tt>
-     * if the pixel with the coordinates x,y in a {@link #getScreenshot screenshot} of this web page
-     * belongs to displayed text, otherwise <tt>a[x][y]</tt> is <tt>false</tt>.
+     * if the pixel with the coordinates x,y in a {@link WebPage#getScreenshot screenshot} of the
+     * given web page belongs to displayed text, otherwise <tt>a[x][y]</tt> is <tt>false</tt>.
      */
-    boolean[][] detectTextPixelsIn(WebPage webpage);
+    boolean[][] detectTextPixelsIn(WebPage webPage);
 
 }
