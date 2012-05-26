@@ -17,9 +17,12 @@
 package com.googlecode.fightinglayoutbugs;
 
 import com.googlecode.fightinglayoutbugs.helpers.RectangularRegion;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.Collection;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import static com.googlecode.fightinglayoutbugs.ScreenshotCache.Condition.WITH_ALL_TEXT_BLACK;
 import static com.googlecode.fightinglayoutbugs.ScreenshotCache.Condition.WITH_ALL_TEXT_WHITE;
@@ -34,11 +37,30 @@ import static com.googlecode.fightinglayoutbugs.ScreenshotCache.Condition.WITH_A
  */
 public class AnimationAwareTextDetector extends AbstractTextDetector {
 
+    private static final Log LOG = LogFactory.getLog(AnimationAwareTextDetector.class);
+
     private static final int[] SOME_PRIME_NUMBERS = { 83, 107, 137, 167 };
 
+    private long _maxMillis = 5000;
+
+    /**
+     * Sets the maximum time for the loop in {@link #detectTextPixelsIn} which
+     * will take screenshots after screenshot as long as new animated pixels are found,
+     * default is 5 seconds.
+     */
+    public void setMaxTime(long time, TimeUnit timeUnit) {
+        if (time <= 0) {
+            throw new IllegalArgumentException("Method parameter time must be greater than 0.");
+        }
+        if (timeUnit == null) {
+            throw new IllegalArgumentException("Method parameter timeUnit must not be null.");
+        }
+        _maxMillis = timeUnit.toMillis(time);
+    }
+
     public boolean[][] detectTextPixelsIn(WebPage webPage) {
+        long startTime = System.currentTimeMillis();
         // 1.) Take initial screenshot of web page ...
-        long timeOfLastScreenshot = System.currentTimeMillis();
         Screenshot screenshot1 = webPage.takeScreenshot();
         Visualization.algorithmStepFinished("1.) Take initial screenshot of web page.", webPage, screenshot1);
         // 2.) Take a screenshot with all text colored black ...
@@ -54,7 +76,7 @@ public class AnimationAwareTextDetector extends AbstractTextDetector {
         Collection<RectangularRegion> ignoredRegions = getIgnoredRegions(webPage);
         Visualization.algorithmStepFinished("5.) Determine regions of Java Applets, embedded objects like Flash movies, iframes, and other ignored elements.", webPage, ignoredRegions);
         // 6.) Take another screenshot of the web page (with text colors restored and at least 283 milliseconds later) ...
-        sleepUntil(timeOfLastScreenshot + 283);
+        sleepUntil(startTime + 283);
         Screenshot screenshot2 = webPage.takeScreenshot();
         Visualization.algorithmStepFinished("6.) Take another screenshot of the web page (with text colors restored).", webPage, screenshot2);
         // 7.) Compare the last screenshot with the initial screenshot (ignoring ignored regions) to find more animated pixels ...
@@ -79,6 +101,7 @@ public class AnimationAwareTextDetector extends AbstractTextDetector {
             }
             Visualization.algorithmStepFinished("8.) Found more animated pixels, consider all ignored regions as animated pixels too.", webPage, animatedPixels);
             boolean moreAnimatedPixelsFound;
+            boolean timedOut;
             // 9.) Take a series of screenshots to determine all animated pixels ...
             int w = screenshot1.width;
             int h = screenshot2.height;
@@ -86,7 +109,10 @@ public class AnimationAwareTextDetector extends AbstractTextDetector {
             do {
                 moreAnimatedPixelsFound = false;
                 screenshot1 = screenshot2;
-                sleepUntil(timeOfLastScreenshot + SOME_PRIME_NUMBERS[random.nextInt(SOME_PRIME_NUMBERS.length)]);
+                // Sleep some random time to give the animation CPU time ...
+                // The sleep time is a prime number to increase the probability
+                // that we don't miss an animation step ...
+                sleep(SOME_PRIME_NUMBERS[random.nextInt(SOME_PRIME_NUMBERS.length)]);
                 screenshot2 = webPage.takeScreenshot();
                 int[][] pixels1 = screenshot1.pixels;
                 int[][] pixels2 = screenshot2.pixels;
@@ -98,7 +124,11 @@ public class AnimationAwareTextDetector extends AbstractTextDetector {
                         }
                     }
                 }
-            } while (moreAnimatedPixelsFound);
+                timedOut = (System.currentTimeMillis() - startTime) > _maxMillis;
+            } while (moreAnimatedPixelsFound && !timedOut);
+            if (timedOut) {
+                LOG.warn("detectTextPixelsIn(...) timed out. This might lead to false positives. You can increase the maximum time for detecting animated pixels by calling setMaxTime(...).");
+            }
             Visualization.algorithmStepFinished("9.) Take a series of screenshots to determine all animated pixels.", webPage, animatedPixels);
             // 10.) Ignore all animated pixels ...
             textPixels = diff1.differentPixels;
@@ -117,12 +147,16 @@ public class AnimationAwareTextDetector extends AbstractTextDetector {
     private void sleepUntil(long t) {
         long delay = t - System.currentTimeMillis();
         if (delay > 0) {
-            try {
-                Thread.sleep(delay);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new RuntimeException("Got interrupted.", e);
-            }
+            sleep(delay);
+        }
+    }
+
+    private void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Got interrupted.", e);
         }
     }
 }
