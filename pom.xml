@@ -38,7 +38,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <selenium.version>2.20.0</selenium.version>
+        <selenium.version>2.21.0</selenium.version>
     </properties>
 
     <dependencies>
@@ -131,6 +131,18 @@
             <artifactId>hamcrest-library</artifactId>
             <version>1.2.1</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>1.9.0</version>
+            <exclusions>
+                <exclusion>
+                    <!-- Exclude hamcrest-core 1.1 here, because we have an explicit dependency to hamcrest-library 1.2.1 -->
+                    <groupId>org.hamcrest</groupId>
+                    <artifactId>hamcrest-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.mortbay.jetty</groupId>
