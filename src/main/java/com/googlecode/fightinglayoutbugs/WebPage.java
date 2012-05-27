@@ -19,15 +19,19 @@ package com.googlecode.fightinglayoutbugs;
 import com.googlecode.fightinglayoutbugs.ScreenshotCache.Condition;
 import com.googlecode.fightinglayoutbugs.helpers.RectangularRegion;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
+import javax.annotation.Nonnull;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.ref.SoftReference;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -45,6 +49,8 @@ import static com.googlecode.fightinglayoutbugs.helpers.StringHelper.asString;
  */
 public class WebPage {
 
+    private static final Log LOG = LogFactory.getLog(WebPage.class);
+
     private final WebDriver _driver;
     private final ScreenshotCache _screenshotCache;
 
@@ -52,10 +58,10 @@ public class WebPage {
     private EdgeDetector _edgeDetector;
 
     private URL _url;
-    private String _html;
-    private boolean[][] _textPixels;
-    private boolean[][] _horizontalEdges;
-    private boolean[][] _verticalEdges;
+    private SoftReference<String> _html;
+    private SoftReference<boolean[][]> _textPixels;
+    private SoftReference<boolean[][]> _horizontalEdges;
+    private SoftReference<boolean[][]> _verticalEdges;
 
     private boolean _jqueryInjected;
 
@@ -111,11 +117,14 @@ public class WebPage {
     /**
      * Returns the source HTML of this web page.
      */
+    @Nonnull
     public String getHtml() {
-        if (_html == null) {
-            _html = _driver.getPageSource();
+        String html = (_html == null ? null : _html.get());
+        if (html == null) {
+            html = _driver.getPageSource();
+            _html = new SoftReference<String>(html);
         }
-        return _html;
+        return html;
     }
 
     public Screenshot getScreenshot() {
@@ -131,15 +140,23 @@ public class WebPage {
      * if the pixel with the coordinates x,y in a {@link #getScreenshot screenshot} of this web page
      * belongs to displayed text, otherwise <tt>a[x][y]</tt> is <tt>false</tt>.
      */
-    @edu.umd.cs.findbugs.annotations.SuppressWarnings("EI")
     public boolean[][] getTextPixels() {
+        boolean[][] textPixels;
         if (_textPixels == null) {
             if (_textDetector == null) {
                 _textDetector = new AnimationAwareTextDetector();
             }
-            _textPixels = _textDetector.detectTextPixelsIn(this);
+            textPixels = _textDetector.detectTextPixelsIn(this);
+            _textPixels = new SoftReference<boolean[][]>(textPixels);
+        } else {
+            textPixels = _textPixels.get();
+            if (textPixels == null) {
+                LOG.warn("Cached result of text detection was garbage collected, running text detection again -- give the JVM more heap memory to speed up layout bug detection.");
+                _textPixels = null;
+                return getTextPixels();
+            }
         }
-        return _textPixels;
+        return textPixels;
     }
 
     @edu.umd.cs.findbugs.annotations.SuppressWarnings("SBSC")
@@ -204,15 +221,23 @@ public class WebPage {
      * if the pixel with the coordinates x,y in a {@link #getScreenshot screenshot} of this web page
      * belongs to a horizontal edge, otherwise <tt>a[x][y]</tt> is <tt>false</tt>.
      */
-    @edu.umd.cs.findbugs.annotations.SuppressWarnings("EI")
     public boolean[][] getHorizontalEdges() {
+        boolean[][] horizontalEdges;
         if (_horizontalEdges == null) {
             if (_edgeDetector == null) {
                 _edgeDetector = new SimpleEdgeDetector();
             }
-            _horizontalEdges = _edgeDetector.detectHorizontalEdgesIn(this);
+            horizontalEdges = _edgeDetector.detectHorizontalEdgesIn(this);
+            _horizontalEdges = new SoftReference<boolean[][]>(horizontalEdges);
+        } else {
+            horizontalEdges = _textPixels.get();
+            if (horizontalEdges == null) {
+                LOG.warn("Cached result of horizontal edge detection was garbage collected, running horizontal edge detection again -- give the JVM more heap memory to speed up layout bug detection.");
+                _horizontalEdges = null;
+                return getTextPixels();
+            }
         }
-        return _horizontalEdges;
+        return horizontalEdges;
     }
 
     /**
@@ -220,15 +245,23 @@ public class WebPage {
      * if the pixel with the coordinates x,y in a {@link #getScreenshot screenshot} of this web page
      * belongs to a vertical edge, otherwise <tt>a[x][y]</tt> is <tt>false</tt>.
      */
-    @edu.umd.cs.findbugs.annotations.SuppressWarnings("EI")
     public boolean[][] getVerticalEdges() {
+        boolean[][] verticalEdges;
         if (_verticalEdges == null) {
             if (_edgeDetector == null) {
                 _edgeDetector = new SimpleEdgeDetector();
             }
-            _verticalEdges = _edgeDetector.detectVerticalEdgesIn(this);
+            verticalEdges = _edgeDetector.detectVerticalEdgesIn(this);
+            _verticalEdges = new SoftReference<boolean[][]>(verticalEdges);
+        } else {
+            verticalEdges = _textPixels.get();
+            if (verticalEdges == null) {
+                LOG.warn("Cached result of vertical edge detection was garbage collected, running vertical edge detection again -- give the JVM more heap memory to speed up layout bug detection.");
+                _verticalEdges = null;
+                return getTextPixels();
+            }
         }
-        return _verticalEdges;
+        return verticalEdges;
     }
 
     /**
