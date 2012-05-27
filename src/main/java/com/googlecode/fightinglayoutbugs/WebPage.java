@@ -151,6 +151,20 @@ public class WebPage {
     }
 
     /**
+     * Bypasses the cache and always takes a screenshot.
+     */
+    public Screenshot takeScreenshot() {
+        return takeScreenshot(UNMODIFIED);
+    }
+
+    /**
+     * Bypasses the cache and always takes a screenshot.
+     */
+    public Screenshot takeScreenshot(Condition condition) {
+        return _screenshotCache.takeScreenshot(condition);
+    }
+
+    /**
      * Returns a two dimensional array <tt>a</tt>, whereby <tt>a[x][y]</tt> is <tt>true</tt>
      * if the pixel with the coordinates x,y in a {@link #getScreenshot screenshot} of this web page
      * belongs to displayed text, otherwise <tt>a[x][y]</tt> is <tt>false</tt>.
@@ -284,10 +298,6 @@ public class WebPage {
      */
     public List<WebElement> findElements(By by) {
         return _driver.findElements(by);
-    }
-
-    public Screenshot takeScreenshot() {
-        return _screenshotCache.takeScreenshot(UNMODIFIED);
     }
 
     /**

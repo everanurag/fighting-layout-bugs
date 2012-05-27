@@ -17,27 +17,29 @@
 package com.googlecode.fightinglayoutbugs;
 
 import org.junit.Test;
+import org.junit.experimental.theories.DataPoints;
+import org.junit.experimental.theories.Theories;
+import org.junit.experimental.theories.Theory;
+import org.junit.runner.RunWith;
 
 import static com.googlecode.fightinglayoutbugs.helpers.HamcrestHelper.assertThat;
 import static com.googlecode.fightinglayoutbugs.helpers.HamcrestHelper.is;
 
-/**
- * @author Michael Tamm
- */
+@RunWith(Theories.class)
 public class AnimationAwareTextDetectorTest extends TestUsingSelenium {
 
-    @Test
-    public void shouldBehaveLikeSimpleTextDetectorWhenThereIsNoAnimation() throws Exception {
-        for (String path : new String[] {
-            "/Yahoo!_Profile_Updates.html",
-            "/Microsoft_Newsletter.html",
-            "/ESPRIT_newsletter.html"
-        }) {
-            WebPage testPage = getWebPageFor(path);
-            boolean[][] expected = new SimpleTextDetector().detectTextPixelsIn(testPage);
-            boolean[][] actual = new AnimationAwareTextDetector().detectTextPixelsIn(testPage);
-            assertThat(actual, is(expected));
-        }
+    @DataPoints public static final String[] ALL_WEB_PAGES_TO_TEST = new String[] {
+        "/Yahoo!_Profile_Updates.html",
+        "/Microsoft_Newsletter.html",
+        "/ESPRIT_newsletter.html"
+    };
+
+    @Theory
+    public void shouldBehaveLikeSimpleTextDetectorWhenThereIsNoAnimation(String path) throws Exception {
+        WebPage testPage = getWebPageFor(path);
+        boolean[][] expected = new SimpleTextDetector().detectTextPixelsIn(testPage);
+        boolean[][] actual = new AnimationAwareTextDetector().detectTextPixelsIn(testPage);
+        assertThat(actual, is(expected));
     }
 
     @Test

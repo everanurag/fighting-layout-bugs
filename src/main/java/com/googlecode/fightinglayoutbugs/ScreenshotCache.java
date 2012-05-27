@@ -18,6 +18,8 @@ package com.googlecode.fightinglayoutbugs;
 
 import com.googlecode.fightinglayoutbugs.helpers.ImageHelper;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
@@ -32,16 +34,23 @@ import static com.google.common.primitives.Bytes.asList;
 
 public class ScreenshotCache {
 
+    private static final Log LOG = LogFactory.getLog(ScreenshotCache.class);
+
     public enum Condition {
-        UNMODIFIED(null),
-        WITH_ALL_TEXT_WHITE("#ffffff"),
-        WITH_ALL_TEXT_BLACK("#000000"),
-        WITH_ALL_TEXT_TRANSPARENT ("transparent");
+        UNMODIFIED(null, false),
+        WITH_NO_IMAGES(null, true),
+        WITH_ALL_TEXT_WHITE("#ffffff", false),
+        WITH_ALL_TEXT_BLACK("#000000", false),
+        WITH_NO_IMAGES_AND_ALL_TEXT_WHITE("#ffffff", true),
+        WITH_NO_IMAGES_AND_ALL_TEXT_BLACK("#000000", true),
+        WITH_ALL_TEXT_TRANSPARENT ("transparent", false);
 
         final String textColor;
+        final boolean hideImages;
 
-        private Condition(String textColor) {
+        private Condition(String textColor, boolean hideImages) {
             this.textColor = textColor;
+            this.hideImages = hideImages;
         }
     }
 
@@ -50,7 +59,9 @@ public class ScreenshotCache {
     private final WebPage _webPage;
     private final Map<Condition, SoftReference<Screenshot>> _cache = new HashMap<Condition, SoftReference<Screenshot>>();
     private boolean _textColorsBackedUp;
+    private boolean _imageUrlsBackedUp;
     private String _currentTextColor;
+    private boolean _imagesAreCurrentlyHidden;
 
     public ScreenshotCache(WebPage webPage) {
         _webPage = webPage;
@@ -58,47 +69,107 @@ public class ScreenshotCache {
 
     @Nonnull
     public Screenshot getScreenshot(Condition condition) {
-        SoftReference<Screenshot> SoftReference = _cache.get(condition);
-        Screenshot result = (SoftReference == null ? null : SoftReference.get());
-        if (result == null) {
-            result = takeScreenshot(condition);
-            _cache.put(condition, new SoftReference<Screenshot>(result));
+        SoftReference<Screenshot> softReference = _cache.get(condition);
+        Screenshot screenshot;
+        if (softReference == null) {
+            screenshot = takeScreenshot(condition);
+            _cache.put(condition, new SoftReference<Screenshot>(screenshot));
+        } else {
+            screenshot = softReference.get();
+            if (screenshot == null) {
+                LOG.warn("Cached screenshot " + condition.name().toLowerCase().replace('_', ' ') + " was garbage collected, taking it again -- give the JVM more heap memory to speed up layout bug detection.");
+                _cache.remove(condition);
+                return getScreenshot(condition);
+            }
         }
-        return result;
+        return screenshot;
     }
 
     /**
      * Bypasses the cache and always takes a screenshot.
      */
     public Screenshot takeScreenshot(Condition condition) {
-        if (condition == Condition.UNMODIFIED) {
-            if (_currentTextColor != null) {
-                restoreTextColors();
-                _currentTextColor = null;
-            }
-        } else {
-            if (!condition.textColor.equals(_currentTextColor)) {
-                colorAllText(condition.textColor);
-                _currentTextColor = condition.textColor;
-            }
+        // Handle text color ...
+        if (condition.textColor != null && !condition.textColor.equals(_currentTextColor)) {
+            colorAllText(condition.textColor);
+            _currentTextColor = condition.textColor;
+        } else if (condition.textColor == null && _currentTextColor != null) {
+            restoreTextColors();
+            _currentTextColor = null;
+        }
+        // Handle images ...
+        if (condition.hideImages && !_imagesAreCurrentlyHidden) {
+            hideImages();
+            _imagesAreCurrentlyHidden = true;
+        } else if (!condition.hideImages && _imagesAreCurrentlyHidden) {
+            restoreImages();
+            _imagesAreCurrentlyHidden = false;
         }
         return takeScreenshot();
+    }
+
+    void hideImages() {
+        if (!_imageUrlsBackedUp) {
+            _webPage.injectJQueryIfNotPresent();
+            _webPage.executeJavaScript(
+                "jQuery('*').each(function() {\n" +
+                "    var $x = jQuery(this);\n" +
+                "    var b = $x.css('background-image');\n" +
+                "    if (b && b != 'none') {\n" +
+                "        $x.data('flb_background-image_backup', b)\n" +
+                "          .css('background-image', 'url(\"data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==\")');\n" +
+                "    }\n" +
+                "});\n" +
+                "jQuery('img').each(function() {\n" +
+                "    var $img = jQuery(this);\n" +
+                "    var w = $img.width();\n" +
+                "    var h = $img.height();\n" +
+                "    $img.data('flb_src_backup', $img.attr('src'))\n" +
+                "        .css('width', w + 'px')\n" +
+                "        .css('height', h + 'px')\n" +
+                "        .attr('src', 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==')\n" +
+                "}).size();" // ... the trailing ".size()" will reduce the size of the response
+            );
+            _imageUrlsBackedUp = true;
+        } else {
+            _webPage.executeJavaScript(
+                "jQuery('*').each(function() {\n" +
+                "    var $x = jQuery(this);\n" +
+                "    if ($x.data('flb_background-image_backup')) $x.css('background-image', 'url(\"data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==\")');\n" +
+                "});\n" +
+                "jQuery('img').each(function() {\n" +
+                "    jQuery(this).attr('src', 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==')\n" +
+                "}).size();" // ... the trailing ".size()" will reduce the size of the response
+            );
+        }
+    }
+
+    void restoreImages() {
+        _webPage.executeJavaScript(
+            "jQuery('*').each(function() {\n" +
+            "    var $x = jQuery(this);\n" +
+            "    var b = $x.data('flb_background-image_backup');\n" +
+            "    if (b) $x.css('background-image', b);\n" +
+            "});\n" +
+            "\n" +
+            "jQuery('img').each(function() {\n" +
+            "    var $img = jQuery(this);\n" +
+            "    $img.attr('src', $img.data('flb_src_backup'));\n" +
+            "}).size();" // ... the trailing ".size()" will reduce the size of the response
+        );
     }
 
     void colorAllText(@Nonnull String color) {
         if (!_textColorsBackedUp) {
             _webPage.injectJQueryIfNotPresent();
-            _webPage.executeJavaScript("jQuery('*').each(function() { var j = jQuery(this); j.attr('flb_color_backup', j.css('color')); }).size();"); // ... the trailing ".size()" will reduce the size of the response
+            _webPage.executeJavaScript("jQuery('*').each(function() { var $x = jQuery(this); $x.data('flb_color_backup', $x.css('color')); }).size();"); // ... the trailing ".size()" will reduce the size of the response
             _textColorsBackedUp = true;
         }
         _webPage.executeJavaScript("jQuery('*').css('color', '" + color + "').size();"); // ... the trailing ".size()" will reduce the size of the response
     }
 
     void restoreTextColors() {
-        if (!_textColorsBackedUp) {
-            throw new IllegalStateException("text colors have not been backed up.");
-        }
-        _webPage.executeJavaScript("jQuery('*').each(function() { var j = jQuery(this); j.css('color', j.attr('flb_color_backup')); }).size();"); // ... the trailing ".size()" will reduce the size of the response
+        _webPage.executeJavaScript("jQuery('*').each(function() { var $x = jQuery(this); $x.css('color', $x.data('flb_color_backup')); }).size();"); // ... the trailing ".size()" will reduce the size of the response
     }
 
     protected Screenshot takeScreenshot() {

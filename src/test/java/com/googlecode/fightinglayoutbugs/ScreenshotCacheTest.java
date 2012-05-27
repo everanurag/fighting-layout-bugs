@@ -44,6 +44,8 @@ public class ScreenshotCacheTest {
     public void testThatScreenshotsAreCached() {
         final AtomicInteger i = new AtomicInteger(0);
         ScreenshotCache cache = new ScreenshotCache(null) {
+            @Override void hideImages() {}
+            @Override void restoreImages() {}
             @Override void colorAllText(@Nonnull String color) {}
             @Override void restoreTextColors() {}
             @Override protected Screenshot takeScreenshot() { return new Screenshot(new int[][] { new int[] { i.getAndIncrement() } }); }
@@ -67,6 +69,8 @@ public class ScreenshotCacheTest {
         assertThatTwoLargeScreenshotsDoNotFitIntoMemory();
         assertThat(ALL_CONDITIONS.length, is(greaterThan(2)));
         ScreenshotCache cache = new ScreenshotCache(null) {
+            @Override void hideImages() {}
+            @Override void restoreImages() {}
             @Override void colorAllText(@Nonnull String color) {}
             @Override void restoreTextColors() {}
             @Override protected Screenshot takeScreenshot() { return newLargeScreenshot(); }
@@ -83,6 +87,8 @@ public class ScreenshotCacheTest {
     @Theory
     public void testTakeScreenshot(Condition condition1, Condition condition2) {
         ScreenshotCache cache = new ScreenshotCache(null) {
+            @Override void hideImages() {}
+            @Override void restoreImages() {}
             @Override void colorAllText(@Nonnull String color) {}
             @Override void restoreTextColors() {}
             @Override protected Screenshot takeScreenshot() { return null; }
@@ -97,6 +103,14 @@ public class ScreenshotCacheTest {
         if (condition1.textColor != null && condition2.textColor == null) {
             verify(spy).restoreTextColors();
             verify(spy, never()).colorAllText(anyString());
+        }
+        if (!condition1.hideImages && condition2.hideImages) {
+            verify(spy).hideImages();
+            verify(spy, never()).restoreImages();
+        }
+        if (condition1.hideImages && !condition2.hideImages) {
+            verify(spy).restoreImages();
+            verify(spy, never()).hideImages();
         }
     }
 

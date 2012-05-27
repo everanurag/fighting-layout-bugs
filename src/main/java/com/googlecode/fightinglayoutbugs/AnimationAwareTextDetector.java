@@ -24,14 +24,28 @@ import java.util.Collection;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import static com.googlecode.fightinglayoutbugs.ScreenshotCache.Condition.WITH_ALL_TEXT_BLACK;
-import static com.googlecode.fightinglayoutbugs.ScreenshotCache.Condition.WITH_ALL_TEXT_WHITE;
+import static com.googlecode.fightinglayoutbugs.ScreenshotCache.Condition.WITH_NO_IMAGES;
+import static com.googlecode.fightinglayoutbugs.ScreenshotCache.Condition.WITH_NO_IMAGES_AND_ALL_TEXT_BLACK;
+import static com.googlecode.fightinglayoutbugs.ScreenshotCache.Condition.WITH_NO_IMAGES_AND_ALL_TEXT_WHITE;
 
 /**
- * Works similar to the {@link SimpleTextDetector}, but detects
- * and ignores animated GIF images and JavaScript animation too
- * by taking a series of screenshots and comparing them until
- * no more animated pixels are found.
+ * Works similar to the {@link SimpleTextDetector}, but additionally
+ * hides all images to prevent animated GIF images to influence
+ * text detection and tries to detect if there is still some animation
+ * by comparing to screenshots (with no images) taken at different times.
+ *
+ * Actually I expected that no animation is found on the analyzed web page,
+ * when the text detection is performed, because:<ol>
+ *     <li>all JavaScript animations have been stopped</li>
+ *     <li>all animated GIF images have been hidden</li>
+ *     <li>all embedded objects like Flash movies, Java Applets, and videos are ignored.</li>
+ * </ol>
+ *
+ * If for any unknown reason there is still animation detected, a loop is entered,
+ * which takes a series of screenshots and compares them until no more animated
+ * pixels are found or {@link #setMaxTime max time} has been reached.
+ *
+ * All animated pixels found are not considered to be text pixels.
  *
  * @author Michael Tamm
  */
@@ -60,24 +74,24 @@ public class AnimationAwareTextDetector extends AbstractTextDetector {
 
     public boolean[][] detectTextPixelsIn(WebPage webPage) {
         long startTime = System.currentTimeMillis();
-        // 1.) Take initial screenshot of web page ...
-        Screenshot screenshot1 = webPage.takeScreenshot();
-        Visualization.algorithmStepFinished("1.) Take initial screenshot of web page.", webPage, screenshot1);
+        // 1.) Take initial screenshot of web page with no images ...
+        Screenshot screenshot1 = webPage.takeScreenshot(WITH_NO_IMAGES);
+        Visualization.algorithmStepFinished("1.) Take initial screenshot with no images of web page.", webPage, screenshot1);
         // 2.) Take a screenshot with all text colored black ...
-        Screenshot screenshotWithAllTextColoredBlack = webPage.getScreenshot(WITH_ALL_TEXT_BLACK);
-        Visualization.algorithmStepFinished("2.) Take a screenshot with all text colored black.", webPage, screenshotWithAllTextColoredBlack);
+        Screenshot screenshotWithAllTextColoredBlack = webPage.getScreenshot(WITH_NO_IMAGES_AND_ALL_TEXT_BLACK);
+        Visualization.algorithmStepFinished("2.) Take a screenshot with no images and all text colored black.", webPage, screenshotWithAllTextColoredBlack);
         // 3.) Take another screenshot with all text colored white ...
-        Screenshot screenshotWithAllTextColoredWhite = webPage.getScreenshot(WITH_ALL_TEXT_WHITE);
-        Visualization.algorithmStepFinished("3.) Take another screenshot with all text colored white.", webPage, screenshotWithAllTextColoredWhite);
+        Screenshot screenshotWithAllTextColoredWhite = webPage.getScreenshot(WITH_NO_IMAGES_AND_ALL_TEXT_WHITE);
+        Visualization.algorithmStepFinished("3.) Take another screenshot with no images and all text colored white.", webPage, screenshotWithAllTextColoredWhite);
         // 4.) Determine potential text pixels by comparing the last two screenshots ...
         CompareScreenshots diff1 = new CompareScreenshots(screenshotWithAllTextColoredBlack, screenshotWithAllTextColoredWhite);
         Visualization.algorithmStepFinished("4.) Determine potential text pixels by comparing the last two screenshots.", webPage, diff1);
-        // 5.) Determine regions of Java Applets, embedded objects like Flash movies, iframes, and other ignored elements ...
+        // 5.) Determine regions of Java Applets, embedded objects like Flash movies, videos, iframes, and other ignored elements ...
         Collection<RectangularRegion> ignoredRegions = getIgnoredRegions(webPage);
-        Visualization.algorithmStepFinished("5.) Determine regions of Java Applets, embedded objects like Flash movies, iframes, and other ignored elements.", webPage, ignoredRegions);
+        Visualization.algorithmStepFinished("5.) Determine regions of Java Applets, embedded objects like Flash movies, videos, iframes, and other ignored elements.", webPage, ignoredRegions);
         // 6.) Take another screenshot of the web page (with text colors restored and at least 283 milliseconds later) ...
         sleepUntil(startTime + 283);
-        Screenshot screenshot2 = webPage.takeScreenshot();
+        Screenshot screenshot2 = webPage.takeScreenshot(WITH_NO_IMAGES);
         Visualization.algorithmStepFinished("6.) Take another screenshot of the web page (with text colors restored).", webPage, screenshot2);
         // 7.) Compare the last screenshot with the initial screenshot (ignoring ignored regions) to find more animated pixels ...
         CompareScreenshots diff2 = new CompareScreenshots(screenshot1, screenshot2).ignore(ignoredRegions);
@@ -86,8 +100,14 @@ public class AnimationAwareTextDetector extends AbstractTextDetector {
         if (diff2.noDifferencesFound()) {
             // 8.) No more animated pixels found, remove potential text pixels inside ignored regions ...
             textPixels = diff1.ignore(ignoredRegions).differentPixels;
-            Visualization.algorithmFinished("8.) No more animated pixels, remove potential text pixels inside ignored regions.", webPage, textPixels);
+            Visualization.algorithmFinished("8.) No more animated pixels found, remove potential text pixels inside ignored regions.", webPage, textPixels);
         } else {
+            LOG.warn(
+                "This is strange: Found animated pixels, although\n" +
+                "(1) all JavaScript animations have been stopped,\n" +
+                "(2) all animated GIF images have been hidden, and\n" +
+                "(3) all elements potentially containing animation (like Java Applets, Flash Movies, videos, and iframes) are ignored.\n" +
+                "Please send an email to fighting-layout-bugs@googlegroups.com with the URL " + webPage.getUrl() + ", so that we can have a look at it.");
             // 8.) Found more animated pixels, consider all ignored regions as animated pixels too ...
             boolean[][] animatedPixels = diff2.differentPixels;
             for (RectangularRegion ignoredRegion : ignoredRegions) {

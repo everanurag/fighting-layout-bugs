@@ -26,9 +26,11 @@ import static com.googlecode.fightinglayoutbugs.ScreenshotCache.Condition.WITH_A
 /**
  * Detects text pixels by comparing screenshots after colorizing all text to black
  * and then to white via JavaScript. Ignores Java Applets, embedded objects like
- * Flash movies, and iframes. Might return too many text pixels if there are
- * animated GIF images or JavaScript animation. You should use the
- * {@link AnimationAwareTextDetector} for such cases.
+ * Flash movies, videos, and iframes.
+ *
+ * Might return too many text pixels if there are animated GIF images on the
+ * analyzed web page. You should use the {@link AnimationAwareTextDetector}
+ * for such cases.
  *
  * @author Michael Tamm
  */
@@ -46,7 +48,7 @@ public class SimpleTextDetector extends AbstractTextDetector {
         Visualization.algorithmStepFinished("3.) Determine potential text pixels by comparing the last two screenshots.", webPage, diff);
         // 4.) Determine regions of Java Applets, embedded objects like Flash movies, iframes, and other ignored elements ...
         Collection<RectangularRegion> ignoredRegions = getIgnoredRegions(webPage);
-        Visualization.algorithmStepFinished("4.) Determine regions of Java Applets, embedded objects like Flash movies, iframes, and other ignored elements.", webPage, ignoredRegions);
+        Visualization.algorithmStepFinished("4.) Determine regions of Java Applets, embedded objects like Flash movies, videos, iframes, and other ignored elements.", webPage, ignoredRegions);
         // 5.) Remove potential text pixels inside ignored regions ...
         boolean[][] textPixels = diff.ignore(ignoredRegions).differentPixels;
         Visualization.algorithmFinished("5.) Remove potential text pixels inside ignored regions.", webPage, textPixels);
