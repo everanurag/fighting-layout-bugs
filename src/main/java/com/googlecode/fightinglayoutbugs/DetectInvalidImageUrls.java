@@ -39,6 +39,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static java.lang.Character.isWhitespace;
 
 /**
+ * Detects invalid image URLs in the HTML source of the analyzed web page as well
+ * as all directly or indirectly referenced CSS resources.
+ *
  * @author Michael Tamm
  */
 public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
@@ -164,8 +167,7 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
                 } else {
                     if (seen.add(src)) {
                         try {
-                            URL imageUrl = getCompleteUrlFor(src);
-                            checkImageUrlAsync(imageUrl, "Detected visible <img> element with invalid src attribute \"" + src + "\"");
+                            checkImageUrl(src, "Detected visible <img> element with invalid src attribute \"" + src + "\"");
                         } catch (MalformedURLException e) {
                             addLayoutBugIfNotPresent("Detected visible <img> element with invalid src attribute \"" + src + "\" -- " + e.getMessage());
                         }
@@ -197,8 +199,7 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
             }
             for (String url : extractUrlsFrom(css).keySet()) {
                 try {
-                    URL imageUrl = getCompleteUrlFor(url);
-                    checkImageUrlAsync(imageUrl, "Detected <" + element.getTagName() + "> element with invalid image URL \"" + url + "\" in its style attribute");
+                    checkImageUrl(url, "Detected <" + element.getTagName() + "> element with invalid image URL \"" + url + "\" in its style attribute");
                 } catch (MalformedURLException e) {
                     addLayoutBugIfNotPresent("Detected <" + element.getTagName() + "> element with invalid image URL \"" + url + "\" in its style attribute -- " + e.getMessage());
                 }
@@ -214,8 +215,7 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
             }
             for (String url : extractUrlsFrom(css).keySet()) {
                 try {
-                    URL imageUrl = getCompleteUrlFor(url);
-                    checkImageUrlAsync(imageUrl, "Detected <style> element with invalid image URL \"" + url + "\"");
+                    checkImageUrl(url, "Detected <style> element with invalid image URL \"" + url + "\"");
                 } catch (MalformedURLException e) {
                     addLayoutBugIfNotPresent("Detected <style> element with invalid image URL \"" + url + "\" -- " + e.getMessage());
                 }
@@ -251,8 +251,7 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
 
     private void checkFavicon() {
         try {
-            URL faviconUrl = getCompleteUrlFor(_faviconUrl);
-            checkImageUrlAsync(faviconUrl, "Detected invalid favicon URL \"" + _faviconUrl + "\"");
+            checkImageUrl(_faviconUrl, "Detected invalid favicon URL \"" + _faviconUrl + "\"");
         } catch (MalformedURLException e) {
             addLayoutBugIfNotPresent("Detected invalid favicon URL \"" + _faviconUrl + "\" -- " + e.getMessage());
         }
@@ -356,6 +355,31 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
         return imageUrls;
     }
 
+    private void checkImageUrl(String url, final String errorDescriptionPrefix) throws MalformedURLException {
+        if (url.startsWith("data:")) {
+            checkDataUrl(url);
+        } else {
+            URL completeUrl = getCompleteUrlFor(url);
+            checkImageUrlAsync(completeUrl, errorDescriptionPrefix);
+        }
+    }
+
+    private void checkImageUrl(URL baseUrl, String url, final String errorDescriptionPrefix) throws MalformedURLException {
+        if (url.startsWith("data:")) {
+            checkDataUrl(url);
+        } else {
+            URL completeUrl = getCompleteUrlFor(baseUrl, url);
+            checkImageUrlAsync(completeUrl, errorDescriptionPrefix);
+        }
+    }
+
+    private void checkDataUrl(String url) throws MalformedURLException {
+        if (!url.startsWith("data:image/")) {
+            throw new MalformedURLException("Data URL does not contain image data.");
+        }
+        // TODO: check if the data URL contains a valid image.
+    }
+
     private URL getCompleteUrlFor(String url) throws MalformedURLException {
         return getCompleteUrlFor(_baseUrl, url);
     }
@@ -370,16 +394,16 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
         return completeUrl;
     }
 
-    private void checkImageUrlAsync(final URL imageUrl, final String errorDescriptionPrefix) {
-        final String imageUrlAsString = imageUrl.toExternalForm();
-        String error = _checkedImageUrls.putIfAbsent(imageUrlAsString, "");
+    private void checkImageUrlAsync(URL completeUrl, final String errorDescriptionPrefix) throws MalformedURLException {
+        final String completeUrlAsString = completeUrl.toExternalForm();
+        String error = _checkedImageUrls.putIfAbsent(completeUrlAsString, "");
         if (error == null) {
-            _mockBrowser.downloadAsync(imageUrl, new DownloadCallback() {
+            _mockBrowser.downloadAsync(completeUrl, new DownloadCallback() {
                 @Override
                 public void onSuccess(GetMethod getMethod) {
                     if (getMethod.getStatusCode() >= 400) {
                         if (getMethod.getStatusCode() == 401) {
-                            LOG.info("Ignoring HTTP response status code 401 (" + getMethod.getStatusText() + ") for image URL " + imageUrl);
+                            LOG.info("Ignoring HTTP response status code 401 (" + getMethod.getStatusText() + ") for image URL " + completeUrlAsString);
                         } else {
                             handleError("HTTP server responded with: " + getMethod.getStatusCode() + " " + getMethod.getStatusText());
                         }
@@ -392,7 +416,7 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
                             if (!contentType.startsWith("image/")) {
                                 handleError("Content-Type HTTP response header \"" + contentType + "\" does not start with \"image/\".");
                             } else {
-                                // The given imageUrl seems to be a valid image URL.
+                                // TODO: check if the response body is a valid image
                             }
                         }
                     }
@@ -404,7 +428,7 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
                 }
 
                 private void handleError(String error) {
-                    _checkedImageUrls.put(imageUrlAsString, error);
+                    _checkedImageUrls.put(completeUrlAsString, error);
                     addLayoutBugIfNotPresent(errorDescriptionPrefix + " -- " + error);
                 }
             });
@@ -427,8 +451,7 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
                             }
                             for (String url : extractUrlsFrom(css.text).keySet()) {
                                 try {
-                                    URL imageUrl = getCompleteUrlFor(cssUrl, url);
-                                    checkImageUrlAsync(imageUrl, "Detected invalid image URL \"" + url + "\" in " + pathToCssResource);
+                                    checkImageUrl(cssUrl, url, "Detected invalid image URL \"" + url + "\" in " + pathToCssResource);
                                 } catch (MalformedURLException e) {
                                     addLayoutBugIfNotPresent("Detected invalid image URL \"" + url + "\" in " + pathToCssResource);
                                 }
