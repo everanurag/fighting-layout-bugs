@@ -23,8 +23,7 @@ import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.lang.ref.WeakReference;
+import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +38,7 @@ public class ScreenshotCache {
         WITH_ALL_TEXT_BLACK("#000000"),
         WITH_ALL_TEXT_TRANSPARENT ("transparent");
 
-        private final String textColor;
+        final String textColor;
 
         private Condition(String textColor) {
             this.textColor = textColor;
@@ -49,7 +48,7 @@ public class ScreenshotCache {
     private static List<Byte> PNG_SIGNATURE = asList(new byte[]{ (byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A });
 
     private final WebPage _webPage;
-    private final Map<Condition, WeakReference<Screenshot>> _cache = new HashMap<Condition, WeakReference<Screenshot>>();
+    private final Map<Condition, SoftReference<Screenshot>> _cache = new HashMap<Condition, SoftReference<Screenshot>>();
     private boolean _textColorsBackedUp;
     private String _currentTextColor;
 
@@ -57,13 +56,13 @@ public class ScreenshotCache {
         _webPage = webPage;
     }
 
-    @Nullable
+    @Nonnull
     public Screenshot getScreenshot(Condition condition) {
-        WeakReference<Screenshot> weakReference = _cache.get(condition);
-        Screenshot result = (weakReference == null ? null : weakReference.get());
+        SoftReference<Screenshot> SoftReference = _cache.get(condition);
+        Screenshot result = (SoftReference == null ? null : SoftReference.get());
         if (result == null) {
             result = takeScreenshot(condition);
-            _cache.put(condition, new WeakReference<Screenshot>(result));
+            _cache.put(condition, new SoftReference<Screenshot>(result));
         }
         return result;
     }

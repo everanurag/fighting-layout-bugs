@@ -16,39 +16,88 @@
 
 package com.googlecode.fightinglayoutbugs;
 
+import com.googlecode.fightinglayoutbugs.ScreenshotCache.Condition;
 import org.junit.Test;
+import org.junit.experimental.theories.DataPoints;
+import org.junit.experimental.theories.Theories;
+import org.junit.experimental.theories.Theory;
+import org.junit.runner.RunWith;
 
 import javax.annotation.Nonnull;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.googlecode.fightinglayoutbugs.ScreenshotCache.Condition.*;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.*;
 
+@RunWith(Theories.class)
 public class ScreenshotCacheTest {
 
+    @DataPoints
+    public static final Condition[] ALL_CONDITIONS = Condition.values();
+
     private int largeScreenshotSize;
+
+    @Test
+    public void testThatScreenshotsAreCached() {
+        final AtomicInteger i = new AtomicInteger(0);
+        ScreenshotCache cache = new ScreenshotCache(null) {
+            @Override void colorAllText(@Nonnull String color) {}
+            @Override void restoreTextColors() {}
+            @Override protected Screenshot takeScreenshot() { return new Screenshot(new int[][] { new int[] { i.getAndIncrement() } }); }
+        };
+        for (Condition condition : ALL_CONDITIONS) {
+            cache.getScreenshot(condition);
+        }
+        ScreenshotCache spy = spy(cache);
+        for (Condition condition : ALL_CONDITIONS) {
+            Screenshot screenshot = spy.getScreenshot(condition);
+            assertThat(screenshot.pixels[0][0], is(condition.ordinal()));
+        }
+        verify(spy, never()).takeScreenshot();
+    }
 
     /**
      * Test for <a href="http://code.google.com/p/fighting-layout-bugs/issues/detail?id=7">issue 7</a>.
      */
     @Test
-    public void testThatCacheHoldsWeakReferences() {
+    public void testThatCacheDoesNotLeadToOutOfMemoryError() {
         assertThatTwoLargeScreenshotsDoNotFitIntoMemory();
+        assertThat(ALL_CONDITIONS.length, is(greaterThan(2)));
         ScreenshotCache cache = new ScreenshotCache(null) {
-            @Override
-            void colorAllText(@Nonnull String color) {}
-
-            @Override
-            void restoreTextColors() {}
-
-            @Override
-            protected Screenshot takeScreenshot() {
-                return newLargeScreenshot();
-            }
+            @Override void colorAllText(@Nonnull String color) {}
+            @Override void restoreTextColors() {}
+            @Override protected Screenshot takeScreenshot() { return newLargeScreenshot(); }
         };
-        cache.getScreenshot(UNMODIFIED);
-        cache.getScreenshot(WITH_ALL_TEXT_BLACK);
-        cache.getScreenshot(WITH_ALL_TEXT_WHITE);
-        cache.getScreenshot(WITH_ALL_TEXT_TRANSPARENT);
+        try {
+            for (Condition condition : ALL_CONDITIONS) {
+                cache.getScreenshot(condition);
+            }
+        } catch (OutOfMemoryError e) {
+            fail("Caught OutOfMemoryError.");
+        }
+    }
+
+    @Theory
+    public void testTakeScreenshot(Condition condition1, Condition condition2) {
+        ScreenshotCache cache = new ScreenshotCache(null) {
+            @Override void colorAllText(@Nonnull String color) {}
+            @Override void restoreTextColors() {}
+            @Override protected Screenshot takeScreenshot() { return null; }
+        };
+        cache.takeScreenshot(condition1);
+        ScreenshotCache spy = spy(cache);
+        spy.takeScreenshot(condition2);
+        if (condition1.textColor == null && condition2.textColor != null) {
+            verify(spy).colorAllText(condition2.textColor);
+            verify(spy, never()).restoreTextColors();
+        }
+        if (condition1.textColor != null && condition2.textColor == null) {
+            verify(spy).restoreTextColors();
+            verify(spy, never()).colorAllText(anyString());
+        }
     }
 
     private void assertThatTwoLargeScreenshotsDoNotFitIntoMemory() {
