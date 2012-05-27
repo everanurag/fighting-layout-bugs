@@ -42,8 +42,9 @@ import static com.googlecode.fightinglayoutbugs.helpers.StringHelper.asString;
 /**
  * Represents a web page. This class was created to improve
  * performance when several {@link LayoutBugDetector}s
- * analyze the same page. It caches as much information
- * as possible.
+ * analyze the same page -- it caches as much information
+ * as possible. Furthermore it stops all JavaScript
+ * animations to reduce the possibility of false positives.
  *
  * @author Michael Tamm
  */
@@ -68,6 +69,20 @@ public class WebPage {
     public WebPage(WebDriver driver) {
         _driver = driver;
         _screenshotCache = new ScreenshotCache(this);
+        stopJavaScriptAnimations();
+    }
+
+    private void stopJavaScriptAnimations() {
+        executeJavaScript(
+            "var noop = function() {};\n" +
+            "var i;\n" +
+            "var n = window.setTimeout(noop, 1);\n" +
+            "for (i = 0; i <= n; ++i) window.clearTimeout(i);\n" +
+            "window.setTimeout = noop;\n" +
+            "n = window.setInterval(noop, 1);\n" +
+            "for (i = 0; i <= n; ++i) window.clearInterval(i);\n" +
+            "window.setInterval = noop;\n"
+        );
     }
 
     public WebDriver getDriver() {
