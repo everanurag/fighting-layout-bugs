@@ -136,6 +136,7 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>1.9.0</version>
+            <scope>test</scope>
             <exclusions>
                 <exclusion>
                     <!-- Exclude hamcrest-core 1.1 here, because we have an explicit dependency to hamcrest-library 1.2.1 -->
