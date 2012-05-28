@@ -1,0 +1,32 @@
+version 0.4 (28th May, 2012)
+-----------------------------
+
+- All JavaScript animations are now stopped before layout bug detection
+  to reduce the possibility of false positives. Additionally the default
+  text detector AnimationAwareTextDetector will now hide all images on
+  the analyzed web page when taking screenshots, which includes all
+  animated GIF images.
+- Fixed issue 8: The detector DetectInvalidImageUrls can now handle data URLs.
+- Fixed issue 7: The default text detector AnimationAwareTextDetector
+  uses less memory now, is faster and even more robust.
+  Further details: Less screenshots are cached now, if animation is found on
+  the web page. Furthermore all cached screenshots are now stored in SoftReferences
+  and can therefore be garbage collected, if free heap space becomes rare.
+- Added new detector DetectElementsWithInvisibleFocus, which detects focusable
+  elements like links, input fields or buttons, which do not change their
+  visual appearance when they get the focus.
+- Updated version of Selenium to 2.21.0
+
+
+version 0.3 (3rd April, 2012)
+-----------------------------
+
+- The TextDetector implementations ignore the new HTML 5 <video> element now too
+- Fixed issue 5: Added method setHttpClient(...) to the DetectInvalidImageUrls
+  detector, this enables you to configure the HttpClient, which is used for
+  downloading CSS resources and checking image URLs.
+  Now you can for example add proxy configuration like in this sample code:
+    HttpClient myHttpClient = ...;
+    FightingLayoutBugs flb = new FightingLayoutBugs();
+    flb.configure(DetectInvalidImageUrls.class).setHttpClient(myHttpClient);
+- Updated involved third party libraries, e.g. Selenium 2.20.0 and jQuery 1.7.2
