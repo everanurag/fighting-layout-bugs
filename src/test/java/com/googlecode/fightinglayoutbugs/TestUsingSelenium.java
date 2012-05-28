@@ -17,14 +17,13 @@
 package com.googlecode.fightinglayoutbugs;
 
 import com.googlecode.fightinglayoutbugs.helpers.TestWebPageFactory;
+import com.googlecode.fightinglayoutbugs.helpers.TestWebServer;
 import org.junit.AfterClass;
 
 /**
  * Base class for tests using <a href="http://selenium.googlecode.com">Selenium</a>,
- * which also takes care of starting and stopping a {@link com.googlecode.fightinglayoutbugs.helpers.TestWebServer} when needed
+ * which also takes care of starting and stopping a {@link TestWebServer} when needed
  * to serve the HTML pages located under the <code>src/test/webapp</code> directory.
- *
- * @author Michael Tamm
  */
 public class TestUsingSelenium {
 

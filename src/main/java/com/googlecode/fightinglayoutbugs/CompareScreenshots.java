@@ -20,9 +20,6 @@ import com.googlecode.fightinglayoutbugs.helpers.RectangularRegion;
 
 import java.util.Collection;
 
-/**
- * @author Michael Tamm
- */
 public class CompareScreenshots {
 
     public final int width;

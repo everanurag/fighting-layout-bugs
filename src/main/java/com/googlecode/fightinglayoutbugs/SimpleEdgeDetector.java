@@ -21,19 +21,21 @@ import static com.googlecode.fightinglayoutbugs.helpers.ImageHelper.getContrast;
 import static com.googlecode.fightinglayoutbugs.helpers.StringHelper.amountString;
 
 /**
- * <p>Detects horizontal and vertical edges with a simple algorithm.</p>
+ * <p>
+ * Detects horizontal and vertical edges with a simple algorithm.
+ * </p><p>
  * For horizontal edges:<ol>
  *     <li>candidates = all pixels which have a {@link #setEdgeMinContrast high contrast} to the pixel below/above.
  *     <li>edges = all horizontal pixel sequences in the candidates of {@link #setSimilarColorMaxContrast similar color}
  *         and with a certain {@link #setMinHorizontalEdgeLength minimal length}
  * </ol>
- * For horizontal edges:<ol>
+ * </p><p>
+ * For vertical edges:<ol>
  *     <li>candidates = all pixels which have a {@link #setEdgeMinContrast high contrast} to the pixel on the left/right.
  *     <li>edges = all vertical pixel sequences in the candidates of {@link #setSimilarColorMaxContrast similar color}
  *         and with a certain {@link #setMinVerticalEdgeLength minimal length}
  * </ol>
- *
- * @author Michael Tamm
+ * </p>
  */
 public class SimpleEdgeDetector implements EdgeDetector {
 

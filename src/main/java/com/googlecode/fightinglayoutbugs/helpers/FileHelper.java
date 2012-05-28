@@ -25,9 +25,6 @@ import java.util.Random;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-/**
- * @author Michael Tamm
- */
 public class FileHelper {
 
     public static void createParentDirectoryIfNeeded(@Nonnull File file) {

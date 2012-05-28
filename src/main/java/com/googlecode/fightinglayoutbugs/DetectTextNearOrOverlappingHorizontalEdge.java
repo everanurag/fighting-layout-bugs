@@ -22,7 +22,14 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 
 /**
- * @author Michael Tamm
+ * <p>
+ * Detects if there is text on the analyzed web page,
+ * which is near or overlaps a horizontal edge or
+ * is truncated at a horizontal edge.
+ * </p><p>
+ * Example:<br />
+ * <img src="http://fighting-layout-bugs.googlecode.com/svn/wiki/TextNearOrOverlappingHorizontalEdge_example_1.png" alt="example for text which is truncated at a horizontal edge" />
+ * </p>
  */
 public class DetectTextNearOrOverlappingHorizontalEdge extends AbstractLayoutBugDetector {
 

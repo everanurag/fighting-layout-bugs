@@ -22,8 +22,6 @@ import java.net.URL;
 
 /**
  * Represents a layout bug found by a {@link LayoutBugDetector}.
- *
- * @author Michael Tamm
  */
 public class LayoutBug {
 

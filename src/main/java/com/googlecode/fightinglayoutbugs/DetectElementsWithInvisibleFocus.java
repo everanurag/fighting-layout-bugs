@@ -27,7 +27,17 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 /**
- * @author Michael Tamm
+ * <p>
+ * Detects if there are elements on the analyzed web page, which
+ * take the focus (when the user presses the TAB key several times)
+ * but do not change their visual appearance when they got the focus.
+ * </p><p>
+ * This is actually a usability problem, because the user does not
+ * see, which element is currently focused.
+ * </p><p>
+ * Attention: This detector is very slow, because it needs to take
+ * a screenshot after each simulated press on the TAB key.
+ * </p>
  */
 public class DetectElementsWithInvisibleFocus extends AbstractLayoutBugDetector {
 

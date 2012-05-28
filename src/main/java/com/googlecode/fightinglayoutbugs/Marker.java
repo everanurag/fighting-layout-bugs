@@ -18,8 +18,6 @@ package com.googlecode.fightinglayoutbugs;
 
 /**
  * Used to mark layout bugs in a screenshot.
- *
- * @author Michael Tamm
  */
 public interface Marker {
 

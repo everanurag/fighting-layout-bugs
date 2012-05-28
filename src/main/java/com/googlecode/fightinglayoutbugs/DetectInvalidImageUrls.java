@@ -41,8 +41,6 @@ import static java.lang.Character.isWhitespace;
 /**
  * Detects invalid image URLs in the HTML source of the analyzed web page as well
  * as all directly or indirectly referenced CSS resources.
- *
- * @author Michael Tamm
  */
 public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
 

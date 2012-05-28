@@ -19,9 +19,6 @@ package com.googlecode.fightinglayoutbugs;
 import java.io.File;
 import java.util.Collection;
 
-/**
- * @author Michael Tamm
- */
 public interface LayoutBugDetector {
 
     /**

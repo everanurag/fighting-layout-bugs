@@ -30,9 +30,8 @@ import static com.googlecode.fightinglayoutbugs.helpers.TestHelper.*;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
- * A simple HTTP server, which serves all files located under the <code>src/test/webapp</code> directory.
- *
- * @author Michael Tamm
+ * A simple HTTP server, which serves all files located
+ * under the <code>src/test/webapp</code> directory.
  */
 public class TestWebServer {
 

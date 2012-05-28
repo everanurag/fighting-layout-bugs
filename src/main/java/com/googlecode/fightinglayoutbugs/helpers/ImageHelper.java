@@ -34,9 +34,6 @@ import java.util.*;
 
 import static com.googlecode.fightinglayoutbugs.helpers.FileHelper.createParentDirectoryIfNeeded;
 
-/**
- * @author Michael Tamm
- */
 public class ImageHelper {
 
     public static BufferedImage urlToImage(URL imageUrl) {

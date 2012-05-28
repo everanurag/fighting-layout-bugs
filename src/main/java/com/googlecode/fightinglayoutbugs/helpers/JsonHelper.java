@@ -25,8 +25,6 @@ import java.util.*;
 
 /**
  * Helper class for dealing with <a href="http://www.json.org/">JSON</a>.
- *
- * @author Michael Tamm
  */
 public class JsonHelper {
 

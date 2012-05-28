@@ -40,9 +40,6 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-/**
- * @author Michael Tamm
- */
 public class TestHelper extends Mockito {
 
     public static void fail(String message) {

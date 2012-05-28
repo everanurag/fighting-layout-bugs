@@ -23,10 +23,8 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Base class for text detector implementations which provides the implementation
+ * Base class for {@link TextDetector} implementations which provides the implementation
  * for the {@link TextDetector#ignore(String jQuerySelector)} method.
- *
- * @author Michael Tamm
  */
 public abstract class AbstractTextDetector implements TextDetector {
 

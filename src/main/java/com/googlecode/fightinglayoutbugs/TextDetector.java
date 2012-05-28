@@ -17,9 +17,8 @@
 package com.googlecode.fightinglayoutbugs;
 
 /**
- * Detects pixels, which belong to textual content in a web page.
- *
- * @author Michael Tamm
+ * Detects those pixels, which belong to
+ * textual content in a web page.
  */
 public interface TextDetector {
 

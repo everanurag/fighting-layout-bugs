@@ -23,10 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Marks buggy pixels in the screenshot by
+ * Marks buggy pixels in a screenshot by
  * surrounding them with thick red lines.
- *
- * @author Michael Tamm
  */
 public class SurroundBuggyPixels implements Marker {
 

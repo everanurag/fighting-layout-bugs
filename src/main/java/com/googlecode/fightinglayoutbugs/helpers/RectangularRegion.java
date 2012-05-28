@@ -19,9 +19,6 @@ package com.googlecode.fightinglayoutbugs.helpers;
 import java.awt.Rectangle;
 import java.io.Serializable;
 
-/**
- * @author Michael Tamm
- */
 public final class RectangularRegion implements Serializable {
 
     private static final long serialVersionUID = 1L;

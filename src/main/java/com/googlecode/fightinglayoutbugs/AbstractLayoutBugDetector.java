@@ -28,7 +28,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * @author Michael Tamm
+ * Base class for {@link LayoutBugDetector} implementations.
  */
 public abstract class AbstractLayoutBugDetector implements LayoutBugDetector {
 

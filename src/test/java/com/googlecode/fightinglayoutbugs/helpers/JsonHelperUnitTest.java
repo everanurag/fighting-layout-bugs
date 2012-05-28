@@ -23,9 +23,6 @@ import java.util.Map;
 
 import static com.googlecode.fightinglayoutbugs.helpers.TestHelper.*;
 
-/**
- * @author Michael Tamm
- */
 public class JsonHelperUnitTest {
 
     @Test

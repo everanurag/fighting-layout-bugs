@@ -23,9 +23,6 @@ import java.util.Collection;
 
 import static com.googlecode.fightinglayoutbugs.helpers.TestHelper.*;
 
-/**
- * @author Michael Tamm
- */
 public class DetectTextNearOrOverlappingVerticalEdgeTest extends TestUsingSelenium {
 
     @Test

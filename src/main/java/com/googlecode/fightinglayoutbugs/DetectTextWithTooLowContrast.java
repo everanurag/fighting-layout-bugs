@@ -27,7 +27,13 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 
 /**
- * @author Michael Tamm
+ * <p>
+ * Detects text which has low contrast to its background
+ * and is therefore hard to read.
+ * </p><p>
+ * Example:<br />
+ * <img src="http://fighting-layout-bugs.googlecode.com/svn/wiki/TextWithTooLowContrast_example_1.png" alt="example for text with low contrast to its background" />
+ * /p>
  */
 public class DetectTextWithTooLowContrast extends AbstractLayoutBugDetector {
 

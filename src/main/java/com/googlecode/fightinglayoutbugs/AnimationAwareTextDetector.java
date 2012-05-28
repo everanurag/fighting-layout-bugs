@@ -29,25 +29,25 @@ import static com.googlecode.fightinglayoutbugs.ScreenshotCache.Condition.WITH_N
 import static com.googlecode.fightinglayoutbugs.ScreenshotCache.Condition.WITH_NO_IMAGES_AND_ALL_TEXT_WHITE;
 
 /**
+ * <p>
  * Works similar to the {@link SimpleTextDetector}, but additionally
  * hides all images to prevent animated GIF images to influence
  * text detection and tries to detect if there is still some animation
  * by comparing to screenshots (with no images) taken at different times.
- *
+ * </p><p>
  * Actually I expected that no animation is found on the analyzed web page,
  * when the text detection is performed, because:<ol>
  *     <li>all JavaScript animations have been stopped</li>
  *     <li>all animated GIF images have been hidden</li>
- *     <li>all embedded objects like Flash movies, Java Applets, and videos are ignored.</li>
+ *     <li>all iframes, videos, Java Applets, and embedded objects like Flash movies are ignored.</li>
  * </ol>
- *
+ * </p><p>
  * If for any unknown reason there is still animation detected, a loop is entered,
  * which takes a series of screenshots and compares them until no more animated
  * pixels are found or {@link #setMaxTime max time} has been reached.
- *
+ * </p><p>
  * All animated pixels found are not considered to be text pixels.
- *
- * @author Michael Tamm
+ * </p>
  */
 public class AnimationAwareTextDetector extends AbstractTextDetector {
 
@@ -88,7 +88,7 @@ public class AnimationAwareTextDetector extends AbstractTextDetector {
         Visualization.algorithmStepFinished("4.) Determine potential text pixels by comparing the last two screenshots.", webPage, diff1);
         // 5.) Determine regions of Java Applets, embedded objects like Flash movies, videos, iframes, and other ignored elements ...
         Collection<RectangularRegion> ignoredRegions = getIgnoredRegions(webPage);
-        Visualization.algorithmStepFinished("5.) Determine regions of Java Applets, embedded objects like Flash movies, videos, iframes, and other ignored elements.", webPage, ignoredRegions);
+        Visualization.algorithmStepFinished("5.) Determine regions of iframes, videos, Java Applets, embedded objects like Flash movies, and other ignored elements.", webPage, ignoredRegions);
         // 6.) Take another screenshot of the web page (with text colors restored and at least 283 milliseconds later) ...
         sleepUntil(startTime + 283);
         Screenshot screenshot2 = webPage.takeScreenshot(WITH_NO_IMAGES);

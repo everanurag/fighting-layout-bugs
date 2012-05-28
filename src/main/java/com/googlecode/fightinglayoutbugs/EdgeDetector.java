@@ -18,8 +18,6 @@ package com.googlecode.fightinglayoutbugs;
 
 /**
  * Detects horizontal and vertical edges in a web page.
- *
- * @author michael.tamm
  */
 public interface EdgeDetector {
 

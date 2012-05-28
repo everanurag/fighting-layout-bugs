@@ -18,9 +18,6 @@ package com.googlecode.fightinglayoutbugs.helpers;
 
 import java.util.*;
 
-/**
- * @author Michael Tamm
- */
 public class StringHelper {
 
     /**

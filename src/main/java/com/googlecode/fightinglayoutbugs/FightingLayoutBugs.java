@@ -25,17 +25,14 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Finds layout bugs in a web page by executing a certain
- * set of {@link LayoutBugDetector}s. By default the following
- * detectors are enabled:
- * <ul>
+ * Finds different layout bugs in a web page by executing several
+ * {@link LayoutBugDetector}s. By default the following detectors
+ * are enabled:<ul>
  *     <li>{@link DetectInvalidImageUrls}</li>
  *     <li>{@link DetectTextNearOrOverlappingHorizontalEdge}</li>
  *     <li>{@link DetectTextNearOrOverlappingVerticalEdge}</li>
  *     <li>{@link DetectTextWithTooLowContrast}</li>
  * </ul>
- *
- * @author Michael Tamm
  */
 public class FightingLayoutBugs extends AbstractLayoutBugDetector {
 

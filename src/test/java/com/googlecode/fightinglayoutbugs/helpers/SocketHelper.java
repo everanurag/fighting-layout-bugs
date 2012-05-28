@@ -22,9 +22,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-/**
- * @author Michael Tamm
- */
 public class SocketHelper {
 
     public static int findFreePort() {

@@ -22,9 +22,6 @@ import java.io.UnsupportedEncodingException;
 
 import static com.googlecode.fightinglayoutbugs.helpers.TestHelper.*;
 
-/**
- * @author Michael Tamm
- */
 public class Utf8BomAwareByteArrayOutputStreamUnitTest {
 
     @Test

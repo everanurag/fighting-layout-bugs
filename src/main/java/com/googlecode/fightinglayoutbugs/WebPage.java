@@ -45,8 +45,6 @@ import static com.googlecode.fightinglayoutbugs.helpers.StringHelper.asString;
  * analyze the same page -- it caches as much information
  * as possible. Furthermore it stops all JavaScript
  * animations to reduce the possibility of false positives.
- *
- * @author Michael Tamm
  */
 public class WebPage {
 

@@ -22,9 +22,6 @@ import org.openqa.selenium.firefox.internal.Executable;
 
 import java.io.File;
 
-/**
- * @author Michael Tamm
- */
 public class FirefoxHelper {
 
     private static final String[] FIREFOX_EXECUTABLE_PATH_CANDIDATES = {

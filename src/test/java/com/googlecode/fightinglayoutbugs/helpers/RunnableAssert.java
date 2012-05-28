@@ -17,10 +17,8 @@
 package com.googlecode.fightinglayoutbugs.helpers;
 
 /**
-* Helper class for {@link TestHelper#waitFor}.
-*
-* @author Michael Tamm
-*/
+ * Helper class for {@link TestHelper#waitFor}.
+ */
 public abstract class RunnableAssert {
 
     private final String _description;
