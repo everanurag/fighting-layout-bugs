@@ -133,7 +133,7 @@ public class AnimationAwareTextDetector extends AbstractTextDetector {
                 // The sleep time is a prime number to increase the probability
                 // that we don't miss an animation step ...
                 sleep(SOME_PRIME_NUMBERS[random.nextInt(SOME_PRIME_NUMBERS.length)]);
-                screenshot2 = webPage.takeScreenshot();
+                screenshot2 = webPage.takeScreenshot(WITH_NO_IMAGES);
                 int[][] pixels1 = screenshot1.pixels;
                 int[][] pixels2 = screenshot2.pixels;
                 for (int x = 0; x < w; ++x) {

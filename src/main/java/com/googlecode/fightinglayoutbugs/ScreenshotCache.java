@@ -18,23 +18,23 @@ package com.googlecode.fightinglayoutbugs;
 
 import com.googlecode.fightinglayoutbugs.helpers.ImageHelper;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 
 import javax.annotation.Nonnull;
+import java.io.*;
 import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.io.Closeables.closeQuietly;
 import static com.google.common.primitives.Bytes.asList;
+import static com.googlecode.fightinglayoutbugs.ScreenshotCache.Condition.UNMODIFIED;
+import static com.googlecode.fightinglayoutbugs.ScreenshotCache.Condition.WITH_ALL_TEXT_TRANSPARENT;
 
 public class ScreenshotCache {
-
-    private static final Log LOG = LogFactory.getLog(ScreenshotCache.class);
 
     public enum Condition {
         UNMODIFIED(null, false),
@@ -57,7 +57,8 @@ public class ScreenshotCache {
     private static List<Byte> PNG_SIGNATURE = asList(new byte[]{ (byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A });
 
     private final WebPage _webPage;
-    private final Map<Condition, SoftReference<Screenshot>> _cache = new HashMap<Condition, SoftReference<Screenshot>>();
+    private final Map<Condition, SoftReference<Screenshot>> _memoryCache = new HashMap<Condition, SoftReference<Screenshot>>();
+    private final Map<Condition, File> _diskCache = new HashMap<Condition, File>();
     private boolean _textColorsBackedUp;
     private boolean _imageUrlsBackedUp;
     private String _currentTextColor;
@@ -69,26 +70,80 @@ public class ScreenshotCache {
 
     @Nonnull
     public Screenshot getScreenshot(Condition condition) {
-        SoftReference<Screenshot> softReference = _cache.get(condition);
+        SoftReference<Screenshot> softReference = _memoryCache.get(condition);
         Screenshot screenshot;
         if (softReference == null) {
+            // Cache miss, take screenshot ...
             screenshot = takeScreenshot(condition);
-            _cache.put(condition, new SoftReference<Screenshot>(screenshot));
+            // ... and cache it ...
+            _memoryCache.put(condition, new SoftReference<Screenshot>(screenshot));
+            _diskCache.put(condition, saveToTempFile(screenshot));
         } else {
             screenshot = softReference.get();
             if (screenshot == null) {
-                LOG.warn("Cached screenshot " + condition.name().toLowerCase().replace('_', ' ') + " was garbage collected, taking it again -- give the JVM more heap memory to speed up layout bug detection.");
-                _cache.remove(condition);
-                return getScreenshot(condition);
+                // screenshot in _memoryCache was garbage collected, read it from _diskCache ...
+                File file = _diskCache.get(condition);
+                screenshot = readFromFile(file);
+                // ... and put it into _memoryCache again ...
+                _memoryCache.put(condition, new SoftReference<Screenshot>(screenshot));
             }
         }
         return screenshot;
     }
 
+    private File saveToTempFile(Screenshot screenshot) {
+        try {
+            File tempFile = File.createTempFile("flb-cached-screenshot-", ".ser");
+            tempFile.deleteOnExit();
+            FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
+            try {
+                ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+                try {
+                    objectOutputStream.writeObject(screenshot);
+                } finally {
+                    closeQuietly(objectOutputStream);
+                }
+            } finally {
+                closeQuietly(fileOutputStream);
+            }
+            return tempFile;
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to save screenshot to temporary file.", e);
+        }
+    }
+
+    private Screenshot readFromFile(File file) {
+        try {
+            FileInputStream fileInputStream = new FileInputStream(file);
+            try {
+                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+                try {
+                    Object screenshot = objectInputStream.readObject();
+                    return (Screenshot) screenshot;
+                } finally {
+                    closeQuietly(objectInputStream);
+                }
+            } finally {
+                closeQuietly(fileInputStream);
+            }
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Failed to read cached screenshot from " + file, e);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read cached screenshot from " + file, e);
+        }
+    }
+
     /**
      * Bypasses the cache and always takes a screenshot.
      */
+    @Nonnull
     public Screenshot takeScreenshot(Condition condition) {
+        if (condition.hideImages && _diskCache.isEmpty()) {
+            // Cache UNMODIFIED and WITH_ALL_TEXT_TRANSPARENT screenshots first,
+            // because restoreImages() is an asynchronous operation for InternetExplorerDriver ...
+            getScreenshot(UNMODIFIED);
+            getScreenshot(WITH_ALL_TEXT_TRANSPARENT);
+        }
         // Handle text color ...
         if (condition.textColor != null && !condition.textColor.equals(_currentTextColor)) {
             colorAllText(condition.textColor);
