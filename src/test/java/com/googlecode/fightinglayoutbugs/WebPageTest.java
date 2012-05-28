@@ -21,9 +21,7 @@ import org.junit.Test;
 
 import java.util.Collection;
 
-import static com.googlecode.fightinglayoutbugs.helpers.HamcrestHelper.assertThat;
-import static com.googlecode.fightinglayoutbugs.helpers.HamcrestHelper.is;
-import static com.googlecode.fightinglayoutbugs.helpers.TestHelper.asList;
+import static com.googlecode.fightinglayoutbugs.helpers.TestHelper.*;
 
 public class WebPageTest extends TestUsingSelenium {
 

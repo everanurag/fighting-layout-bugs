@@ -16,13 +16,12 @@
 
 package com.googlecode.fightinglayoutbugs;
 
-import com.googlecode.fightinglayoutbugs.helpers.HamcrestHelper;
+import com.googlecode.fightinglayoutbugs.helpers.TestHelper;
 import org.junit.Test;
 
 import java.util.Collection;
 
-import static com.googlecode.fightinglayoutbugs.helpers.HamcrestHelper.assertThat;
-import static com.googlecode.fightinglayoutbugs.helpers.HamcrestHelper.is;
+import static com.googlecode.fightinglayoutbugs.helpers.TestHelper.*;
 
 /**
  * @author Michael Tamm
@@ -40,7 +39,7 @@ public class DetectTextWithTooLowContrastTest extends TestUsingSelenium {
         }
         assertThat(layoutBugs.size(), is(1));
         final LayoutBug layoutBug = layoutBugs.iterator().next();
-        assertThat(layoutBug.getScreenshot(), HamcrestHelper.isNotNull());
+        assertThat(layoutBug.getScreenshot(), TestHelper.isNotNull());
         assertThat(layoutBug.getScreenshot().isFile());
         assertThat(layoutBug.getScreenshot().lastModified() > startTime);
     }
@@ -53,7 +52,7 @@ public class DetectTextWithTooLowContrastTest extends TestUsingSelenium {
         for (LayoutBug bug : layoutBugs) {
             System.out.println(bug);
         }
-        assertThat(layoutBugs.isEmpty());
+        assertThat(layoutBugs, isEmpty());
     }
 
 }

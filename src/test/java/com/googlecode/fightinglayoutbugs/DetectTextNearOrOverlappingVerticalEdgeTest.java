@@ -16,12 +16,12 @@
 
 package com.googlecode.fightinglayoutbugs;
 
-import com.googlecode.fightinglayoutbugs.helpers.HamcrestHelper;
+import com.googlecode.fightinglayoutbugs.helpers.TestHelper;
 import org.junit.Test;
 
 import java.util.Collection;
 
-import static com.googlecode.fightinglayoutbugs.helpers.HamcrestHelper.assertThat;
+import static com.googlecode.fightinglayoutbugs.helpers.TestHelper.*;
 
 /**
  * @author Michael Tamm
@@ -37,7 +37,7 @@ public class DetectTextNearOrOverlappingVerticalEdgeTest extends TestUsingSeleni
         final Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(testPage);
         assertThat(layoutBugs.size() == 1);
         final LayoutBug layoutBug = layoutBugs.iterator().next();
-        assertThat(layoutBug.getScreenshot(), HamcrestHelper.isNotNull());
+        assertThat(layoutBug.getScreenshot(), TestHelper.isNotNull());
         System.out.println(layoutBug);
         assertThat(layoutBug.getScreenshot().isFile());
         assertThat(layoutBug.getScreenshot().lastModified() > startTime);
@@ -51,7 +51,7 @@ public class DetectTextNearOrOverlappingVerticalEdgeTest extends TestUsingSeleni
         final Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(testPage);
         assertThat(layoutBugs.size() == 1);
         final LayoutBug layoutBug = layoutBugs.iterator().next();
-        assertThat(layoutBug.getScreenshot(), HamcrestHelper.isNotNull());
+        assertThat(layoutBug.getScreenshot(), TestHelper.isNotNull());
         System.out.println(layoutBug);
         assertThat(layoutBug.getScreenshot().isFile());
         assertThat(layoutBug.getScreenshot().lastModified() > startTime);

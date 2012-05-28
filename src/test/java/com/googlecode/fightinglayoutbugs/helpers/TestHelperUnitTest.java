@@ -22,21 +22,18 @@ import org.junit.Test;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-/**
- * @author Michael Tamm
- */
-public class HamcrestHelperUnitTest {
+public class TestHelperUnitTest {
 
     @Test
     public void testIsNull() {
-        final Matcher<Object> matcher = HamcrestHelper.is(null);
+        final Matcher<Object> matcher = TestHelper.is(null);
         assertTrue(matcher.matches(null));
         assertFalse(matcher.matches(1));
     }
 
     @Test
     public void testIsWithLongAndInteger() {
-        final Matcher<Object> matcher1 = HamcrestHelper.is(1);
+        final Matcher<Object> matcher1 = TestHelper.is(1);
         assertFalse(matcher1.matches(null));
         assertFalse(matcher1.matches(0));
         assertTrue(matcher1.matches(1));
@@ -45,7 +42,7 @@ public class HamcrestHelperUnitTest {
         assertTrue(matcher1.matches(1L));
         assertFalse(matcher1.matches(2L));
         assertFalse(matcher1.matches((1L << 32) + 1L));
-        final Matcher<Object> matcher2 = HamcrestHelper.is(1L);
+        final Matcher<Object> matcher2 = TestHelper.is(1L);
         assertFalse(matcher2.matches(null));
         assertFalse(matcher2.matches(0));
         assertTrue(matcher2.matches(1));
@@ -58,7 +55,7 @@ public class HamcrestHelperUnitTest {
 
     @Test
     public void testWithCollections() {
-        final Matcher<Object> matcher1 = HamcrestHelper.is("foo");
+        final Matcher<Object> matcher1 = TestHelper.is("foo");
         assertTrue(matcher1.matches(TestHelper.asList("foo")));
         assertFalse(matcher1.matches(TestHelper.asList("bar")));
         assertFalse(matcher1.matches(TestHelper.asList("foo", "bar")));
@@ -67,7 +64,7 @@ public class HamcrestHelperUnitTest {
         assertFalse(matcher1.matches(TestHelper.asSet("bar")));
         assertFalse(matcher1.matches(TestHelper.asSet("foo", "bar")));
         assertFalse(matcher1.matches(TestHelper.asSet("bar", "foo")));
-        final Matcher<Object> matcher2 = HamcrestHelper.is("foo", "bar");
+        final Matcher<Object> matcher2 = TestHelper.is("foo", "bar");
         assertFalse(matcher2.matches(TestHelper.asList("foo")));
         assertFalse(matcher2.matches(TestHelper.asList("bar")));
         assertTrue(matcher2.matches(TestHelper.asList("foo", "bar")));
@@ -80,8 +77,8 @@ public class HamcrestHelperUnitTest {
 
     @Test
     public void testWithArrays() {
-        final Matcher<Object> matcher1 = HamcrestHelper.is("foo", "bar");
-        final Matcher<Object> matcher2 = HamcrestHelper.is(new String[]{ "foo", "bar" });
+        final Matcher<Object> matcher1 = TestHelper.is("foo", "bar");
+        final Matcher<Object> matcher2 = TestHelper.is(new String[]{ "foo", "bar" });
         assertTrue(matcher1.matches(new String[]{ "foo", "bar" }));
         assertTrue(matcher1.matches(new String[]{ "foo", "bar" }));
         assertFalse(matcher1.matches(new String[]{ "bar", "foo" }));

@@ -23,8 +23,7 @@ import org.junit.Test;
 
 import java.util.Collection;
 
-import static com.googlecode.fightinglayoutbugs.helpers.HamcrestHelper.assertThat;
-import static com.googlecode.fightinglayoutbugs.helpers.HamcrestHelper.is;
+import static com.googlecode.fightinglayoutbugs.helpers.TestHelper.*;
 
 /**
  * @author Michael Tamm
@@ -54,7 +53,7 @@ public class DetectInvalidImageUrlsTest extends TestUsingSelenium {
         for (LayoutBug bug : layoutBugs) {
             System.out.println(bug);
         }
-        assertThat(layoutBugs.isEmpty());
+        assertThat(layoutBugs, isEmpty());
     }
 
     @Test
@@ -85,7 +84,7 @@ public class DetectInvalidImageUrlsTest extends TestUsingSelenium {
         for (LayoutBug bug : layoutBugs) {
             System.out.println(bug);
         }
-        assertThat(layoutBugs.isEmpty());
+        assertThat(layoutBugs, isEmpty());
     }
 
     private Matcher<Collection<LayoutBug>> containsLayoutBug(final String descriptionSubstring) {

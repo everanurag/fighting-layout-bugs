@@ -16,19 +16,24 @@
 
 package com.googlecode.fightinglayoutbugs;
 
+import com.googlecode.fightinglayoutbugs.helpers.ImageHelper;
+import com.googlecode.fightinglayoutbugs.helpers.TestWebPageFactory;
 import org.junit.Test;
 import org.junit.experimental.theories.DataPoints;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
 
-import static com.googlecode.fightinglayoutbugs.helpers.HamcrestHelper.assertThat;
-import static com.googlecode.fightinglayoutbugs.helpers.HamcrestHelper.is;
+import java.io.File;
+import java.util.Arrays;
+
+import static com.googlecode.fightinglayoutbugs.helpers.TestHelper.*;
 
 @RunWith(Theories.class)
 public class AnimationAwareTextDetectorTest extends TestUsingSelenium {
 
-    @DataPoints public static final String[] ALL_WEB_PAGES_TO_TEST = new String[] {
+    @DataPoints
+    public static final String[] ALL_WEB_PAGES_TO_TEST = new String[] {
         "/Yahoo!_Profile_Updates.html",
         "/Microsoft_Newsletter.html",
         "/ESPRIT_newsletter.html"
@@ -39,6 +44,11 @@ public class AnimationAwareTextDetectorTest extends TestUsingSelenium {
         WebPage testPage = getWebPageFor(path);
         boolean[][] expected = new SimpleTextDetector().detectTextPixelsIn(testPage);
         boolean[][] actual = new AnimationAwareTextDetector().detectTextPixelsIn(testPage);
+        if (!Arrays.deepEquals(expected, actual)) {
+            ImageHelper.pixelsToPngFile(expected, new File("target/SimpleTextDetector_result.png"));
+            ImageHelper.pixelsToPngFile(actual, new File("target/AnimationAwareTextDetector_result.png"));
+            fail("Result of AnimationAwareTextDetector differs from result of SimpleTextDetector -- see target/SimpleTextDetector_result.png and target/AnimationAwareTextDetector_result.png");
+        }
         assertThat(actual, is(expected));
     }
 

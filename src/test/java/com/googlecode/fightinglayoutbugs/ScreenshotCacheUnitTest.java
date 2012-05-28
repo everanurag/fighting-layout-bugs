@@ -26,14 +26,10 @@ import org.junit.runner.RunWith;
 import javax.annotation.Nonnull;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
+import static com.googlecode.fightinglayoutbugs.helpers.TestHelper.*;
 
 @RunWith(Theories.class)
-public class ScreenshotCacheTest {
+public class ScreenshotCacheUnitTest {
 
     @DataPoints
     public static final Condition[] ALL_CONDITIONS = Condition.values();
@@ -67,7 +63,7 @@ public class ScreenshotCacheTest {
     @Test
     public void testThatCacheDoesNotLeadToOutOfMemoryError() {
         assertThatTwoLargeScreenshotsDoNotFitIntoMemory();
-        assertThat(ALL_CONDITIONS.length, is(greaterThan(2)));
+        assertThat(ALL_CONDITIONS.length, isGreaterThan(2));
         ScreenshotCache cache = new ScreenshotCache(null) {
             @Override void hideImages() {}
             @Override void restoreImages() {}
@@ -87,6 +83,7 @@ public class ScreenshotCacheTest {
     @Theory
     public void testTakeScreenshot(Condition condition1, Condition condition2) {
         ScreenshotCache cache = new ScreenshotCache(null) {
+            @Override public Screenshot getScreenshot(Condition condition) { return null; }
             @Override void hideImages() {}
             @Override void restoreImages() {}
             @Override void colorAllText(@Nonnull String color) {}

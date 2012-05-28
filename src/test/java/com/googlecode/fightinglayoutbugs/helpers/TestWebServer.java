@@ -26,8 +26,7 @@ import org.mortbay.jetty.webapp.WebAppContext;
 
 import java.io.File;
 
-import static com.googlecode.fightinglayoutbugs.helpers.HamcrestHelper.assertThat;
-import static com.googlecode.fightinglayoutbugs.helpers.TestHelper.waitFor;
+import static com.googlecode.fightinglayoutbugs.helpers.TestHelper.*;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**

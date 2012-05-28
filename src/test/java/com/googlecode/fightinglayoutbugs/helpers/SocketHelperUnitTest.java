@@ -18,12 +18,8 @@ package com.googlecode.fightinglayoutbugs.helpers;
 
 import org.junit.Test;
 
-import static com.googlecode.fightinglayoutbugs.helpers.HamcrestHelper.assertThat;
-import static com.googlecode.fightinglayoutbugs.helpers.HamcrestHelper.is;
+import static com.googlecode.fightinglayoutbugs.helpers.TestHelper.*;
 
-/**
- * @author Michael Tamm
- */
 public class SocketHelperUnitTest {
 
     @Test

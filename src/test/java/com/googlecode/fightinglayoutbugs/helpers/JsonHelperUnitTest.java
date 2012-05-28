@@ -21,7 +21,7 @@ import org.junit.Test;
 import java.util.List;
 import java.util.Map;
 
-import static com.googlecode.fightinglayoutbugs.helpers.HamcrestHelper.*;
+import static com.googlecode.fightinglayoutbugs.helpers.TestHelper.*;
 
 /**
  * @author Michael Tamm
@@ -76,16 +76,16 @@ public class JsonHelperUnitTest {
     public void testComplexJsonString() {
         List list1 = (List) JsonHelper.parse("[\"start\",{\"foo\":true,\"bar\":{\"x\":123,\"y\":45.6,\"z\":[]}}]");
         assertThat(list1.size(), is(2));
-        assertThat((String) list1.get(0), is("start"));
+        assertThat(list1.get(0), is("start"));
         Map map1 = (Map) list1.get(1);
         assertThat(map1.size(), is(2));
-        assertThat((Boolean) map1.get("foo"), is(true));
+        assertThat(map1.get("foo"), is(true));
         Map map2 = (Map) map1.get("bar");
         assertThat(map2.size(), is(3));
-        assertThat((Integer) map2.get("x"), is(123));
-        assertThat((Double) map2.get("y"), is(45.6));
+        assertThat(map2.get("x"), is(123));
+        assertThat(map2.get("y"), is(45.6));
         List list2 = (List) map2.get("z");
-        assertThat(list2.isEmpty());
+        assertThat(list2, isEmpty());
     }
 
 }

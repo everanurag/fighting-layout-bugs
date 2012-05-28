@@ -18,7 +18,7 @@ package com.googlecode.fightinglayoutbugs;
 
 import org.junit.Test;
 
-import static com.googlecode.fightinglayoutbugs.helpers.HamcrestHelper.assertThat;
+import static com.googlecode.fightinglayoutbugs.helpers.TestHelper.*;
 
 /**
  * @author Michael Tamm

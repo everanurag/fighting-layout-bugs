@@ -20,8 +20,7 @@ import org.junit.Test;
 
 import java.awt.*;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static com.googlecode.fightinglayoutbugs.helpers.TestHelper.*;
 
 public class RectangularRegionUnitTest {
 

@@ -31,6 +31,7 @@ public class SocketHelper {
         ServerSocket socket = null;
         try {
             socket = new ServerSocket(0);
+            socket.setReuseAddress(true);
             return socket.getLocalPort();
         } catch (IOException e) {
             throw new RuntimeException("Failed to create ServerSocket on free port.", e);
@@ -47,6 +48,7 @@ public class SocketHelper {
         Socket socket = null;
         try {
             socket = new Socket("localhost", port);
+            socket.setReuseAddress(true);
             return true;
         } catch (UnknownHostException e) {
             throw new RuntimeException(e);

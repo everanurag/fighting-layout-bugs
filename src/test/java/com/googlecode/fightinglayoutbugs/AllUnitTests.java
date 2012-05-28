@@ -16,7 +16,7 @@
 
 package com.googlecode.fightinglayoutbugs;
 
-import com.googlecode.fightinglayoutbugs.helpers.HamcrestHelperUnitTest;
+import com.googlecode.fightinglayoutbugs.helpers.TestHelperUnitTest;
 import com.googlecode.fightinglayoutbugs.helpers.JsonHelperUnitTest;
 import com.googlecode.fightinglayoutbugs.helpers.RectangularRegionUnitTest;
 import com.googlecode.fightinglayoutbugs.helpers.SocketHelperUnitTest;
@@ -26,10 +26,10 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-    HamcrestHelperUnitTest.class,
+    TestHelperUnitTest.class,
     JsonHelperUnitTest.class,
     RectangularRegionUnitTest.class,
-    ScreenshotCacheTest.class,
+    ScreenshotCacheUnitTest.class,
     SocketHelperUnitTest.class,
     Utf8BomAwareByteArrayOutputStreamUnitTest.class
 })
