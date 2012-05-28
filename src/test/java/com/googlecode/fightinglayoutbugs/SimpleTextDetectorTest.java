@@ -18,9 +18,6 @@ package com.googlecode.fightinglayoutbugs;
 
 import org.junit.Test;
 
-/**
- * @author Michael Tamm
- */
 public class SimpleTextDetectorTest extends TestUsingSelenium {
 
     @Test
