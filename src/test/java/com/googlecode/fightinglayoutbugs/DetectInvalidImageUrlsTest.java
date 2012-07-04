@@ -24,6 +24,8 @@ import org.junit.Test;
 import java.util.Collection;
 
 import static com.googlecode.fightinglayoutbugs.helpers.TestHelper.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 
 public class DetectInvalidImageUrlsTest extends TestUsingSelenium {
 
@@ -82,6 +84,20 @@ public class DetectInvalidImageUrlsTest extends TestUsingSelenium {
             System.out.println(bug);
         }
         assertThat(layoutBugs, isEmpty());
+    }
+
+    /**
+     * Test for <a href="http://code.google.com/p/fighting-layout-bugs/issues/detail?id=9">issue 9</a>.
+     */
+    @Test
+    public void shouldNotReportFontFaceUrlsAsInvalidImageUrls() throws Exception {
+        WebPage pageWithValidImageUrls = getWebPageFor("/odesk.html");
+        LayoutBugDetector detector = new DetectInvalidImageUrls();
+        Collection<LayoutBug> layoutBugs = detector.findLayoutBugsIn(pageWithValidImageUrls);
+        for (LayoutBug bug : layoutBugs) {
+            System.out.println(bug);
+            assertThat(bug.getDescription(), not(containsString("data:font/opentype")));
+        }
     }
 
     private Matcher<Collection<LayoutBug>> containsLayoutBug(final String descriptionSubstring) {

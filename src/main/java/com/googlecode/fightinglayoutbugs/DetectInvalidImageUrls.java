@@ -195,7 +195,7 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
             for (String importUrl : getImportUrlsFrom(css)) {
                 checkCssResourceAsync(importUrl + " (imported in style attribute of <" + element.getTagName() + "> element)", importUrl, _baseUrl, _documentCharset);
             }
-            for (String url : extractUrlsFrom(css).keySet()) {
+            for (String url : extractUrlsFrom(css)) {
                 try {
                     checkImageUrl(url, "Detected <" + element.getTagName() + "> element with invalid image URL \"" + url + "\" in its style attribute");
                 } catch (MalformedURLException e) {
@@ -211,7 +211,7 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
             for (String importUrl : getImportUrlsFrom(css)) {
                 checkCssResourceAsync(importUrl + " (imported in <style> element)", importUrl, _baseUrl, _documentCharset);
             }
-            for (String url : extractUrlsFrom(css).keySet()) {
+            for (String url : extractUrlsFrom(css)) {
                 try {
                     checkImageUrl(url, "Detected <style> element with invalid image URL \"" + url + "\"");
                 } catch (MalformedURLException e) {
@@ -282,7 +282,7 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
                 if (!temp.startsWith("url(")) {
                     temp = "url(" + temp + ")";
                 }
-                String url = extractUrlsFrom(temp).keySet().iterator().next();
+                String url = extractUrlsFrom(temp).iterator().next();
                 result.add(url);
                 css = css.substring(i + 1).trim();
             }
@@ -294,8 +294,8 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
      * Extracts URLs from CSS.
      * See <a href="http://www.w3.org/TR/CSS2/syndata.html#value-def-uri">http://www.w3.org/TR/CSS2/syndata.html#value-def-uri</a>
      */
-    private Map<String, Integer> extractUrlsFrom(String css) {
-        final ConcurrentMap<String, Integer> imageUrls = new ConcurrentHashMap<String, Integer>();
+    private Set<String> extractUrlsFrom(String css) {
+        final Set<String> urls = new HashSet<String>();
         css = stripCommentsFrom(css);
         final int n = css.length();
         // 1.) Skip at-rules ...
@@ -346,11 +346,23 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
                 j = k = n;
             }
             final String url = css.substring(j, k);
-            // Put if absent, so the returned map contains the position of the *first* occurrence for each URL ...
-            imageUrls.putIfAbsent(url, i);
+            // If it is a @font-face src:url (see http://code.google.com/p/fighting-layout-bugs/issues/detail?id=9) ...
+            try {
+                j = css.lastIndexOf("{", i);
+                while (j > 0 && isWhitespace(css.charAt(j - 1))) {
+                    --j;
+                }
+                if (j >= 10 && "@font-face".equals(css.substring(j - 10, j))) {
+                    // ... ignore it, otherwise ...
+                } else {
+                    urls.add(url);
+                }
+            } catch (StringIndexOutOfBoundsException e) {
+                System.out.println("j: " + css.lastIndexOf("{", i) + ", css.length(): " + css.length());
+            }
             i = css.indexOf("url(", k);
         }
-        return imageUrls;
+        return urls;
     }
 
     private void checkImageUrl(String url, final String errorDescriptionPrefix) throws MalformedURLException {
@@ -447,7 +459,7 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
                             for (String importUrl : getImportUrlsFrom(css.text)) {
                                 checkCssResourceAsync(importUrl + " (imported from " + pathToCssResource + ")", importUrl, cssUrl, css.charset);
                             }
-                            for (String url : extractUrlsFrom(css.text).keySet()) {
+                            for (String url : extractUrlsFrom(css.text)) {
                                 try {
                                     checkImageUrl(cssUrl, url, "Detected invalid image URL \"" + url + "\" in " + pathToCssResource);
                                 } catch (MalformedURLException e) {
