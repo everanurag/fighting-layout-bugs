@@ -21,6 +21,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.remote.Augmenter;
+import org.openqa.selenium.remote.RemoteWebDriver;
 
 import javax.annotation.Nonnull;
 import java.io.*;
@@ -230,25 +232,33 @@ public class ScreenshotCache {
     protected Screenshot takeScreenshot() {
         WebDriver driver = _webPage.getDriver();
         if (driver instanceof TakesScreenshot) {
-            byte[] bytes = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
-            if (bytes == null) {
-                throw new RuntimeException(driver.getClass().getName() + ".getScreenshotAs(OutputType.BYTES) returned null.");
+            return takeScreenshot((TakesScreenshot) driver);
+        } else if (driver instanceof RemoteWebDriver) {
+            WebDriver augmentedDriver = new Augmenter().augment(driver);
+            if (augmentedDriver instanceof TakesScreenshot) {
+                return takeScreenshot((TakesScreenshot) augmentedDriver);
             }
-            if (bytes.length < 8) {
-                throw new RuntimeException(driver.getClass().getName() + ".getScreenshotAs(OutputType.BYTES) did not return a PNG image.");
-            } else {
-                // Workaround for http://code.google.com/p/selenium/issues/detail?id=1686 ...
-                if (!asList(bytes).subList(0, 8).equals(PNG_SIGNATURE)) {
-                    bytes = Base64.decodeBase64(bytes);
-                }
-                if (!asList(bytes).subList(0, 8).equals(PNG_SIGNATURE)) {
-                    throw new RuntimeException(driver.getClass().getName() + ".getScreenshotAs(OutputType.BYTES) did not return a PNG image.");
-                }
-            }
-            int[][] pixels = ImageHelper.pngToPixels(bytes);
-            return new Screenshot(pixels);
-        } else {
-            throw new UnsupportedOperationException(driver.getClass().getName() + " does not support taking screenshots.");
         }
+        throw new UnsupportedOperationException(driver.getClass().getName() + " does not support taking screenshots.");
+    }
+
+    private Screenshot takeScreenshot(TakesScreenshot driver) {
+        byte[] bytes = driver.getScreenshotAs(OutputType.BYTES);
+        if (bytes == null) {
+            throw new RuntimeException(driver.getClass().getName() + ".getScreenshotAs(OutputType.BYTES) returned null.");
+        }
+        if (bytes.length < 8) {
+            throw new RuntimeException(driver.getClass().getName() + ".getScreenshotAs(OutputType.BYTES) did not return a PNG image.");
+        } else {
+            // Workaround for http://code.google.com/p/selenium/issues/detail?id=1686 ...
+            if (!asList(bytes).subList(0, 8).equals(PNG_SIGNATURE)) {
+                bytes = Base64.decodeBase64(bytes);
+            }
+            if (!asList(bytes).subList(0, 8).equals(PNG_SIGNATURE)) {
+                throw new RuntimeException(driver.getClass().getName() + ".getScreenshotAs(OutputType.BYTES) did not return a PNG image.");
+            }
+        }
+        int[][] pixels = ImageHelper.pngToPixels(bytes);
+        return new Screenshot(pixels);
     }
 }
