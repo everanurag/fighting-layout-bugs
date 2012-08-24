@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<title>CSS-Animationen: Pendeluhr</title>
+<!--
+    Copyright (c) 2012 Oliver Lau, Heise Zeitschriften Verlag.
+    Alle Rechte vorbehalten.
+    $Id$
+ -->
+<script charset="utf-8" type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script charset="utf-8" type="text/javascript" src="js/pendeluhr.js"></script>
+<style type="text/css" id="seconds"></style>
+<style type="text/css" id="minutes"></style>
+<style type="text/css" id="hours"></style>
+<script type="text/javascript">
+$(document).ready(function() {
+  Clock.init();
+});
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+<meta http-equiv="content-language" content="de" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" media="screen" type="text/css" href="pendeluhr.css" />
+<link rel="icon" type="image/png" href="img/favicon.png">
+</head>
+<body>
+<div id="outer-container">
+  <div id="clock-container"><button id="start-stop-button">Stop</button></div>
+</div>
+</body>
+</html>

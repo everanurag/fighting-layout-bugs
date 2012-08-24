@@ -94,7 +94,6 @@ public class DetectElementsWithInvisibleFocus extends AbstractLayoutBugDetector 
             firstFocusedWebElement = getFocusedWebElement(webPage);
         }
         if (firstFocusedWebElement != null && !"body".equals(firstFocusedWebElement.getTagName().toLowerCase())) {
-            webPage.injectJQueryIfNotPresent();
             return toFocusedElement(firstFocusedWebElement, webPage);
         } else {
             return null;

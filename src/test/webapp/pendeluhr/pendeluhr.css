@@ -1,0 +1,186 @@
+@charset "utf-8"
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+}
+
+body {
+    margin: 0;
+    background: url(img/rays.svg) center center,
+      -webkit-radial-gradient(center center, circle closest-corner, rgba(0, 0, 0, 0), rgba(0, 0, 0, .6));
+    background: url(img/rays.svg) center center,
+      -o-radial-gradient(center center, circle closest-corner, rgba(0, 0, 0, 0), rgba(0, 0, 0, .6));
+    background: url(img/rays.svg) center center,
+      -moz-radial-gradient(center center, circle closest-corner, rgba(0, 0, 0, 0), rgba(0, 0, 0, .6));
+    background: url(img/rays.svg) center center,
+      radial-gradient(center center, circle closest-corner, rgba(0, 0, 0, 0), rgba(0, 0, 0, .6));
+    background-color: rgb(238, 180, 34);
+    background-size: cover, 100% 100%;
+    opacity: 0;
+}
+
+body.loaded {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+    -webkit-transition: opacity 0.3s ease;
+    -moz-transition: opacity 0.3s ease;
+    -o-transition: opacity 0.3s ease;
+}
+
+#outer-container {
+    text-align: center;
+}
+
+#clock-container {
+    position: relative;
+    display: inline-block;
+    text-align: center;
+    width: 320px;
+    height: 800px;
+    background-color: transparent;
+    opacity: 0;
+}
+
+#clock-container.loaded {
+    opacity: 1;
+    transition: opacity 1s ease-out;
+    -webkit-transition: opacity 1s ease-out;
+    -moz-transition: opacity 1s ease-out;
+    -o-transition: opacity 1s ease-out;
+}
+
+#face {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 250px;
+    border-radius: 125px;
+    background-color: White;
+    box-shadow: 0 2px 25px Black;
+}
+
+.hour-mark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 20px;
+    height: 10px; 
+    background-color: rgb(238, 180, 34);
+    color: White;
+    font-size: 9px;
+    text-align: center;
+    border-radius: 2px;
+}
+
+#hour-hand {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 12px;
+    height: 75px;
+    background-color: rgb(218, 165, 32);
+    border-radius: 2px;
+    -webkit-animation-play-state: paused;
+}
+
+#hour-hand.move {
+    -webkit-animation: move-hour-hand 43200s linear infinite;
+    -moz-animation: move-hour-hand 43200s linear infinite;
+    -o-animation: move-hour-hand 43200s linear infinite;
+    -webkit-animation-play-state: running;
+}
+
+#minute-hand {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 8px;
+    height: 110px;
+    background-color: rgb(218, 165, 32);
+    border-radius: 2px;
+    -webkit-animation-play-state: paused;
+}
+
+#minute-hand.move {
+    -webkit-animation: move-minute-hand 3600s linear infinite;
+    -moz-animation: move-minute-hand 3600s linear infinite;
+    -o-animation: move-minute-hand 3600s linear infinite;
+    -webkit-animation-play-state: running;
+}
+
+#second-hand {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 115px;
+    background-color: rgb(139, 105, 20);
+    border-radius: 2px;
+    -webkit-animation-play-state: paused;
+}
+
+#second-hand.move {
+    -webkit-animation: move-second-hand 60s steps(60) infinite;
+    -webkit-animation-fill-mode: backwards;
+    -moz-animation: move-second-hand 60s steps(60, end) infinite;
+    -o-animation: move-second-hand 60s step(60, end) infinite;
+    -webkit-animation-play-state: running;
+}
+
+#axis {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 4px;
+    border-radius: 2px;
+    background-color: White;
+}
+
+#pendulum-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50px;
+    height: 500px;
+    background-color: transparent;
+    -webkit-transform-origin: 25px 25px;
+    -moz-transform-origin: 25px 25px;
+    -o-transform-origin: 25px 25px;
+    -webkit-animation-play-state: paused;
+}
+
+#pendulum-container.move {
+    -webkit-animation-play-state: running;
+    -webkit-animation: move-pendulum 2s ease-in-out infinite;
+    -moz-animation: move-pendulum 2s ease-in-out infinite;
+    -o-animation: move-pendulum 2s ease-in-out infinite;
+}
+
+#pendulum-container .pendulum {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 8px;
+    height: 500px;
+    background-color: Black;
+    border-radius: 2px;
+}
+
+#pendulum-container .weight {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50px;
+    height: 50px;
+    background-color: Black;
+    border-radius: 25px;
+}

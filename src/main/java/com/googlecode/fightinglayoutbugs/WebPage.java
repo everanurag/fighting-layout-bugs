@@ -62,12 +62,24 @@ public class WebPage {
     private SoftReference<boolean[][]> _horizontalEdges;
     private SoftReference<boolean[][]> _verticalEdges;
 
-    private boolean _jqueryInjected;
-
     public WebPage(WebDriver driver) {
         _driver = driver;
         _screenshotCache = new ScreenshotCache(this);
+        injectJQueryIfNotPresent();
         stopJavaScriptAnimations();
+        stopCssAnimations();
+    }
+
+    private void injectJQueryIfNotPresent() {
+        // Check if jQuery is present ...
+        if ("undefined".equals(executeJavaScript("return typeof jQuery"))) {
+            String jquery = readResource("jquery-1.7.2.min.js");
+            executeJavaScript(jquery);
+            // Check if jQuery was successfully injected ...
+            if (!"1.7.2".equals(executeJavaScript("return jQuery.fn.jquery"))) {
+                throw new RuntimeException("Failed to inject jQuery.");
+            }
+        }
     }
 
     private void stopJavaScriptAnimations() {
@@ -80,6 +92,20 @@ public class WebPage {
             "n = window.setInterval(noop, 1);\n" +
             "for (i = 0; i <= n; ++i) window.clearInterval(i);\n" +
             "window.setInterval = noop;\n"
+        );
+    }
+
+    private void stopCssAnimations() {
+        executeJavaScript(
+            "jQuery('*').each(function() {\n" +
+            "    var $x = jQuery(this);\n" +
+            "    var prefixes = ['', '-webkit-', '-moz-', '-ms-', '-o-'];\n" +
+            "    var i;\n" +
+            "    for (i = 0; i < prefixes.length; ++i) {\n" +
+            "        $x.css(prefixes[i] + 'animation-play-state', 'paused');\n" +
+            "        $x.css(prefixes[i] + 'transition-property', 'none');\n" +
+            "    }" +
+            "}).size();" // ... the trailing ".size()" will reduce the size of the response
         );
     }
 
@@ -191,7 +217,6 @@ public class WebPage {
         if (jQuerySelectors.isEmpty()) {
             return Collections.emptySet();
         }
-        injectJQueryIfNotPresent();
         // 1.) Assemble JavaScript to select elements ...
         Iterator<String> i = jQuerySelectors.iterator();
         String js = "jQuery('" + i.next().replace("'", "\\'");
@@ -306,21 +331,6 @@ public class WebPage {
             return ((JavascriptExecutor) _driver).executeScript(javaScript, arguments);
         } else {
             throw new UnsupportedOperationException("Can't execute JavaScript via " + _driver.getClass().getName());
-        }
-    }
-
-    void injectJQueryIfNotPresent() {
-        if (!_jqueryInjected) {
-            // Check if jQuery is present ...
-            if ("undefined".equals(executeJavaScript("return typeof jQuery"))) {
-                String jquery = readResource("jquery-1.7.2.min.js");
-                executeJavaScript(jquery);
-                // Check if jQuery was successfully injected ...
-                if (!"1.7.2".equals(executeJavaScript("return jQuery.fn.jquery"))) {
-                    throw new RuntimeException("Failed to inject jQuery.");
-                }
-            }
-            _jqueryInjected = true;
         }
     }
 

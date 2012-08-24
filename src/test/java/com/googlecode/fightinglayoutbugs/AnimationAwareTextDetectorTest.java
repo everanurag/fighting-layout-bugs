@@ -17,7 +17,6 @@
 package com.googlecode.fightinglayoutbugs;
 
 import com.googlecode.fightinglayoutbugs.helpers.ImageHelper;
-import com.googlecode.fightinglayoutbugs.helpers.TestWebPageFactory;
 import org.junit.Test;
 import org.junit.experimental.theories.DataPoints;
 import org.junit.experimental.theories.Theories;
@@ -55,8 +54,22 @@ public class AnimationAwareTextDetectorTest extends TestUsingSelenium {
     @Test
     public void shouldIgnoreAnimatedGifImage() throws Exception {
         WebPage testPage = getWebPageFor("/page_with_animated_gif.html");
-        final TextDetector detector = new AnimationAwareTextDetector();
-        final boolean[][] textPixels = detector.detectTextPixelsIn(testPage);
+        TextDetector detector = new AnimationAwareTextDetector();
+        boolean[][] textPixels = detector.detectTextPixelsIn(testPage);
+        for (boolean[] column : textPixels) {
+            for (boolean isTextPixel : column) {
+                assertThat(isTextPixel, is(false));
+            }
+        }
+    }
+
+    @Test
+    public void shouldIgnoreCssAnimation() throws Exception {
+        WebPage testPage = getWebPageFor("/pendeluhr/index.html");
+        // Hide the [Stop] button so that there is no visible text on the page ...
+        testPage.executeJavaScript("jQuery('#start-stop-button').hide();");
+        TextDetector detector = new AnimationAwareTextDetector();
+        boolean[][] textPixels = detector.detectTextPixelsIn(testPage);
         for (boolean[] column : textPixels) {
             for (boolean isTextPixel : column) {
                 assertThat(isTextPixel, is(false));

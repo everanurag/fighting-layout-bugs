@@ -167,7 +167,6 @@ public class ScreenshotCache {
 
     void hideImages() {
         if (!_imageUrlsBackedUp) {
-            _webPage.injectJQueryIfNotPresent();
             _webPage.executeJavaScript(
                 "jQuery('*').each(function() {\n" +
                 "    var $x = jQuery(this);\n" +
@@ -218,7 +217,6 @@ public class ScreenshotCache {
 
     void colorAllText(@Nonnull String color) {
         if (!_textColorsBackedUp) {
-            _webPage.injectJQueryIfNotPresent();
             _webPage.executeJavaScript("jQuery('*').each(function() { var $x = jQuery(this); $x.data('flb_color_backup', $x.css('color')); }).size();"); // ... the trailing ".size()" will reduce the size of the response
             _textColorsBackedUp = true;
         }
