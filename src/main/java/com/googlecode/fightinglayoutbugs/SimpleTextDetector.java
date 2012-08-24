@@ -39,19 +39,19 @@ public class SimpleTextDetector extends AbstractTextDetector {
     public boolean[][] detectTextPixelsIn(WebPage webPage) {
         // 1.) Take first screenshot with all text colored black ...
         Screenshot screenshotWithAllTextColoredBlack = webPage.getScreenshot(WITH_ALL_TEXT_BLACK);
-        Visualization.algorithmStepFinished("1.) Take first screenshot with all text colored black.", webPage, screenshotWithAllTextColoredBlack);
+        Visualization.algorithmStepFinished("1.) Took first screenshot with all text colored black.", webPage, screenshotWithAllTextColoredBlack);
         // 2.) Take second screenshot with all text colored white ...
         Screenshot screenshotWithAllTextColoredWhite = webPage.getScreenshot(WITH_ALL_TEXT_WHITE);
-        Visualization.algorithmStepFinished("2.) Take second screenshot with all text colored white.", webPage, screenshotWithAllTextColoredWhite);
+        Visualization.algorithmStepFinished("2.) Took second screenshot with all text colored white.", webPage, screenshotWithAllTextColoredWhite);
         // 3.) Determine potential text pixels by comparing the last two screenshots ...
         CompareScreenshots diff = new CompareScreenshots(screenshotWithAllTextColoredBlack, screenshotWithAllTextColoredWhite);
-        Visualization.algorithmStepFinished("3.) Determine potential text pixels by comparing the last two screenshots.", webPage, diff);
+        Visualization.algorithmStepFinished("3.) Determined potential text pixels by comparing the last two screenshots.", webPage, diff);
         // 4.) Determine regions of Java Applets, embedded objects like Flash movies, iframes, and other ignored elements ...
         Collection<RectangularRegion> ignoredRegions = getIgnoredRegions(webPage);
-        Visualization.algorithmStepFinished("4.) Determine regions of iframes, videos, Java Applets, embedded objects like Flash movies, and other ignored elements.", webPage, ignoredRegions);
+        Visualization.algorithmStepFinished("4.) Determined regions of iframes, videos, Java Applets, embedded objects like Flash movies, and other ignored elements.", webPage, ignoredRegions);
         // 5.) Remove potential text pixels inside ignored regions ...
         boolean[][] textPixels = diff.ignore(ignoredRegions).differentPixels;
-        Visualization.algorithmFinished("5.) Remove potential text pixels inside ignored regions.", webPage, textPixels);
+        Visualization.algorithmFinished("5.) Done: Removed potential text pixels inside ignored regions.", webPage, textPixels);
         return textPixels;
     }
 }

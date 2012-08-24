@@ -16,13 +16,26 @@
 
 package com.googlecode.fightinglayoutbugs;
 
+import com.googlecode.fightinglayoutbugs.helpers.ImageHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.impl.*;
+import org.apache.log.LogKit;
+import org.apache.log.Priority;
+import org.apache.log4j.LogManager;
 
+import java.io.File;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Finds different layout bugs in a web page by executing several
@@ -38,9 +51,12 @@ public class FightingLayoutBugs extends AbstractLayoutBugDetector {
 
     private static final Log LOG = LogFactory.getLog(FightingLayoutBugs.class);
 
+    private List<Runnable> _runAfterAnalysis = new ArrayList<Runnable>();
+
     private TextDetector _textDetector;
     private EdgeDetector _edgeDetector;
     private final List<LayoutBugDetector> _detectors = new ArrayList<LayoutBugDetector>();
+    private boolean _debugMode;
 
     /**
      * Registers the following detectors:<ul>
@@ -77,6 +93,15 @@ public class FightingLayoutBugs extends AbstractLayoutBugDetector {
      */
     public void setEdgeDetector(EdgeDetector edgeDetector) {
         _edgeDetector = edgeDetector;
+    }
+
+    /**
+     * Call this method to enable the debug mode, which produces
+     * more log output and several screenshots of intermediate
+     * analysis results.
+     */
+    public void enableDebugMode() {
+        _debugMode = true;
     }
 
     /**
@@ -137,14 +162,102 @@ public class FightingLayoutBugs extends AbstractLayoutBugDetector {
      * </ul>
      */
     public Collection<LayoutBug> findLayoutBugsIn(WebPage webPage) {
-        webPage.setTextDetector(_textDetector == null ? new AnimationAwareTextDetector() : _textDetector);
-        webPage.setEdgeDetector(_edgeDetector == null ? new SimpleEdgeDetector() : _edgeDetector);
-        final Collection<LayoutBug> result = new ArrayList<LayoutBug>();
-        for (LayoutBugDetector detector : _detectors) {
-            detector.setScreenshotDir(screenshotDir);
-            LOG.debug("Running " + detector.getClass().getSimpleName() + " ...");
-            result.addAll(detector.findLayoutBugsIn(webPage));
+        if (_debugMode) {
+            setLogLevelToDebug();
+            registerDebugListener();
         }
-        return result;
+        try {
+            webPage.setTextDetector(_textDetector == null ? new AnimationAwareTextDetector() : _textDetector);
+            webPage.setEdgeDetector(_edgeDetector == null ? new SimpleEdgeDetector() : _edgeDetector);
+            final Collection<LayoutBug> result = new ArrayList<LayoutBug>();
+            for (LayoutBugDetector detector : _detectors) {
+                detector.setScreenshotDir(screenshotDir);
+                LOG.debug("Running " + detector.getClass().getSimpleName() + " ...");
+                result.addAll(detector.findLayoutBugsIn(webPage));
+            }
+            return result;
+        } finally {
+            for (Runnable runnable : _runAfterAnalysis) {
+                try {
+                    runnable.run();
+                } catch (RuntimeException e) {
+                    LOG.warn(runnable + " failed.", e);
+                }
+            }
+        }
+    }
+
+    private void setLogLevelToDebug() {
+        String name = FightingLayoutBugs.class.getPackage().getName();
+        final Log log = LogFactory.getLog(name);
+        if (log instanceof Jdk14Logger || (log instanceof AvalonLogger && ((AvalonLogger) log).getLogger() instanceof org.apache.avalon.framework.logger.Jdk14Logger)) {
+            final Logger logger = Logger.getLogger(name);
+            final Level originalLevel = logger.getLevel();
+            logger.setLevel(Level.FINE);
+            _runAfterAnalysis.add(new Runnable() { @Override public void run() {
+                logger.setLevel(originalLevel);
+            }});
+            enableDebugOutputToConsole(logger);
+        } else if (log instanceof Log4JLogger || (log instanceof AvalonLogger && ((AvalonLogger) log).getLogger() instanceof org.apache.avalon.framework.logger.Log4JLogger)) {
+            final org.apache.log4j.Logger logger = LogManager.getLogger(name);
+            final org.apache.log4j.Level originalLevel = logger.getLevel();
+            logger.setLevel(org.apache.log4j.Level.DEBUG);
+            _runAfterAnalysis.add(new Runnable() { @Override public void run() {
+                logger.setLevel(originalLevel);
+            }});
+        } else if (log instanceof LogKitLogger || (log instanceof AvalonLogger && ((AvalonLogger) log).getLogger() instanceof org.apache.avalon.framework.logger.LogKitLogger)) {
+            final org.apache.log.Logger logger = LogKit.getLoggerFor(name);
+            final Priority originalLevel = logger.getPriority();
+            logger.setPriority(Priority.DEBUG);
+            _runAfterAnalysis.add(new Runnable() { @Override public void run() {
+                logger.setPriority(originalLevel);
+            }});
+        } else if (log instanceof SimpleLog) {
+            final SimpleLog simpleLog = (SimpleLog) log;
+            final int originalLevel = simpleLog.getLevel();
+            simpleLog.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
+            _runAfterAnalysis.add(new Runnable() { @Override public void run() {
+                simpleLog.setLevel(originalLevel);
+            }});
+        }
+    }
+
+    private void enableDebugOutputToConsole(Logger logger) {
+        do {
+            for (final Handler handler : logger.getHandlers()) {
+                if (handler instanceof ConsoleHandler) {
+                    final Level originalConsoleLogLevel = handler.getLevel();
+                    handler.setLevel(Level.FINE);
+                    _runAfterAnalysis.add(new Runnable() { @Override public void run() {
+                        handler.setLevel(originalConsoleLogLevel);
+                    }});
+                }
+            }
+        } while (logger.getUseParentHandlers() && (logger = logger.getParent()) != null);
+    }
+
+    private void registerDebugListener() {
+        final AtomicInteger i = new AtomicInteger(0);
+        final NumberFormat nf = new DecimalFormat("00");
+        final File screenshotDir = this.screenshotDir;
+        final Visualization.Listener debugListener = new Visualization.Listener() {
+            @Override
+            public void algorithmStepFinished(String algorithm, String stepDescription, int[][] tempResult) {
+                File pngFile = new File(screenshotDir, nf.format(i.incrementAndGet()) + "_" + algorithm + ".png");
+                ImageHelper.pixelsToPngFile(tempResult, pngFile);
+                LOG.debug(pngFile.getName() + " -- " + stepDescription);
+            }
+
+            @Override
+            public void algorithmFinished(String algorithm, String stepDescription, int[][] result) {
+                File pngFile = new File(screenshotDir, nf.format(i.incrementAndGet()) + "_" + algorithm + ".png");
+                ImageHelper.pixelsToPngFile(result, pngFile);
+                LOG.debug(pngFile.getName() + " -- " + stepDescription);
+            }
+        };
+        Visualization.registerListener(debugListener);
+        _runAfterAnalysis.add(new Runnable() { @Override public void run() {
+            Visualization.unregisterListener(debugListener);
+        }});
     }
 }

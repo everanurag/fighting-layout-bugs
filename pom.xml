@@ -100,6 +100,25 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- optional dependencies ... -->
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.16</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>logkit</groupId>
+            <artifactId>logkit</artifactId>
+            <version>1.0.1</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>avalon-framework</groupId>
+            <artifactId>avalon-framework</artifactId>
+            <version>4.1.3</version>
+            <optional>true</optional>
+        </dependency>
         <!-- test dependencies ... -->
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
@@ -118,12 +137,6 @@
                     <artifactId>hamcrest-core</artifactId>
                 </exclusion>
             </exclusions>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.16</version>
             <scope>test</scope>
         </dependency>
         <dependency>
