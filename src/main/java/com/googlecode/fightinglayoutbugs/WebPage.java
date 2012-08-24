@@ -43,8 +43,8 @@ import static com.googlecode.fightinglayoutbugs.helpers.StringHelper.asString;
  * Represents a web page. This class was created to improve
  * performance when several {@link LayoutBugDetector}s
  * analyze the same page -- it caches as much information
- * as possible. Furthermore it stops all JavaScript
- * animations to reduce the possibility of false positives.
+ * as possible. Furthermore it stops all JavaScript and
+ * CSS animations to prevent false alarms.
  */
 public class WebPage {
 
@@ -62,12 +62,20 @@ public class WebPage {
     private SoftReference<boolean[][]> _horizontalEdges;
     private SoftReference<boolean[][]> _verticalEdges;
 
+    /**
+     * Side effects: <ul>
+     *     <li>will inject <a href="http://jquery.com/">jQuery</a> into the current page (if not already present)</li>
+     *     <li>will stop all JavaScript animations</li>
+     *     <li>will stop all CSS animations</li>
+     *     <li>will disable all CSS transitions</li>
+     * </ul>
+     */
     public WebPage(WebDriver driver) {
         _driver = driver;
         _screenshotCache = new ScreenshotCache(this);
         injectJQueryIfNotPresent();
         stopJavaScriptAnimations();
-        stopCssAnimations();
+        stopCssAnimationsAndDisableCssTransistions();
     }
 
     private void injectJQueryIfNotPresent() {
@@ -95,7 +103,7 @@ public class WebPage {
         );
     }
 
-    private void stopCssAnimations() {
+    private void stopCssAnimationsAndDisableCssTransistions() {
         executeJavaScript(
             "jQuery('*').each(function() {\n" +
             "    var $x = jQuery(this);\n" +

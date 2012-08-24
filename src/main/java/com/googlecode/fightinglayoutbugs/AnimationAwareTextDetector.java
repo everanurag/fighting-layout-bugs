@@ -17,16 +17,10 @@
 package com.googlecode.fightinglayoutbugs;
 
 import com.googlecode.fightinglayoutbugs.helpers.RectangularRegion;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.util.Collection;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
-import static com.googlecode.fightinglayoutbugs.ScreenshotCache.Condition.WITH_NO_IMAGES;
-import static com.googlecode.fightinglayoutbugs.ScreenshotCache.Condition.WITH_NO_IMAGES_AND_ALL_TEXT_BLACK;
-import static com.googlecode.fightinglayoutbugs.ScreenshotCache.Condition.WITH_NO_IMAGES_AND_ALL_TEXT_WHITE;
+import static com.googlecode.fightinglayoutbugs.ScreenshotCache.Condition.*;
 
 /**
  * <p>
@@ -39,40 +33,18 @@ import static com.googlecode.fightinglayoutbugs.ScreenshotCache.Condition.WITH_N
  * when the text detection is performed, because:<ol>
  *     <li>all JavaScript animations have been stopped</li>
  *     <li>all animated GIF images have been hidden</li>
- *     <li>all iframes, videos, Java Applets, and embedded objects like Flash movies are ignored.</li>
+ *     <li>all iframes, videos, Java Applets, and embedded objects like Flash movies are ignored,</li>
+ *     <li>all CSS animations have been paused, and</li>
+ *     <li>all CSS transitions have been disabled</li>
  * </ol>
  * </p><p>
- * If for any unknown reason there is still animation detected, a loop is entered,
- * which takes a series of screenshots and compares them until no more animated
- * pixels are found or {@link #setMaxTime max time} has been reached.
- * </p><p>
- * All animated pixels found are not considered to be text pixels.
+ * If for any unknown reason there is still animation detected,
+ * a {@link AnimationDetectedException} is thrown to prevent false alarm.
  * </p>
  */
 public class AnimationAwareTextDetector extends AbstractTextDetector {
 
-    private static final Log LOG = LogFactory.getLog(AnimationAwareTextDetector.class);
-
-    private static final int[] SOME_PRIME_NUMBERS = { 83, 107, 137, 167 };
-
-    private long _maxMillis = 5000;
-
-    /**
-     * Sets the maximum time for the loop in {@link #detectTextPixelsIn} which
-     * will take screenshots after screenshot as long as new animated pixels are found,
-     * default is 5 seconds.
-     */
-    public void setMaxTime(long time, TimeUnit timeUnit) {
-        if (time <= 0) {
-            throw new IllegalArgumentException("Method parameter time must be greater than 0.");
-        }
-        if (timeUnit == null) {
-            throw new IllegalArgumentException("Method parameter timeUnit must not be null.");
-        }
-        _maxMillis = timeUnit.toMillis(time);
-    }
-
-    public boolean[][] detectTextPixelsIn(WebPage webPage) {
+    public boolean[][] detectTextPixelsIn(WebPage webPage) throws AnimationDetectedException {
         long startTime = System.currentTimeMillis();
         // 1.) Take initial screenshot of web page with no images ...
         Screenshot screenshot1 = webPage.takeScreenshot(WITH_NO_IMAGES);
@@ -93,73 +65,36 @@ public class AnimationAwareTextDetector extends AbstractTextDetector {
         sleepUntil(startTime + 283);
         Screenshot screenshot2 = webPage.takeScreenshot(WITH_NO_IMAGES);
         Visualization.algorithmStepFinished("6.) Took another screenshot of the web page (with text colors restored).", webPage, screenshot2);
-        // 7.) Compare the last screenshot with the initial screenshot (ignoring ignored regions) to find more animated pixels ...
+        // 7.) Compare the last screenshot with the initial screenshot (ignoring ignored regions) to find animated pixels ...
         CompareScreenshots diff2 = new CompareScreenshots(screenshot1, screenshot2).ignore(ignoredRegions);
         Visualization.algorithmStepFinished("7.) Compared the last screenshot with the initial screenshot (ignoring ignored regions) to find more animated pixels.", webPage, diff2);
         boolean[][] textPixels;
         if (diff2.noDifferencesFound()) {
-            // 8.) No more animated pixels found, remove potential text pixels inside ignored regions ...
+            // 8.) No animated pixels found, remove potential text pixels inside ignored regions ...
             textPixels = diff1.ignore(ignoredRegions).differentPixels;
-            Visualization.algorithmFinished("8.) Done: No more animated pixels found, removed potential text pixels inside ignored regions.", webPage, textPixels);
+            Visualization.algorithmFinished("8.) Done: No animated pixels found, removed potential text pixels inside ignored regions.", webPage, textPixels);
         } else {
-            LOG.warn(
+            throw new AnimationDetectedException(
                 "This is strange: Found animated pixels, although\n" +
-                "(1) all JavaScript animations have been stopped,\n" +
-                "(2) all animated GIF images have been hidden, and\n" +
-                "(3) all elements potentially containing animation (like Java Applets, Flash Movies, videos, and iframes) are ignored.\n" +
-                "Please send an email to fighting-layout-bugs@googlegroups.com with the URL " + webPage.getUrl() + ", so that we can have a look at it.");
-            // 8.) Found more animated pixels, consider all ignored regions as animated pixels too ...
-            boolean[][] animatedPixels = diff2.differentPixels;
-            for (RectangularRegion ignoredRegion : ignoredRegions) {
-                int x2 = Math.min(diff2.width - 1, ignoredRegion.x2);
-                int y2 = Math.min(diff2.height - 1, ignoredRegion.y2);
-                for (int x = ignoredRegion.x1; x <= x2; ++x) {
-                    for (int y = ignoredRegion.y1; y <= y2; ++y) {
-                        animatedPixels[x][y] = true;
-                    }
-                }
-            }
-            Visualization.algorithmStepFinished("8.) Found more animated pixels, consider all ignored regions as animated pixels too.", webPage, animatedPixels);
-            boolean moreAnimatedPixelsFound;
-            boolean timedOut;
-            // 9.) Take a series of screenshots to determine all animated pixels ...
-            int w = screenshot1.width;
-            int h = screenshot2.height;
-            Random random = new Random();
-            do {
-                moreAnimatedPixelsFound = false;
-                screenshot1 = screenshot2;
-                // Sleep some random time to give the animation CPU time ...
-                // The sleep time is a prime number to increase the probability
-                // that we don't miss an animation step ...
-                sleep(SOME_PRIME_NUMBERS[random.nextInt(SOME_PRIME_NUMBERS.length)]);
-                screenshot2 = webPage.takeScreenshot(WITH_NO_IMAGES);
-                int[][] pixels1 = screenshot1.pixels;
-                int[][] pixels2 = screenshot2.pixels;
-                for (int x = 0; x < w; ++x) {
-                    for (int y = 0; y < h; ++y) {
-                        if ((!animatedPixels[x][y]) && (pixels1[x][y] != pixels2[x][y])) {
-                            animatedPixels[x][y] = true;
-                            moreAnimatedPixelsFound = true;
-                        }
-                    }
-                }
-                timedOut = (System.currentTimeMillis() - startTime) > _maxMillis;
-            } while (moreAnimatedPixelsFound && !timedOut);
-            if (timedOut) {
-                LOG.warn("detectTextPixelsIn(...) timed out. This might lead to false positives. You can increase the maximum time for detecting animated pixels by calling setMaxTime(...).");
-            }
-            Visualization.algorithmStepFinished("9.) Took a series of screenshots to determine all animated pixels.", webPage, animatedPixels);
-            // 10.) Ignore all animated pixels ...
-            textPixels = diff1.differentPixels;
-            for (int x = 0; x < w; ++x) {
-                for (int y = 0; y < h; ++y) {
-                    if (animatedPixels[x][y]) {
-                        textPixels[x][y] = false;
-                    }
-                }
-            }
-            Visualization.algorithmFinished("10.) Done: Ignored all animated pixels.", webPage, textPixels);
+                "- all JavaScript animations have been stopped,\n" +
+                "- all animated GIF images have been hidden,\n" +
+                "- all elements potentially containing animation (like Java Applets, Flash Movies, videos, and iframes) are ignored.\n" +
+                "- all CSS animations have been paused, and\n" +
+                "- all CSS transitions have been disabled.\n" +
+                "Analysis is stopped, so you don't get false alarms.\n" +
+                "If you want support (or want to support FLB) please\n" +
+                "1.) add calls to FightingLayoutBugs.setScreenshotDir(...) and FightingLayoutBugs.enableDebugMode() to your code\n," +
+                "2.) run it again, and if you get this exception again\n" +
+                "3.) send an email to fighting-layout-bugs@googlegroups.com with the following information:\n" +
+                "    - Your code.\n" +
+                "    - All logged output.\n" +
+                "    - All screenshot files (you might want to pack those into an zip archive).\n" +
+                "    - Which version of FLB do you use?\n" +
+                "    - Which version of Selenium do you use?\n" +
+                "    - Which browser (type and version) do you use?\n" +
+                "    - Which Java version do you use?\n" +
+                "    - Which OS (type and version)do you use?\n"
+            );
         }
         return textPixels;
     }
