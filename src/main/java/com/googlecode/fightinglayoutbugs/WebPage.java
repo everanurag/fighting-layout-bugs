@@ -286,7 +286,7 @@ public class WebPage {
             if (horizontalEdges == null) {
                 LOG.warn("Cached result of horizontal edge detection was garbage collected, running horizontal edge detection again -- give the JVM more heap memory to speed up layout bug detection.");
                 _horizontalEdges = null;
-                return getTextPixels();
+                return getHorizontalEdges();
             }
         }
         return horizontalEdges;
@@ -310,7 +310,7 @@ public class WebPage {
             if (verticalEdges == null) {
                 LOG.warn("Cached result of vertical edge detection was garbage collected, running vertical edge detection again -- give the JVM more heap memory to speed up layout bug detection.");
                 _verticalEdges = null;
-                return getTextPixels();
+                return getVerticalEdges();
             }
         }
         return verticalEdges;
