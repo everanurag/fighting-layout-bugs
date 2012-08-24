@@ -347,18 +347,14 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
             }
             final String url = css.substring(j, k);
             // If it is a @font-face src:url (see http://code.google.com/p/fighting-layout-bugs/issues/detail?id=9) ...
-            try {
-                j = css.lastIndexOf("{", i);
-                while (j > 0 && isWhitespace(css.charAt(j - 1))) {
-                    --j;
-                }
-                if (j >= 10 && "@font-face".equals(css.substring(j - 10, j))) {
-                    // ... ignore it, otherwise ...
-                } else {
-                    urls.add(url);
-                }
-            } catch (StringIndexOutOfBoundsException e) {
-                System.out.println("j: " + css.lastIndexOf("{", i) + ", css.length(): " + css.length());
+            j = css.lastIndexOf("{", i);
+            while (j > 0 && isWhitespace(css.charAt(j - 1))) {
+                --j;
+            }
+            if (j >= 10 && "@font-face".equals(css.substring(j - 10, j))) {
+                // ... ignore it, otherwise ...
+            } else {
+                urls.add(url);
             }
             i = css.indexOf("url(", k);
         }
