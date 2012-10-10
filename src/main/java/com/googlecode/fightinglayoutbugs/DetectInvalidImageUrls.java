@@ -25,6 +25,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -105,7 +106,7 @@ public class DetectInvalidImageUrls extends AbstractLayoutBugDetector {
     private HttpClient _httpClient;
     private MockBrowser _mockBrowser;
 
-    public Collection<LayoutBug> findLayoutBugsIn(WebPage webPage) {
+    public Collection<LayoutBug> findLayoutBugsIn(@Nonnull WebPage webPage) {
         try {
             _webPage = webPage;
             _baseUrl = _webPage.getUrl();

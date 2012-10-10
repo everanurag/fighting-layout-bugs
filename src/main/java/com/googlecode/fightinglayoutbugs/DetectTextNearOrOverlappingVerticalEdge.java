@@ -18,6 +18,7 @@ package com.googlecode.fightinglayoutbugs;
 
 import com.googlecode.fightinglayoutbugs.helpers.ImageHelper;
 
+import javax.annotation.Nonnull;
 import java.util.Collection;
 
 import static java.util.Collections.emptyList;
@@ -35,7 +36,7 @@ import static java.util.Collections.singleton;
  */
 public class DetectTextNearOrOverlappingVerticalEdge extends AbstractLayoutBugDetector {
 
-    public Collection<LayoutBug> findLayoutBugsIn(WebPage webPage) {
+    public Collection<LayoutBug> findLayoutBugsIn(@Nonnull WebPage webPage) {
         final boolean[][] text = webPage.getTextPixels();
         final int w = text.length;
         final int h = text[0].length;

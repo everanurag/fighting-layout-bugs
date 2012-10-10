@@ -81,19 +81,7 @@ public class AnimationAwareTextDetector extends AbstractTextDetector {
                 "- all elements potentially containing animation (like Java Applets, Flash Movies, videos, and iframes) are ignored.\n" +
                 "- all CSS animations have been paused, and\n" +
                 "- all CSS transitions have been disabled.\n" +
-                "Analysis is stopped, so you don't get false alarms.\n" +
-                "If you want support (or want to support FLB) please\n" +
-                "1.) add calls to FightingLayoutBugs.setScreenshotDir(...) and FightingLayoutBugs.enableDebugMode() to your code\n," +
-                "2.) run it again, and if you get this exception again\n" +
-                "3.) send an email to fighting-layout-bugs@googlegroups.com with the following information:\n" +
-                "    - Your code.\n" +
-                "    - All logged output.\n" +
-                "    - All screenshot files (you might want to pack those into an zip archive).\n" +
-                "    - Which version of FLB do you use?\n" +
-                "    - Which version of Selenium do you use?\n" +
-                "    - Which browser (type and version) do you use?\n" +
-                "    - Which Java version do you use?\n" +
-                "    - Which OS (type and version)do you use?\n"
+                "Analysis is stopped, so you don't get false alarms.\n"
             );
         }
         return textPixels;

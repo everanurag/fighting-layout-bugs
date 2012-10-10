@@ -16,6 +16,7 @@
 
 package com.googlecode.fightinglayoutbugs;
 
+import com.googlecode.fightinglayoutbugs.helpers.DebugHelper;
 import com.googlecode.fightinglayoutbugs.helpers.ImageHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -24,6 +25,7 @@ import org.apache.log.LogKit;
 import org.apache.log.Priority;
 import org.apache.log4j.LogManager;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -161,21 +163,52 @@ public class FightingLayoutBugs extends AbstractLayoutBugDetector {
      * <li>configure the {@link EdgeDetector} to be used via {@link #setEdgeDetector}.</li>
      * </ul>
      */
-    public Collection<LayoutBug> findLayoutBugsIn(WebPage webPage) {
+    public Collection<LayoutBug> findLayoutBugsIn(@Nonnull WebPage webPage) {
+        if (webPage == null) {
+            throw new IllegalArgumentException("Method parameter webPage must not be null.");
+        }
         if (_debugMode) {
             setLogLevelToDebug();
             registerDebugListener();
         }
         try {
-            webPage.setTextDetector(_textDetector == null ? new AnimationAwareTextDetector() : _textDetector);
-            webPage.setEdgeDetector(_edgeDetector == null ? new SimpleEdgeDetector() : _edgeDetector);
-            final Collection<LayoutBug> result = new ArrayList<LayoutBug>();
-            for (LayoutBugDetector detector : _detectors) {
-                detector.setScreenshotDir(screenshotDir);
-                LOG.debug("Running " + detector.getClass().getSimpleName() + " ...");
-                result.addAll(detector.findLayoutBugsIn(webPage));
+            TextDetector textDetector = (_textDetector == null ? new AnimationAwareTextDetector() : _textDetector);
+            EdgeDetector edgeDetector = (_edgeDetector == null ? new SimpleEdgeDetector() : _edgeDetector);
+            try {
+                LOG.debug("Analyzing " + webPage.getUrl() + " ...");
+                webPage.setTextDetector(textDetector);
+                webPage.setEdgeDetector(edgeDetector);
+                final Collection<LayoutBug> result = new ArrayList<LayoutBug>();
+                for (LayoutBugDetector detector : _detectors) {
+                    detector.setScreenshotDir(screenshotDir);
+                    LOG.debug("Running " + detector.getClass().getSimpleName() + " ...");
+                    result.addAll(detector.findLayoutBugsIn(webPage));
+                }
+                // TODO: If layout bugs have been detected, LOG.info(diagnostic info + further instrcutions)
+                return result;
+            } catch (RuntimeException e) {
+                String url = null;
+                try {
+                    url = webPage.getUrl().toString();
+                } catch (Exception ignored) {}
+                StringBuilder sb = new StringBuilder();
+                sb.append("Failed to analyze ").append(url == null ? "given WebPage" : url).append(" -- ").append(e.toString()).append("\n");
+                if (_debugMode) {
+                    sb.append("If you want support (or want to support FLB) you can send an email to fighting-layout-bugs@googlegroups.com with the following information:\n");
+                    sb.append("    - Your code.\n");
+                    sb.append("    - All logged output.\n");
+                    sb.append("    - All screenshot files (you might want to pack those into an zip archive).\n");
+                    sb.append("TextDetector: ").append(textDetector.getClass().getName()).append("\n");
+                    sb.append("EdgeDetector: ").append(edgeDetector.getClass().getName()).append("\n");
+                    sb.append(DebugHelper.getDiagnosticInfo(webPage.getDriver()));
+                    // TODO: We should create the zip file here ourselves.
+                } else {
+                    sb.append("If you call FightingLayoutBugs.enableDebugMode() before you call FightingLayoutBugs.findLayoutBugsIn(...) you can get more information.");
+                }
+                String errorMessage = sb.toString();
+                LOG.error(errorMessage);
+                throw new RuntimeException(errorMessage, e);
             }
-            return result;
         } finally {
             for (Runnable runnable : _runAfterAnalysis) {
                 try {

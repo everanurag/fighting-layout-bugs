@@ -16,6 +16,9 @@
 
 package com.googlecode.fightinglayoutbugs;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
+
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.util.Collection;
 
@@ -28,10 +31,10 @@ public interface LayoutBugDetector {
      *
      * @param screenshotDir if {@code null}, no screenshots will be stored
      */
-    void setScreenshotDir(File screenshotDir);
+    void setScreenshotDir(@Nullable File screenshotDir);
 
     /**
      * Finds layout bugs in the given web page.
      */
-    Collection<LayoutBug> findLayoutBugsIn(WebPage webPage);
+    Collection<LayoutBug> findLayoutBugsIn(@Nonnull WebPage webPage);
 }

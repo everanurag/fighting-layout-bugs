@@ -37,7 +37,7 @@ public abstract class AbstractLayoutBugDetector implements LayoutBugDetector {
     /** The directory where screenshots of erroneous pages will be saved. */
     protected File screenshotDir = new File(System.getProperty("java.io.tmpdir"));
 
-    public void setScreenshotDir(File screenshotDir) {
+    public void setScreenshotDir(@Nullable File screenshotDir) {
         this.screenshotDir = screenshotDir;
     }
 

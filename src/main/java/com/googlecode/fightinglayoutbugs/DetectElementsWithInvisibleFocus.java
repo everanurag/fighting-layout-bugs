@@ -45,7 +45,7 @@ public class DetectElementsWithInvisibleFocus extends AbstractLayoutBugDetector 
     private static final RectangularRegion NOT_DISPLAYED = new RectangularRegion(0, 0, 0, 0);
 
     @Override
-    public Collection<LayoutBug> findLayoutBugsIn(WebPage webPage) {
+    public Collection<LayoutBug> findLayoutBugsIn(@Nonnull WebPage webPage) {
         Collection<LayoutBug> result = new ArrayList<LayoutBug>();
         // 1.) Focus first focusable element ...
         FocusedElement focusedElement1 = focusFirstElement(webPage);

@@ -18,6 +18,7 @@ package com.googlecode.fightinglayoutbugs;
 
 import com.googlecode.fightinglayoutbugs.helpers.Point;
 
+import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -234,7 +235,7 @@ public class DetectTextWithTooLowContrast extends AbstractLayoutBugDetector {
         _minReadableContrast = minReadableContrast;
     }
 
-    public Collection<LayoutBug> findLayoutBugsIn(WebPage webPage) {
+    public Collection<LayoutBug> findLayoutBugsIn(@Nonnull WebPage webPage) {
         Analyzer analyzer = new Analyzer(webPage);
         analyzer.run();
         if (analyzer.foundBuggyPixels) {

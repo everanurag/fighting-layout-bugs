@@ -16,90 +16,130 @@
 
 package com.googlecode.fightinglayoutbugs.helpers;
 
-import com.googlecode.fightinglayoutbugs.Visualization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.google.common.base.Joiner;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.internal.BuildInfo;
 
 import java.io.File;
-import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.net.URL;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
-public class DebugHelper implements Visualization.Listener {
+public class DebugHelper {
 
-    private static final Log LOG = LogFactory.getLog(DebugHelper.class);
-
-    public static class AlgorithmStep {
-        public final String algorithm;
-        public final String stepDescription;
-        public final File screenshot;
-
-        public AlgorithmStep(String algorithm, String stepDescription, File screenshot) {
-            this.algorithm = algorithm;
-            this.stepDescription = stepDescription;
-            this.screenshot = screenshot;
-        }
-
-        @Override
-        public String toString() {
-            return algorithm + " " + stepDescription + " -- " + screenshot.getAbsolutePath();
-        }
-    }
-
-    private static ThreadLocal<DebugHelper> INSTANCES = new ThreadLocal<DebugHelper>();
-
-    public static void start() {
-        DebugHelper instance = INSTANCES.get();
-        if (instance != null) {
-            throw new IllegalStateException("DebugHelper already started in current thread.");
-        }
-        instance = new DebugHelper();
-        Visualization.registerListener(instance);
-        INSTANCES.set(instance);
-    }
-
-    public static List<AlgorithmStep> stop() {
-        DebugHelper instance = INSTANCES.get();
-        if (instance == null) {
-            throw new IllegalStateException("DebugHelper has not been started in current thread.");
-        }
-        Visualization.unregisterListener(instance);
-        INSTANCES.remove();
-        return instance.algorithmSteps;
-    }
-
-    private final File screenshotDir;
-    private final List<AlgorithmStep> algorithmSteps;
-    private final NumberFormat nf = new DecimalFormat("00");
-    private int i;
-
-    private DebugHelper() {
+    public static String getDiagnosticInfo(WebDriver driver) {
+        StringWriter sw = new StringWriter();
         try {
-            screenshotDir = FileHelper.createTempDir();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            appendFlbVersion(sw);
+            sw.append('\n');
+            appendSeleniumVersion(sw);
+            sw.append('\n');
+            appendWebDriverInfo(sw, driver);
+            sw.append('\n');
+            appendBrowserVersion(sw, driver);
+            sw.append('\n');
+            appendJavaVersion(sw);
+            sw.append('\n');
+            appendOperatingSystemVersion(sw);
+            sw.append('\n');
+            appendClassLoaderHierarchy(sw);
+        } catch (Throwable t) {
+            sw.append("getDiagnosticInfo(...) failed: ");
+            t.printStackTrace(new PrintWriter(sw));
         }
-        algorithmSteps = new ArrayList<AlgorithmStep>();
+        return sw.toString();
     }
 
-
-    @Override
-    public void algorithmStepFinished(String algorithm, String stepDescription, int[][] tempResult) {
-        File screenshotFile = new File(screenshotDir, algorithm + "." + nf.format(++i) + ".png");
-        ImageHelper.pixelsToPngFile(tempResult, screenshotFile);
-        AlgorithmStep algorithmStep = new AlgorithmStep(algorithm, stepDescription, screenshotFile);
-        LOG.debug(algorithmStep);
-        algorithmSteps.add(algorithmStep);
+    private static void appendFlbVersion(StringWriter sw) {
+        sw.append("FLB Version: ");
+        try {
+            URL url = DebugHelper.class.getProtectionDomain().getCodeSource().getLocation();
+            File file = new File(url.toURI());
+            JarFile jar = new JarFile(file);
+            Manifest manifest = jar.getManifest();
+            Attributes buildInfo = manifest.getAttributes("Build-Info");
+            String flbVersion = buildInfo.getValue("FLB-Version");
+            sw.append(flbVersion);
+        } catch (Throwable t) {
+            t.printStackTrace(new PrintWriter(sw));
+        }
     }
 
-    @Override
-    public void algorithmFinished(String algorithm, String stepDescription, int[][] result) {
-        File screenshotFile = new File(screenshotDir, algorithm + "." + nf.format(++i) + ".png");
-        ImageHelper.pixelsToPngFile(result, screenshotFile);
-        AlgorithmStep algorithmStep = new AlgorithmStep(algorithm, stepDescription, screenshotFile);
-        LOG.debug(algorithmStep);
-        algorithmSteps.add(algorithmStep);
+    private static void appendSeleniumVersion(StringWriter sw) {
+        sw.append("Selenium Version: ");
+        try {
+            final BuildInfo buildInfo = new BuildInfo();
+            sw.append(buildInfo.getReleaseLabel());
+        } catch (Throwable t) {
+            t.printStackTrace(new PrintWriter(sw));
+        }
+    }
+
+    private static void appendWebDriverInfo(StringWriter sw, WebDriver driver) {
+        sw.append("WebDriver: ");
+        sw.append(driver == null ? "null" : driver.getClass().getName());
+    }
+
+    private static void appendBrowserVersion(StringWriter sw, WebDriver driver) {
+        if (driver != null) {
+            sw.append("Browser: ");
+            if (driver instanceof JavascriptExecutor) {
+                try {
+                    Object userAgent = ((JavascriptExecutor) driver).executeScript("return window.navigator.userAgent");
+                    sw.append(userAgent == null ? "null" : userAgent.toString());
+                } catch (Throwable t) {
+                    t.printStackTrace(new PrintWriter(sw));
+                }
+            } else {
+                sw.append("???");
+            }
+        }
+    }
+
+    private static void appendJavaVersion(StringWriter sw) {
+        sw.append("Java: ");
+        try {
+            String javaVersion = System.getProperty("java.version", "???");
+            sw.append(javaVersion);
+            String javaVendor = System.getProperty("java.vendor");
+            if (javaVendor != null) {
+                sw.append(" (").append(javaVendor).append(")");
+            }
+        } catch (Throwable t) {
+            t.printStackTrace(new PrintWriter(sw));
+        }
+    }
+
+    private static void appendOperatingSystemVersion(StringWriter sw) {
+        sw.append("OS: ");
+        try {
+            String osName = System.getProperty("os.name", "???");
+            sw.append(osName).append(" ");
+            String osVersion = System.getProperty("os.version", "???");
+            sw.append(osVersion).append(" ");
+            String osArch = System.getProperty("os.arch", "???");
+            sw.append(osArch);
+        } catch (Throwable t) {
+            t.printStackTrace(new PrintWriter(sw));
+        }
+    }
+
+    private static void appendClassLoaderHierarchy(StringWriter sw) {
+        sw.append("Classpath:");
+        try {
+            ClassPath classPath = new ClassPath();
+            if (classPath.isEmpty()) {
+                sw.append(" ???");
+            } else {
+                sw.append("\n\t").append(Joiner.on("\n\t").join(classPath));
+            }
+        } catch (Throwable t) {
+            sw.append(" ");
+            t.printStackTrace(new PrintWriter(sw));
+        }
     }
 }
