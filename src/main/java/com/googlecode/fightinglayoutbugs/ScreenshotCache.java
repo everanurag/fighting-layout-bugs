@@ -21,8 +21,6 @@ import org.apache.commons.codec.binary.Base64;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.remote.Augmenter;
-import org.openqa.selenium.remote.RemoteWebDriver;
 
 import javax.annotation.Nonnull;
 import java.io.*;
@@ -70,8 +68,7 @@ public class ScreenshotCache {
         _webPage = webPage;
     }
 
-    @Nonnull
-    public Screenshot getScreenshot(Condition condition) {
+    public @Nonnull Screenshot getScreenshot(Condition condition) {
         SoftReference<Screenshot> softReference = _memoryCache.get(condition);
         Screenshot screenshot;
         if (softReference == null) {
@@ -103,10 +100,10 @@ public class ScreenshotCache {
                 try {
                     objectOutputStream.writeObject(screenshot);
                 } finally {
-                    closeQuietly(objectOutputStream);
+                    try { objectOutputStream.close(); } catch (Throwable ignored) {}
                 }
             } finally {
-                closeQuietly(fileOutputStream);
+                try { fileOutputStream.close(); } catch (Throwable ignored) {}
             }
             return tempFile;
         } catch (IOException e) {
@@ -231,11 +228,6 @@ public class ScreenshotCache {
         WebDriver driver = _webPage.getDriver();
         if (driver instanceof TakesScreenshot) {
             return takeScreenshot((TakesScreenshot) driver);
-        } else if (driver instanceof RemoteWebDriver) {
-            WebDriver augmentedDriver = new Augmenter().augment(driver);
-            if (augmentedDriver instanceof TakesScreenshot) {
-                return takeScreenshot((TakesScreenshot) augmentedDriver);
-            }
         }
         throw new UnsupportedOperationException(driver.getClass().getName() + " does not support taking screenshots.");
     }

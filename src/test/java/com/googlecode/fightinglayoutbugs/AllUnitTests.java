@@ -17,7 +17,6 @@
 package com.googlecode.fightinglayoutbugs;
 
 import com.googlecode.fightinglayoutbugs.helpers.TestHelperUnitTest;
-import com.googlecode.fightinglayoutbugs.helpers.JsonHelperUnitTest;
 import com.googlecode.fightinglayoutbugs.helpers.RectangularRegionUnitTest;
 import com.googlecode.fightinglayoutbugs.helpers.SocketHelperUnitTest;
 import org.junit.runner.RunWith;
@@ -27,7 +26,6 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({
     TestHelperUnitTest.class,
-    JsonHelperUnitTest.class,
     RectangularRegionUnitTest.class,
     ScreenshotCacheUnitTest.class,
     SocketHelperUnitTest.class,

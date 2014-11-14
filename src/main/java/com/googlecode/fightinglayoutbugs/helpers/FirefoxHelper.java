@@ -17,7 +17,7 @@
 package com.googlecode.fightinglayoutbugs.helpers;
 
 import org.openqa.selenium.browserlaunchers.locators.BrowserInstallation;
-import org.openqa.selenium.browserlaunchers.locators.CombinedFirefoxLocator;
+import org.openqa.selenium.browserlaunchers.locators.FirefoxLocator;
 import org.openqa.selenium.firefox.internal.Executable;
 
 import java.io.File;
@@ -38,7 +38,7 @@ public class FirefoxHelper {
         } catch (Exception ignored) {}
         // Let's see if Selenium can find it ...
         try {
-            final BrowserInstallation bi = new CombinedFirefoxLocator().findBrowserLocationOrFail();
+            final BrowserInstallation bi = new FirefoxLocator().findBrowserLocationOrFail();
             if (bi != null) {
                 return new File(bi.launcherFilePath());
             }

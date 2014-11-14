@@ -16,7 +16,7 @@
 
 package com.googlecode.fightinglayoutbugs;
 
-import com.googlecode.fightinglayoutbugs.helpers.JsonHelper;
+import com.google.gson.Gson;
 import com.googlecode.fightinglayoutbugs.helpers.RectangularRegion;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -106,8 +106,7 @@ public class DetectElementsWithInvisibleFocus extends AbstractLayoutBugDetector 
 
     private FocusedElement toFocusedElement(@Nonnull WebElement activeElement, WebPage webPage) {
         // I don't trust WebDriver, that's why I determine the offset, width and height with jQuery too ...
-        @SuppressWarnings("unchecked")
-        Map<String, Object> temp = (Map<String, Object>) JsonHelper.parse((String) webPage.executeJavaScript(
+        Map temp = new Gson().fromJson((String) webPage.executeJavaScript(
             "var $element = jQuery(arguments[0]);\n" +
             "var offset = $element.offset();\n" +
             "var $temp = $element.clone(false).wrap('<div></div>').parent();\n" +
@@ -122,7 +121,7 @@ public class DetectElementsWithInvisibleFocus extends AbstractLayoutBugDetector 
             "} finally {\n" +
             "    $temp.remove();\n" +
             "}", activeElement
-        ));
+        ), Map.class);
         int x = ((Number) temp.get("x")).intValue();
         int y = ((Number) temp.get("y")).intValue();
         int w = ((Number) temp.get("w")).intValue();

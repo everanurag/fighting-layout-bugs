@@ -83,7 +83,7 @@ public class ScreenshotCacheUnitTest {
     @Theory
     public void testTakeScreenshot(Condition condition1, Condition condition2) {
         ScreenshotCache cache = new ScreenshotCache(null) {
-            @Override public Screenshot getScreenshot(Condition condition) { return null; }
+            @Override public @Nonnull Screenshot getScreenshot(Condition condition) { return mock(Screenshot.class); }
             @Override void hideImages() {}
             @Override void restoreImages() {}
             @Override void colorAllText(@Nonnull String color) {}
